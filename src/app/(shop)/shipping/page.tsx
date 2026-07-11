@@ -35,8 +35,8 @@ export default function ShippingPolicyPage() {
               Shipping charges for your order will be calculated and displayed at checkout. We offer the following shipping methods:
             </p>
             <ul className="list-disc pl-6 space-y-2 mt-4">
-              <li><strong>Standard Shipping:</strong> 3-5 business days (Free for orders over $200)</li>
-              <li><strong>Express Shipping:</strong> 1-2 business days ($25.00)</li>
+              <li><strong>Standard Shipping:</strong> 3-5 business days (Free for orders over ₹200)</li>
+              <li><strong>Express Shipping:</strong> 1-2 business days (₹25.00)</li>
               <li><strong>International Shipping:</strong> 7-14 business days (Calculated at checkout)</li>
             </ul>
           </section>

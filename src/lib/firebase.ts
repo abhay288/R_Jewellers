@@ -1,3 +1,10 @@
+/**
+ * Firebase Configuration
+ * 
+ * Firebase is intentionally retained for future Firebase Cloud Messaging (FCM). 
+ * Firestore is no longer used.
+ */
+
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";

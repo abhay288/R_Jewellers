@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                         <h4 className="font-playfair text-sm font-medium line-clamp-1">{item.name}</h4>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-medium text-sm">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-medium text-sm">₹${(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   ))
                 )}
@@ -216,15 +216,15 @@ export default function CheckoutPage() {
               <div className="border-t border-border/50 pt-6 space-y-4 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
-                  <span>${shipping.toFixed(2)}</span>
+                  <span>₹${shipping.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-border/50 pt-4 flex justify-between font-bold text-xl">
                   <span>Total</span>
-                  <span className="text-primary">${items.length > 0 ? total.toFixed(2) : "0.00"}</span>
+                  <span className="text-primary">₹${items.length > 0 ? total.toFixed(2) : "0.00"}</span>
                 </div>
               </div>
 

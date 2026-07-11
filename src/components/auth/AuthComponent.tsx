@@ -1,112 +1,50 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  signInWithPopup,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  ConfirmationResult,
-  onAuthStateChanged,
-  User,
-  signOut,
-} from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase";
-
-declare global {
-  interface Window {
-    recaptchaVerifier: any;
-  }
-}
+import React, { useState } from "react";
+import { signIn, useSession, signOut } from "next-auth/react";
 
 export default function AuthComponent() {
-  const [user, setUser] = useState<User | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const { data: session, status } = useSession();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
   const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      await signInWithPopup(auth, googleProvider);
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google.");
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    await signIn("google", { callbackUrl: "/" });
   };
 
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "invisible",
-      });
-    }
-  };
-
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      setError("");
-      setupRecaptcha();
-      
-      const appVerifier = window.recaptchaVerifier;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      setConfirmationResult(result);
-    } catch (err: any) {
-      setError(err.message || "Failed to send OTP.");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
-      }
-    } finally {
+    setLoading(true);
+    setError("");
+    
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (res?.error) {
+      setError("Invalid email or password");
       setLoading(false);
+    } else {
+      window.location.href = "/";
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!confirmationResult) return;
-    try {
-      setLoading(true);
-      setError("");
-      await confirmationResult.confirm(otp);
-      setConfirmationResult(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to verify OTP.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (status === "loading") {
+    return <div className="text-center p-6">Loading session...</div>;
+  }
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      setConfirmationResult(null);
-      setPhoneNumber("");
-      setOtp("");
-    } catch (err: any) {
-      setError(err.message || "Failed to sign out.");
-    }
-  };
-
-  if (user) {
+  if (session?.user) {
     return (
       <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100 max-w-md mx-auto text-center">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Welcome!</h2>
-        <p className="text-gray-600 mb-6">Signed in as: {user.email || user.phoneNumber}</p>
+        <p className="text-gray-600 mb-6">Signed in as: {session.user.email}</p>
         <button
-          onClick={handleSignOut}
+          onClick={() => signOut({ callbackUrl: "/" })}
           className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
         >
           Sign Out
@@ -157,58 +95,44 @@ export default function AuthComponent() {
         <span className="bg-white px-4 text-sm text-gray-500 absolute">OR</span>
       </div>
 
-      {/* Phone Auth */}
-      <div id="recaptcha-container"></div>
-      
-      {!confirmationResult ? (
-        <form onSubmit={handleSendOtp} className="space-y-4">
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+1234567890"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading || !phoneNumber}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50"
-          >
-            {loading ? "Sending..." : "Send OTP"}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleVerifyOtp} className="space-y-4">
-          <div>
-            <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
-              Verification Code
-            </label>
-            <input
-              type="text"
-              id="otp"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="123456"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading || !otp}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50"
-          >
-            {loading ? "Verifying..." : "Verify OTP"}
-          </button>
-        </form>
-      )}
+      {/* Email & Password Auth */}
+      <form onSubmit={handleEmailSignIn} className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading || !email || !password}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50"
+        >
+          {loading ? "Signing in..." : "Sign In with Email"}
+        </button>
+      </form>
     </div>
   );
 }

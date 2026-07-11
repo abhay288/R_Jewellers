@@ -14,7 +14,7 @@ const categories = ["All", "Bridal", "Everyday", "Festive", "Necklaces", "Earrin
 const products = Array.from({ length: 12 }).map((_, i) => ({
   id: `p${i}`,
   name: `Luxury Piece ${i + 1}`,
-  price: `$${(Math.random() * 500 + 50).toFixed(2)}`,
+  price: `₹${(Math.random() * 500 + 50).toFixed(2)}`,
   category: categories[Math.floor(Math.random() * (categories.length - 1)) + 1],
   image: `/images/product-${(i % 5) + 1}.jpg`,
 }));
@@ -160,7 +160,7 @@ export default function ShopPage() {
                           addItem({
                             id: product.id,
                             name: product.name,
-                            price: parseFloat(product.price.replace('$', '')),
+                            price: parseFloat(product.price.replace('₹', '')),
                             image: product.image,
                             quantity: 1,
                             category: product.category

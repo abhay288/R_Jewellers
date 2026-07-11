@@ -41,6 +41,7 @@ export default function AboutPage() {
               alt="Artisan crafting jewellery"
               fill
               className="object-cover"
+              unoptimized={true}
             />
           </motion.div>
           

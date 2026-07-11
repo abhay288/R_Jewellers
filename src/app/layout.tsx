@@ -26,9 +26,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${outfit.variable} h-full antialiased`}
+      className={`${playfair.variable} ${outfit.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
+      <body className="flex flex-col font-sans bg-background text-foreground min-h-screen">
         <SmoothScroll>
           {children}
         </SmoothScroll>

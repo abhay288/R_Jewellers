@@ -11,7 +11,7 @@ import { useCartStore } from "@/store/useCartStore";
 const product = {
   id: "p1",
   name: "Royal Kundan Bridal Choker Set",
-  price: "$899.00",
+  price: "₹899.00",
   description: "A masterpiece of traditional craftsmanship, this Royal Kundan Choker set features exquisite artificial polki diamonds set in a gold-plated base. Perfect for bridal wear, it exudes timeless elegance and regal charm.",
   images: [
     "/images/product-main.jpg",
@@ -36,7 +36,7 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
     addItem({
       id: product.id,
       name: product.name,
-      price: parseFloat(product.price.replace('$', '')),
+      price: parseFloat(product.price.replace('₹', '')),
       image: product.images[0],
       quantity: 1,
       category: "Bridal"

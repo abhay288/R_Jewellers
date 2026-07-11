@@ -14,16 +14,32 @@ import {
   Menu,
   X,
   Bell,
-  Search
+  Search,
+  ListTree,
+  Warehouse,
+  Undo2,
+  TicketPercent,
+  Star,
+  Image as ImageIcon,
+  LineChart,
+  UserCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Products", href: "/admin/products", icon: PackageSearch },
+  { name: "Categories", href: "/admin/categories", icon: ListTree },
+  { name: "Inventory", href: "/admin/inventory", icon: Warehouse },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Customers", href: "/admin/customers", icon: Users },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  { name: "Returns", href: "/admin/returns", icon: Undo2 },
+  { name: "Coupons", href: "/admin/coupons", icon: TicketPercent },
+  { name: "Reviews", href: "/admin/reviews", icon: Star },
+  { name: "Banner Management", href: "/admin/banners", icon: ImageIcon },
+  { name: "Website Settings", href: "/admin/settings", icon: Settings },
+  { name: "Analytics", href: "/admin/analytics", icon: LineChart },
+  { name: "Profile", href: "/admin/profile", icon: UserCircle },
 ];
 
 export default function AdminLayout({

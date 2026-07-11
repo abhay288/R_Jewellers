@@ -5,46 +5,56 @@ import {
   DollarSign, 
   ArrowUpRight, 
   ArrowDownRight,
-  MoreHorizontal
+  MoreHorizontal,
+  ListTree,
+  AlertTriangle
 } from "lucide-react";
+import connectDB from "@/lib/mongodb";
+import Product from "@/models/Product";
+import Category from "@/models/Category";
+import User from "@/models/User";
+import ActivityLog from "@/models/ActivityLog";
+import { DashboardCharts } from "@/components/admin/DashboardCharts";
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  await connectDB();
+  
+  // Fetch real counts
+  const totalProducts = await Product.countDocuments();
+  const lowStockProducts = await Product.countDocuments({ stock: { $lt: 10 } });
+  const totalCategories = await Category.countDocuments();
+  const totalCustomers = await User.countDocuments({ role: 'user' });
+  const recentActivities = await ActivityLog.find().sort({ createdAt: -1 }).limit(5).populate('user', 'name');
+
   const stats = [
     {
       title: "Total Revenue",
-      value: "$45,231.89",
-      change: "+20.1%",
+      value: "₹0.00",
+      change: "Placeholder",
       isPositive: true,
       icon: DollarSign,
     },
     {
-      title: "Orders",
-      value: "+2350",
-      change: "+15.2%",
+      title: "Total Products",
+      value: totalProducts.toString(),
+      change: "Active in store",
       isPositive: true,
       icon: Package,
     },
     {
+      title: "Total Categories",
+      value: totalCategories.toString(),
+      change: "Active categories",
+      isPositive: true,
+      icon: ListTree,
+    },
+    {
       title: "Active Customers",
-      value: "+12,234",
-      change: "+4.1%",
+      value: totalCustomers.toString(),
+      change: "Registered users",
       isPositive: true,
       icon: Users,
     },
-    {
-      title: "Conversion Rate",
-      value: "3.24%",
-      change: "-1.1%",
-      isPositive: false,
-      icon: TrendingUp,
-    },
-  ];
-
-  const recentOrders = [
-    { id: "ORD-001", customer: "John Doe", product: "Diamond Ring", amount: "$1,200", status: "Completed" },
-    { id: "ORD-002", customer: "Jane Smith", product: "Gold Necklace", amount: "$850", status: "Processing" },
-    { id: "ORD-003", customer: "Alice Johnson", product: "Pearl Earrings", amount: "$450", status: "Pending" },
-    { id: "ORD-004", customer: "Bob Williams", product: "Silver Bracelet", amount: "$200", status: "Completed" },
   ];
 
   return (
@@ -68,9 +78,8 @@ export default function AdminDashboard() {
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-2xl font-bold">{stat.value}</p>
-                <div className={`flex items-center mt-1 text-xs font-medium ${stat.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                  {stat.isPositive ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
-                  <span>{stat.change} from last month</span>
+                <div className="flex items-center mt-1 text-xs font-medium text-muted-foreground">
+                  <span>{stat.change}</span>
                 </div>
               </div>
             </div>
@@ -80,8 +89,8 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Placeholder Chart Area */}
-        <div className="lg:col-span-2 bg-card border border-border/50 rounded-2xl p-6 shadow-sm min-h-[400px] flex flex-col">
+        {/* Chart Area */}
+        <div className="lg:col-span-2 bg-card border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col h-[400px]">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-playfair font-bold text-lg">Revenue Overview</h3>
             <select className="bg-secondary/30 border-none text-xs rounded-lg px-2 py-1 outline-none">
@@ -91,51 +100,55 @@ export default function AdminDashboard() {
             </select>
           </div>
           
-          <div className="flex-1 border border-dashed border-border/50 rounded-xl flex items-center justify-center bg-secondary/10">
-            <div className="text-center">
-              <TrendingUp className="w-10 h-10 text-muted-foreground mx-auto mb-2 opacity-50" />
-              <p className="text-muted-foreground font-medium">Chart Visualization Area</p>
-              <p className="text-xs text-muted-foreground/70">Requires Recharts or similar library</p>
-            </div>
+          <div className="flex-1 w-full relative">
+            <DashboardCharts />
           </div>
         </div>
 
-        {/* Recent Orders */}
+        {/* Recent Activities */}
         <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-playfair font-bold text-lg">Recent Orders</h3>
+            <h3 className="font-playfair font-bold text-lg">Recent Activities</h3>
             <button className="text-muted-foreground hover:text-primary transition-colors">
               <MoreHorizontal className="w-5 h-5" />
             </button>
           </div>
 
           <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-3 hover:bg-secondary/30 rounded-xl transition-colors">
+            {recentActivities.map((activity) => (
+              <div key={activity._id.toString()} className="flex items-start justify-between p-3 hover:bg-secondary/30 rounded-xl transition-colors">
                 <div>
-                  <p className="font-medium text-sm">{order.customer}</p>
-                  <p className="text-xs text-muted-foreground">{order.product}</p>
+                  <p className="font-medium text-sm">{activity.action}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {activity.entityType} • {(activity.user as any)?.name || 'System'}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-sm">{order.amount}</p>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                    order.status === 'Completed' ? 'bg-green-500/10 text-green-600' :
-                    order.status === 'Processing' ? 'bg-blue-500/10 text-blue-600' :
-                    'bg-amber-500/10 text-amber-600'
-                  }`}>
-                    {order.status}
-                  </span>
+                  <p className="text-[10px] text-muted-foreground">
+                    {new Date(activity.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             ))}
+            {recentActivities.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">No recent activities</p>
+            )}
           </div>
-          
-          <button className="w-full mt-6 py-2 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors">
-            View All Orders
-          </button>
         </div>
-
       </div>
+      
+      {/* Low Stock Alerts */}
+      {lowStockProducts > 0 && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 flex items-start space-x-4">
+          <div className="p-3 bg-red-500/20 rounded-full">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-red-600">Inventory Alert</h3>
+            <p className="text-sm text-red-600/80 mt-1">You have {lowStockProducts} products with low stock (less than 10 items remaining). Please restock soon.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

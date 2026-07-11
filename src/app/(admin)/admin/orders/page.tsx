@@ -4,11 +4,11 @@ import { useState } from "react";
 import { Search, Filter, MoreHorizontal, Eye, Truck } from "lucide-react";
 
 const initialOrders = [
-  { id: "ORD-001", customer: "John Doe", email: "john@example.com", date: "Jul 09, 2026", amount: "$1,200", status: "Completed", items: 2 },
-  { id: "ORD-002", customer: "Jane Smith", email: "jane@example.com", date: "Jul 08, 2026", amount: "$850", status: "Processing", items: 1 },
-  { id: "ORD-003", customer: "Alice Johnson", email: "alice@example.com", date: "Jul 07, 2026", amount: "$450", status: "Pending", items: 1 },
-  { id: "ORD-004", customer: "Bob Williams", email: "bob@example.com", date: "Jul 05, 2026", amount: "$200", status: "Completed", items: 3 },
-  { id: "ORD-005", customer: "Radhika Sharma", email: "radhika@example.com", date: "Jul 02, 2026", amount: "$1,048", status: "Shipped", items: 2 },
+  { id: "ORD-001", customer: "John Doe", email: "john@example.com", date: "Jul 09, 2026", amount: "₹1,200", status: "Completed", items: 2 },
+  { id: "ORD-002", customer: "Jane Smith", email: "jane@example.com", date: "Jul 08, 2026", amount: "₹850", status: "Processing", items: 1 },
+  { id: "ORD-003", customer: "Alice Johnson", email: "alice@example.com", date: "Jul 07, 2026", amount: "₹450", status: "Pending", items: 1 },
+  { id: "ORD-004", customer: "Bob Williams", email: "bob@example.com", date: "Jul 05, 2026", amount: "₹200", status: "Completed", items: 3 },
+  { id: "ORD-005", customer: "Radhika Sharma", email: "radhika@example.com", date: "Jul 02, 2026", amount: "₹1,048", status: "Shipped", items: 2 },
 ];
 
 export default function AdminOrdersPage() {

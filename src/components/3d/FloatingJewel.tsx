@@ -5,6 +5,8 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Float, PresentationControls, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
+import { useMemo } from "react";
+
 function DiamondMesh() {
   const meshRef = useRef<THREE.Mesh>(null);
 
@@ -15,6 +17,15 @@ function DiamondMesh() {
     }
   });
 
+  const diamondPoints = useMemo(() => {
+    return [
+      new THREE.Vector2(0, -0.8),    // culet (bottom)
+      new THREE.Vector2(1, 0),       // girdle (widest point)
+      new THREE.Vector2(0.55, 0.3),  // table edge (top)
+      new THREE.Vector2(0, 0.3)      // table center
+    ];
+  }, []);
+
   return (
     <Float
       speed={2} // Animation speed
@@ -23,8 +34,8 @@ function DiamondMesh() {
       floatingRange={[-0.1, 0.1]} // Range of y-axis values the object will float within
     >
       <mesh ref={meshRef} castShadow receiveShadow>
-        {/* OctahedronGeometry gives a diamond-like shape */}
-        <octahedronGeometry args={[1, 0]} />
+        {/* LatheGeometry with 16 segments creates a beautiful faceted diamond */}
+        <latheGeometry args={[diamondPoints, 16]} />
         <meshPhysicalMaterial
           color="#d4a373" // Rose gold / champagne tone
           metalness={1}
@@ -32,6 +43,10 @@ function DiamondMesh() {
           clearcoat={1}
           clearcoatRoughness={0.1}
           envMapIntensity={2}
+          transmission={0.4} // Adds a subtle glassy/diamond transparency
+          ior={2.4} // Diamond index of refraction
+          thickness={1}
+          flatShading={true}
         />
       </mesh>
     </Float>

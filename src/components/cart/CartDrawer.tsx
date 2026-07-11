@@ -102,7 +102,7 @@ export default function CartDrawer() {
                         </button>
                       </div>
                       <div className="flex justify-between items-end">
-                        <p className="font-medium">${item.price.toFixed(2)}</p>
+                        <p className="font-medium">₹${item.price.toFixed(2)}</p>
                         
                         <div className="flex items-center space-x-3 bg-secondary/30 rounded-full px-2 py-1 border border-border/50">
                           <button 
@@ -133,7 +133,7 @@ export default function CartDrawer() {
                 <div className="space-y-3 mb-6 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>₹${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Shipping</span>
@@ -141,7 +141,7 @@ export default function CartDrawer() {
                   </div>
                   <div className="border-t border-border/50 pt-3 flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">${subtotal.toFixed(2)}</span>
+                    <span className="text-primary">₹${subtotal.toFixed(2)}</span>
                   </div>
                 </div>
                 

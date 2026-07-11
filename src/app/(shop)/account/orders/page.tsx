@@ -7,7 +7,7 @@ const orders = [
     id: "ORD-2026-8492",
     date: "July 02, 2026",
     status: "Delivered",
-    total: "$1,048.00",
+    total: "₹1,048.00",
     items: [
       { name: "Royal Kundan Bridal Choker Set", image: "/images/trending-1.jpg", qty: 1 },
       { name: "Rose Gold Diamond Bangles", image: "/images/trending-2.jpg", qty: 1 }
@@ -17,7 +17,7 @@ const orders = [
     id: "ORD-2026-3821",
     date: "June 15, 2026",
     status: "Processing",
-    total: "$299.00",
+    total: "₹299.00",
     items: [
       { name: "Emerald Drop Earrings", image: "/images/trending-3.jpg", qty: 2 }
     ]

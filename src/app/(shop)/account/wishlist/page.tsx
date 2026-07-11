@@ -6,7 +6,7 @@ const wishlistItems = [
   {
     id: "p3",
     name: "Classic Diamond Tennis Bracelet",
-    price: "$499.00",
+    price: "₹499.00",
     category: "Everyday",
     image: "/images/product-3.jpg",
     inStock: true,
@@ -14,7 +14,7 @@ const wishlistItems = [
   {
     id: "p5",
     name: "Temple Jewellery Gold Necklace",
-    price: "$750.00",
+    price: "₹750.00",
     category: "Festive",
     image: "/images/product-5.jpg",
     inStock: false,

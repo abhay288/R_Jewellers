@@ -83,7 +83,7 @@ export default function Home() {
             style={{ y: y1, opacity }}
           >
             {/* The 3D Floating Jewel */}
-            <div className="absolute inset-0 rounded-4xl bg-gradient-gold p-[2px] transform rotate-3">
+            <div className="absolute inset-0 rounded-4xl transform rotate-3">
               <div className="absolute inset-0 bg-background rounded-4xl overflow-hidden flex items-center justify-center">
                  <FloatingJewel />
               </div>
