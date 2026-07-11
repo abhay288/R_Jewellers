@@ -37,15 +37,15 @@ function DiamondMesh() {
         {/* LatheGeometry with 16 segments creates a beautiful faceted diamond */}
         <latheGeometry args={[diamondPoints, 16]} />
         <meshPhysicalMaterial
-          color="#d4a373" // Rose gold / champagne tone
-          metalness={1}
-          roughness={0.15}
+          color="#ffffff" 
+          metalness={0.5} // Increased metalness so it reflects the environment and isn't just invisible glass
+          roughness={0.05} // Very smooth, but slightly rough to catch light
           clearcoat={1}
-          clearcoatRoughness={0.1}
-          envMapIntensity={2}
-          transmission={0.4} // Adds a subtle glassy/diamond transparency
-          ior={2.4} // Diamond index of refraction
-          thickness={1}
+          clearcoatRoughness={0}
+          envMapIntensity={2.5}
+          transmission={0.5} // Reduced transmission so it doesn't blend entirely into the white HTML background
+          ior={2.417}
+          thickness={1.5}
           flatShading={true}
         />
       </mesh>
