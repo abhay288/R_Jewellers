@@ -1,8 +1,8 @@
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/frontend/components/ui/data-table";
 import { columns, ProductColumn } from "./columns";
-import connectDB from "@/lib/mongodb";
-import Product from "@/models/Product";
-import Category from "@/models/Category";
+import connectDB from "@/shared/lib/mongodb";
+import Product from "@/backend/models/Product";
+import Category from "@/backend/models/Category";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 

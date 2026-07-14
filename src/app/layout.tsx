@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Outfit } from "next/font/google";
-import SmoothScroll from "@/components/layout/SmoothScroll";
+import SmoothScroll from "@/frontend/components/layout/SmoothScroll";
 import "./globals.css";
 
 const playfair = Playfair_Display({

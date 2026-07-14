@@ -1,5 +1,5 @@
 import { BaseRepository } from './BaseRepository';
-import User, { IUser } from '@/models/User';
+import User, { IUser } from '@/backend/models/User';
 
 export class UserRepository extends BaseRepository<IUser> {
   constructor() {

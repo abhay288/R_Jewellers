@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
-import { useCartStore } from "@/store/useCartStore";
+import { useCartStore } from "@/frontend/store/useCartStore";
 
 export default function CartDrawer() {
   const { items, isOpen, toggleCart, removeItem, updateQuantity } = useCartStore();

@@ -35,7 +35,14 @@ export const productSchema = z.object({
   price: z.number().min(0, 'Price must be a positive number'),
   discount: z.number().min(0).max(100).optional(),
   stock: z.number().int().min(0, 'Stock must be a non-negative integer'),
+  minimumStock: z.number().int().min(0).optional().default(0),
+  maximumStock: z.number().int().min(0).optional(),
   sku: z.string().optional().or(z.literal('')),
+  barcode: z.string().optional().or(z.literal('')),
+  supplier: z.string().optional().or(z.literal('')),
+  warehouse: z.string().optional().or(z.literal('')),
+  purchaseCost: z.number().min(0).optional(),
+  status: z.enum(['Draft', 'Published', 'Archived', 'Out Of Stock', 'Coming Soon', 'Discontinued']).default('Published'),
   material: z.string().optional().or(z.literal('')),
   weight: z.string().optional().or(z.literal('')),
   color: z.string().optional().or(z.literal('')),
@@ -59,7 +66,13 @@ export const categorySchema = z.object({
   slug: z.string().optional().or(z.literal('')),
   description: z.string().optional().or(z.literal('')),
   bannerImage: z.string().url('Invalid image URL').optional().or(z.literal('')),
+  icon: z.string().optional().or(z.literal('')),
+  color: z.string().optional().or(z.literal('')),
   isActive: z.boolean().optional(),
+  parentCategory: z.string().optional().or(z.literal('')),
+  seoTitle: z.string().optional().or(z.literal('')),
+  seoDescription: z.string().optional().or(z.literal('')),
+  seoKeywords: z.array(z.string()).optional(),
 });
 
 // Address Validations

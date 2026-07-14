@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { productSchema } from "@/validations";
+import { productSchema } from "@/shared/validations";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { createProduct, updateProduct } from "@/app/actions/product.actions";
-import ImageUpload from "@/components/admin/ImageUpload";
+import { createProduct, updateProduct } from "@/backend/actions/product.actions";
+import ImageUpload from "@/frontend/components/admin/ImageUpload";
 import { Loader2, Plus, X } from "lucide-react";
 
 type ProductFormValues = z.infer<typeof productSchema>;

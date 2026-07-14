@@ -2,10 +2,10 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import clientPromise from "@/lib/mongodb-client";
+import clientPromise from "@/shared/lib/mongodb-client";
 import bcrypt from "bcryptjs";
-import connectDB from "@/lib/mongodb";
-import User from "@/models/User";
+import connectDB from "@/shared/lib/mongodb";
+import User from "@/backend/models/User";
 import { authConfig } from "./auth.config";
 
 export const {

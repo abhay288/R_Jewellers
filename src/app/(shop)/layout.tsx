@@ -1,6 +1,6 @@
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import CartDrawer from "@/components/cart/CartDrawer";
+import Navbar from "@/frontend/components/layout/Navbar";
+import Footer from "@/frontend/components/layout/Footer";
+import CartDrawer from "@/frontend/components/cart/CartDrawer";
 
 export default function ShopLayout({
   children,

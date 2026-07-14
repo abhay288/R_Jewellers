@@ -3,20 +3,21 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { categorySchema } from "@/validations";
+import { categorySchema } from "@/shared/validations";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { createCategory, updateCategory } from "@/app/actions/category.actions";
-import ImageUpload from "@/components/admin/ImageUpload";
+import { createCategory, updateCategory } from "@/backend/actions/category.actions";
+import ImageUpload from "@/frontend/components/admin/ImageUpload";
 import { Loader2 } from "lucide-react";
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 interface CategoryFormProps {
   initialData: any | null;
+  parentCategories?: { id: string; name: string; level: number }[];
 }
 
-export function CategoryForm({ initialData }: CategoryFormProps) {
+export function CategoryForm({ initialData, parentCategories = [] }: CategoryFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -28,16 +29,29 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
       description: "",
       isActive: true,
       bannerImage: "",
+      icon: "",
+      color: "#000000",
+      parentCategory: "",
+      seoTitle: "",
+      seoDescription: "",
+      seoKeywords: [],
     },
   });
 
   const onSubmit = async (data: CategoryFormValues) => {
     try {
       setLoading(true);
+      
+      // Convert keywords string back to array if entered as string in some implementations
+      let formattedData = { ...data };
+      if (typeof data.seoKeywords === 'string') {
+          formattedData.seoKeywords = (data.seoKeywords as string).split(',').map((k: string) => k.trim()).filter((k: string) => k);
+      }
+
       if (initialData) {
-        await updateCategory(initialData.id, data);
+        await updateCategory(initialData.id, formattedData);
       } else {
-        await createCategory(data);
+        await createCategory(formattedData);
       }
       router.push("/admin/categories");
       router.refresh();
@@ -56,7 +70,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
           <label className="text-sm font-medium">Category Name</label>
           <input 
             {...form.register("name")} 
-            className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="e.g. Necklaces"
           />
           {form.formState.errors.name && (
@@ -68,32 +82,103 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
           <label className="text-sm font-medium">Slug (Optional)</label>
           <input 
             {...form.register("slug")} 
-            className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="auto-generated if left empty"
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Parent Category</label>
+          <select 
+            {...form.register("parentCategory")}
+            className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <option value="">None (Top Level Category)</option>
+            {parentCategories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {"—".repeat(cat.level)} {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Category Color</label>
+          <div className="flex items-center space-x-2">
+            <input 
+              type="color"
+              {...form.register("color")} 
+              className="h-10 w-14 rounded-md border border-border cursor-pointer"
+            />
+            <input 
+              type="text"
+              {...form.register("color")}
+              className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+              placeholder="#000000"
+            />
+          </div>
         </div>
 
         <div className="space-y-2 md:col-span-2">
           <label className="text-sm font-medium">Description</label>
           <textarea 
             {...form.register("description")} 
-            className="flex min-h-[100px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 custom-scrollbar"
+            className="flex min-h-[100px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 custom-scrollbar"
             placeholder="Describe the category..."
           />
-          {form.formState.errors.description && (
-            <p className="text-sm text-red-500">{form.formState.errors.description.message}</p>
-          )}
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Banner Image (Optional)</label>
-        <ImageUpload 
-          value={form.watch("bannerImage") ? [form.watch("bannerImage") as string] : []} 
-          onChange={(urls) => form.setValue("bannerImage", urls[0] || "")}
-          onRemove={() => form.setValue("bannerImage", "")}
-          maxFiles={1}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Banner Image (Optional)</label>
+          <ImageUpload 
+            value={form.watch("bannerImage") ? [form.watch("bannerImage") as string] : []} 
+            onChange={(urls) => form.setValue("bannerImage", urls[0] || "")}
+            onRemove={() => form.setValue("bannerImage", "")}
+            maxFiles={1}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Category Icon (Optional)</label>
+          <ImageUpload 
+            value={form.watch("icon") ? [form.watch("icon") as string] : []} 
+            onChange={(urls) => form.setValue("icon", urls[0] || "")}
+            onRemove={() => form.setValue("icon", "")}
+            maxFiles={1}
+          />
+        </div>
+      </div>
+
+      <div className="border border-border/50 rounded-xl p-6 bg-secondary/10 space-y-6">
+        <h3 className="text-lg font-semibold font-playfair">SEO Settings</h3>
+        <div className="grid grid-cols-1 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">SEO Title</label>
+            <input 
+              {...form.register("seoTitle")} 
+              className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+              placeholder="Title for search engines"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">SEO Description</label>
+            <textarea 
+              {...form.register("seoDescription")} 
+              className="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm custom-scrollbar"
+              placeholder="Meta description for search results"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">SEO Keywords (Comma separated)</label>
+            <input 
+              {...form.register("seoKeywords")} 
+              className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+              placeholder="jewellery, gold, rings"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center space-x-2 border border-border rounded-xl p-4 bg-secondary/20">
@@ -103,7 +188,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
           {...form.register("isActive")}
           className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
         />
-        <label htmlFor="isActive" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label htmlFor="isActive" className="text-sm font-medium leading-none">
           Category is Active
         </label>
       </div>
@@ -116,7 +201,6 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {initialData ? "Save Changes" : "Create Category"}
       </button>
-
     </form>
   );
 }

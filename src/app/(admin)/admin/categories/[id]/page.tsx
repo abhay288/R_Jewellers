@@ -1,5 +1,5 @@
-import connectDB from "@/lib/mongodb";
-import Category from "@/models/Category";
+import connectDB from "@/shared/lib/mongodb";
+import Category from "@/backend/models/Category";
 import { CategoryForm } from "./CategoryForm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -10,13 +10,23 @@ export default async function CategoryEditPage({ params }: { params: Promise<{ i
   const isNew = resolvedParams.id === "new";
   let category = null;
 
+  await connectDB();
+
   if (!isNew) {
-    await connectDB();
     category = await Category.findById(resolvedParams.id);
     if (!category) {
       notFound();
     }
   }
+
+  // Fetch all categories for the parent selector (excluding the current one to prevent self-nesting)
+  const query = isNew ? { isDeleted: { $ne: true } } : { _id: { $ne: resolvedParams.id }, isDeleted: { $ne: true } };
+  const allCategories = await Category.find(query).select('_id name level').sort({ name: 1 });
+  const parentCategories = allCategories.map(cat => ({
+    id: cat._id.toString(),
+    name: cat.name,
+    level: cat.level
+  }));
 
   const initialData = category ? {
     id: category._id.toString(),
@@ -24,7 +34,13 @@ export default async function CategoryEditPage({ params }: { params: Promise<{ i
     slug: category.slug,
     description: category.description,
     bannerImage: category.bannerImage || "",
+    icon: category.icon || "",
+    color: category.color || "",
     isActive: category.isActive,
+    parentCategory: category.parentCategory ? category.parentCategory.toString() : "",
+    seoTitle: category.seoTitle || "",
+    seoDescription: category.seoDescription || "",
+    seoKeywords: category.seoKeywords ? category.seoKeywords.join(", ") : "",
   } : null;
 
   return (
@@ -44,7 +60,7 @@ export default async function CategoryEditPage({ params }: { params: Promise<{ i
       </div>
 
       <div className="bg-card border border-border/50 rounded-2xl p-6 md:p-8 shadow-sm">
-        <CategoryForm initialData={initialData} />
+        <CategoryForm initialData={initialData} parentCategories={parentCategories} />
       </div>
     </div>
   );

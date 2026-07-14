@@ -3,8 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash, Copy } from "lucide-react";
 import Link from "next/link";
-import { deleteProduct, toggleProductStatus } from "@/app/actions/product.actions";
-import { SortableHeader } from "@/components/ui/data-table";
+import { deleteProduct, toggleProductStatus } from "@/backend/actions/product.actions";
+import { SortableHeader } from "@/frontend/components/ui/data-table";
 import Image from "next/image";
 
 export type ProductColumn = {

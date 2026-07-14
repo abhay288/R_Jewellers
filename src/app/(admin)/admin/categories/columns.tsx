@@ -3,27 +3,62 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
-import { deleteCategory } from "@/app/actions/category.actions";
-import { SortableHeader } from "@/components/ui/data-table";
+import { deleteCategory } from "@/backend/actions/category.actions";
+import { SortableHeader } from "@/frontend/components/ui/data-table";
+import { Checkbox } from "@/frontend/components/ui/checkbox";
 
 export type CategoryColumn = {
   id: string;
   name: string;
   slug: string;
+  level: number;
   isActive: boolean;
+  viewCount: number;
   createdAt: string;
 };
 
 export const columns: ColumnDef<CategoryColumn>[] = [
   {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => <SortableHeader column={column} title="Category Name" />,
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    cell: ({ row }) => {
+      const level = row.original.level;
+      return (
+        <div className="font-medium flex items-center" style={{ paddingLeft: `${level * 1.5}rem` }}>
+          {level > 0 && <span className="text-muted-foreground mr-2">↳</span>}
+          {row.getValue("name")}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "slug",
     header: "Slug",
     cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("slug")}</div>,
+  },
+  {
+    accessorKey: "viewCount",
+    header: ({ column }) => <SortableHeader column={column} title="Views" />,
+    cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("viewCount")}</div>,
   },
   {
     accessorKey: "isActive",

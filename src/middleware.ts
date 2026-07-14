@@ -29,8 +29,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
     // Type casting because we appended role in auth.ts
-    const user = session.user as any;
-    if (user.role !== 'admin') {
+    const user = session?.user as any;
+    if (!user || user.role !== 'admin') {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
       }

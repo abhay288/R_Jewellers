@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronLeft, Lock, CreditCard, ShoppingBag, ShieldCheck } from "lucide-react";
-import { useCartStore } from "@/store/useCartStore";
+import { useCartStore } from "@/frontend/store/useCartStore";
 
 export default function CheckoutPage() {
   const { items } = useCartStore();

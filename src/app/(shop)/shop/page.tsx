@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filter, ChevronDown, Heart, ShoppingBag } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { ProductGridSkeleton } from "@/components/ui/ProductSkeleton";
-import { useCartStore } from "@/store/useCartStore";
+import { cn } from "@/shared/lib/utils";
+import { ProductGridSkeleton } from "@/frontend/components/ui/ProductSkeleton";
+import { useCartStore } from "@/frontend/store/useCartStore";
 
 // Placeholder data for shop
 const categories = ["All", "Bridal", "Everyday", "Festive", "Necklaces", "Earrings", "Bangles"];

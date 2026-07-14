@@ -1,0 +1,234 @@
+"use server";
+
+import connectDB from "@/shared/lib/mongodb";
+import Product from "@/backend/models/Product";
+import InventoryHistory from "@/backend/models/InventoryHistory";
+import Notification from "@/backend/models/Notification";
+import { revalidatePath } from "next/cache";
+import { ActivityLogService } from "@/backend/services/ActivityLogService";
+import { auth } from "@/auth";
+
+const activityLogService = new ActivityLogService();
+
+async function requireAdmin() {
+  const session = await auth();
+  if (!session || (session.user as any).role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+  return session;
+}
+
+export async function createProduct(data: any) {
+  try {
+    const session = await requireAdmin();
+    await connectDB();
+    
+    if (!data.slug) {
+      data.slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+
+    if (data.sku) {
+      const existingSku = await Product.findOne({ sku: data.sku });
+      if (existingSku) throw new Error("Product with this SKU already exists.");
+    }
+    
+    const product = await Product.create(data);
+    
+    if (product.stock > 0 && session?.user?.id) {
+      await InventoryHistory.create({
+        product: product._id,
+        previousStock: 0,
+        newStock: product.stock,
+        changeQuantity: product.stock,
+        reason: 'Added',
+        user: session.user.id,
+        notes: 'Initial stock on creation',
+      });
+    }
+    
+    if (!session?.user?.id) throw new Error("Unauthorized");
+    
+    await activityLogService.logAction(
+      "Product Created",
+      "Product",
+      product._id,
+      session.user.id,
+      { productName: product.name }
+    );
+    
+    revalidatePath("/admin/products");
+    revalidatePath("/admin");
+    return { success: true, data: JSON.parse(JSON.stringify(product)) };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateProduct(id: string, data: any) {
+  try {
+    const session = await requireAdmin();
+    await connectDB();
+    
+    if (data.sku) {
+      const existingSku = await Product.findOne({ sku: data.sku, _id: { $ne: id } });
+      if (existingSku) throw new Error("Product with this SKU already exists.");
+    }
+
+    const currentProduct = await Product.findById(id);
+    if (!currentProduct) throw new Error("Product not found");
+
+    const previousStock = currentProduct.stock;
+    
+    const product = await Product.findByIdAndUpdate(id, data, { new: true });
+    if (!product) throw new Error("Product not found");
+
+    if (data.stock !== undefined && data.stock !== previousStock && session?.user?.id) {
+      const diff = data.stock - previousStock;
+      const reason = diff > 0 ? 'Added' : 'Adjusted';
+      await InventoryHistory.create({
+        product: product._id,
+        previousStock,
+        newStock: product.stock,
+        changeQuantity: diff,
+        reason: reason,
+        user: session.user.id,
+        notes: 'Stock updated via product edit',
+      });
+
+      // Check low stock alert
+      if (product.stock < product.minimumStock) {
+        await Notification.create({
+          user: session.user.id, // Assuming the admin who caused it or system admin gets it
+          title: 'Low Stock Alert',
+          message: `${product.name} (SKU: ${product.sku || 'N/A'}) has fallen below minimum stock level (${product.stock}/${product.minimumStock}).`,
+          type: 'system',
+          link: `/admin/inventory`
+        });
+      }
+    }
+    
+    if (!session?.user?.id) throw new Error("Unauthorized");
+    
+    await activityLogService.logAction(
+      "Product Updated",
+      "Product",
+      product._id,
+      session.user.id,
+      { productName: product.name }
+    );
+    
+    revalidatePath("/admin/products");
+    revalidatePath(`/admin/products/${id}`);
+    return { success: true, data: JSON.parse(JSON.stringify(product)) };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateProductStock(id: string, newStock: number, reason: string, notes?: string) {
+  try {
+    const session = await requireAdmin();
+    await connectDB();
+    
+    const product = await Product.findById(id);
+    if (!product) throw new Error("Product not found");
+
+    const previousStock = product.stock;
+    const diff = newStock - previousStock;
+    
+    product.stock = newStock;
+    if (newStock === 0) product.status = 'Out Of Stock';
+    else if (product.status === 'Out Of Stock' && newStock > 0) product.status = 'Published';
+    
+    await product.save();
+
+    if (session?.user?.id) {
+      await InventoryHistory.create({
+        product: product._id,
+        previousStock,
+        newStock: product.stock,
+        changeQuantity: diff,
+        reason: reason,
+        user: session.user.id,
+        notes: notes,
+      });
+
+      // Low stock check
+      if (product.stock < product.minimumStock) {
+        await Notification.create({
+          user: session.user.id,
+          title: 'Low Stock Alert',
+          message: `${product.name} (SKU: ${product.sku || 'N/A'}) has fallen below minimum stock level (${product.stock}/${product.minimumStock}).`,
+          type: 'system',
+          link: `/admin/inventory`
+        });
+      }
+
+      await activityLogService.logAction(
+        "Stock Adjusted",
+        "Product",
+        product._id,
+        session.user.id,
+        { productName: product.name, previousStock, newStock }
+      );
+    }
+    
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/inventory");
+    revalidatePath(`/admin/products/${id}`);
+    return { success: true, data: JSON.parse(JSON.stringify(product)) };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteProduct(id: string) {
+  try {
+    const session = await requireAdmin();
+    await connectDB();
+    
+    const product = await Product.findByIdAndDelete(id);
+    if (!product) throw new Error("Product not found");
+    
+    if (!session?.user?.id) throw new Error("Unauthorized");
+    
+    await activityLogService.logAction(
+      "Product Deleted",
+      "Product",
+      product._id,
+      session.user.id,
+      { productName: product.name }
+    );
+    
+    revalidatePath("/admin/products");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function toggleProductStatus(id: string, isActive: boolean) {
+  try {
+    const session = await requireAdmin();
+    await connectDB();
+    
+    const product = await Product.findByIdAndUpdate(id, { isActive }, { new: true });
+    if (!product) throw new Error("Product not found");
+    
+    if (!session?.user?.id) throw new Error("Unauthorized");
+    
+    await activityLogService.logAction(
+      "Product Status Toggled",
+      "Product",
+      product._id,
+      session.user.id,
+      { productName: product.name, isActive }
+    );
+    
+    revalidatePath("/admin/products");
+    return { success: true, data: JSON.parse(JSON.stringify(product)) };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

@@ -11,7 +11,14 @@ export interface IProduct extends Document {
   discount?: number;
   finalPrice: number;
   stock: number;
+  minimumStock: number;
+  maximumStock?: number;
   sku?: string;
+  barcode?: string;
+  supplier?: string;
+  warehouse?: string;
+  purchaseCost?: number;
+  status: 'Draft' | 'Published' | 'Archived' | 'Out Of Stock' | 'Coming Soon' | 'Discontinued';
   material?: string;
   weight?: string;
   color?: string;
@@ -44,7 +51,18 @@ const ProductSchema: Schema<IProduct> = new Schema(
     discount: { type: Number, min: 0, max: 100 },
     finalPrice: { type: Number, required: true, min: 0 },
     stock: { type: Number, default: 0, min: 0 },
+    minimumStock: { type: Number, default: 0, min: 0 },
+    maximumStock: { type: Number, min: 0 },
     sku: { type: String, trim: true },
+    barcode: { type: String, trim: true },
+    supplier: { type: String, trim: true },
+    warehouse: { type: String, trim: true },
+    purchaseCost: { type: Number, min: 0 },
+    status: { 
+      type: String, 
+      enum: ['Draft', 'Published', 'Archived', 'Out Of Stock', 'Coming Soon', 'Discontinued'],
+      default: 'Published'
+    },
     material: { type: String, trim: true },
     weight: { type: String, trim: true },
     color: { type: String, trim: true },
@@ -73,6 +91,7 @@ ProductSchema.index({ category: 1 });
 ProductSchema.index({ isActive: 1 });
 ProductSchema.index({ price: 1 });
 ProductSchema.index({ sku: 1 });
+ProductSchema.index({ status: 1 });
 ProductSchema.index({ isFeatured: 1 });
 ProductSchema.index({ isBestSeller: 1 });
 ProductSchema.index({ isTrending: 1 });

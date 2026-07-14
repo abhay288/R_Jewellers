@@ -1,6 +1,6 @@
-import connectDB from "@/lib/mongodb";
-import Product from "@/models/Product";
-import Category from "@/models/Category";
+import connectDB from "@/shared/lib/mongodb";
+import Product from "@/backend/models/Product";
+import Category from "@/backend/models/Category";
 import { ProductForm } from "./ProductForm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

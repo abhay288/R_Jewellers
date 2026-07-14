@@ -5,11 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Star } from "lucide-react";
-import FeaturedCollections from "@/components/home/FeaturedCollections";
-import BrandStory from "@/components/home/BrandStory";
-import TrendingSlider from "@/components/home/TrendingSlider";
-import { ScrollReveal } from "@/components/animations/ScrollReveal";
-import { FloatingJewel } from "@/components/3d/FloatingJewel";
+import FeaturedCollections from "@/frontend/components/home/FeaturedCollections";
+import BrandStory from "@/frontend/components/home/BrandStory";
+import TrendingSlider from "@/frontend/components/home/TrendingSlider";
+import { ScrollReveal } from "@/frontend/components/animations/ScrollReveal";
+import { FloatingJewel } from "@/frontend/components/3d/FloatingJewel";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);

@@ -4,8 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Heart, Share2, Star, Truck, ShieldCheck, ChevronDown, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useCartStore } from "@/store/useCartStore";
+import { cn } from "@/shared/lib/utils";
+import { useCartStore } from "@/frontend/store/useCartStore";
 
 // Mock Product Data
 const product = {

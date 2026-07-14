@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, Package, Heart, LogOut, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 const navigation = [
   { name: "My Profile", href: "/account", icon: User },

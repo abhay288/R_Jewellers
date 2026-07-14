@@ -9,12 +9,12 @@ import {
   ListTree,
   AlertTriangle
 } from "lucide-react";
-import connectDB from "@/lib/mongodb";
-import Product from "@/models/Product";
-import Category from "@/models/Category";
-import User from "@/models/User";
-import ActivityLog from "@/models/ActivityLog";
-import { DashboardCharts } from "@/components/admin/DashboardCharts";
+import connectDB from "@/shared/lib/mongodb";
+import Product from "@/backend/models/Product";
+import Category from "@/backend/models/Category";
+import User from "@/backend/models/User";
+import ActivityLog from "@/backend/models/ActivityLog";
+import { DashboardCharts } from "@/frontend/components/admin/DashboardCharts";
 
 export default async function AdminDashboard() {
   await connectDB();
