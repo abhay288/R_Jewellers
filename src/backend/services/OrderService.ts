@@ -8,6 +8,8 @@ import Coupon from '../models/Coupon';
 import Address from '../models/Address';
 import OrderTimeline from '../models/OrderTimeline';
 import { NotificationService } from './NotificationService';
+import User from '../models/User';
+import { EmailService } from './EmailService';
 
 export class OrderService {
   private repository: OrderRepository;
@@ -186,6 +188,33 @@ export class OrderService {
       // Fire notification non-blocking
       this.notificationService.sendOrderStatusNotification(userId, orderId, 'Order Placed');
 
+      // Send Order Confirmation Email
+      try {
+        const userObj = await User.findById(userId);
+        if (userObj) {
+          const emailService = new EmailService();
+          await emailService.sendOrderConfirmationEmail(userObj.email, userObj.name, newOrder[0]);
+        }
+      } catch (emailErr) {
+        console.error('Failed to send order confirmation email:', emailErr);
+      }
+
+      // Check for low stock on purchased items
+      try {
+        for (const item of totals.products) {
+          const prod = await Product.findById(item.product);
+          if (prod && prod.stock <= prod.minimumStock) {
+            await this.notificationService.sendAdminPushNotification(
+              'Low Stock Alert',
+              `Product "${prod.name}" has run low on stock (${prod.stock} items remaining).`,
+              '/admin/inventory'
+            );
+          }
+        }
+      } catch (stockErr) {
+        console.error('Failed to run post-order low stock checks:', stockErr);
+      }
+
       return newOrder[0];
 
     } catch (error) {
@@ -244,6 +273,21 @@ export class OrderService {
       // Fire notification
       this.notificationService.sendOrderStatusNotification(order.user.toString(), order.orderId, status);
 
+      // Send status update and invoice emails
+      try {
+        const userObj = await User.findById(order.user);
+        if (userObj) {
+          const emailService = new EmailService();
+          await emailService.sendOrderStatusChangedEmail(userObj.email, userObj.name, order.orderId, status);
+          
+          if (status === 'Confirmed') {
+            await emailService.sendOrderConfirmationEmail(userObj.email, userObj.name, order);
+          }
+        }
+      } catch (emailErr) {
+        console.error('Failed to trigger order status update emails:', emailErr);
+      }
+
       return order;
     } catch (error) {
       await session.abortTransaction();
@@ -294,6 +338,17 @@ export class OrderService {
 
       // Notification
       this.notificationService.sendOrderStatusNotification(order.user.toString(), order.orderId, status);
+
+      // Send cancellation email
+      try {
+        const userObj = await User.findById(order.user);
+        if (userObj) {
+          const emailService = new EmailService();
+          await emailService.sendOrderStatusChangedEmail(userObj.email, userObj.name, order.orderId, 'Cancelled');
+        }
+      } catch (emailErr) {
+        console.error('Failed to trigger order cancellation email:', emailErr);
+      }
 
       return order;
     } catch (error) {

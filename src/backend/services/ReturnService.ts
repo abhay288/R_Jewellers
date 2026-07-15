@@ -7,6 +7,8 @@ import Order from '../models/Order';
 import Counter from '../models/Counter';
 import Product from '../models/Product';
 import { NotificationService } from './NotificationService';
+import User from '../models/User';
+import { EmailService } from './EmailService';
 
 export class ReturnService {
   private notificationService: NotificationService;
@@ -140,6 +142,16 @@ export class ReturnService {
         `/profile/returns/${returnIdStr}`
       );
 
+      try {
+        this.notificationService.sendAdminPushNotification(
+          'New Return Request',
+          `A new return request ${returnIdStr} has been submitted by customer.`,
+          `/admin/returns/${returnIdStr}`
+        );
+      } catch (adminPushErr) {
+        console.error('Failed to notify admins of new return request:', adminPushErr);
+      }
+
       return newReturn[0];
     } catch (error) {
       await session.abortTransaction();
@@ -207,6 +219,26 @@ export class ReturnService {
         'order',
         `/profile/returns/${returnId}`
       );
+
+      // Email notifications
+      try {
+        const userObj = await User.findById(returnReq.user);
+        if (userObj) {
+          const emailService = new EmailService();
+          if (status === 'Approved') {
+            await emailService.sendReturnApprovedEmail(userObj.email, userObj.name, returnId);
+          } else if (status === 'Refund Completed') {
+            await emailService.sendRefundCompletedEmail(
+              userObj.email,
+              userObj.name,
+              returnId,
+              returnReq.totalRefundAmount
+            );
+          }
+        }
+      } catch (emailErr) {
+        console.error('Failed to trigger return status update emails:', emailErr);
+      }
 
       return returnReq;
     } catch (error) {
@@ -329,6 +361,22 @@ export class ReturnService {
         'order',
         `/profile/returns/${returnId}`
       );
+
+      // Email notification
+      try {
+        const userObj = await User.findById(returnReq.user);
+        if (userObj) {
+          const emailService = new EmailService();
+          await emailService.sendRefundCompletedEmail(
+            userObj.email,
+            userObj.name,
+            returnId,
+            returnReq.totalRefundAmount
+          );
+        }
+      } catch (emailErr) {
+        console.error('Failed to trigger refund completed email:', emailErr);
+      }
 
       return returnReq;
     } catch (error) {

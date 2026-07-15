@@ -20,7 +20,7 @@ export class WishlistService {
     if (!wishlist) {
       wishlist = await this.repository.create({ user: userId, products: [productId as any] });
     } else {
-      const index = wishlist.products.findIndex(p => p.toString() === productId);
+      const index = wishlist.products.findIndex((p: any) => p.toString() === productId);
       if (index > -1) {
         // Remove item
         wishlist.products.splice(index, 1);

@@ -27,6 +27,18 @@ export async function createProduct(data: any) {
       data.slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     }
 
+    try {
+      const { AIService } = require("@/backend/services/AIService");
+      const aiService = new AIService();
+      const textToEmbed = `${data.name}. ${data.description || ""}. Category: ${data.material || ""}`;
+      const embedding = await aiService.generateEmbedding(textToEmbed);
+      if (embedding) {
+        data.embedding = embedding;
+      }
+    } catch (err) {
+      console.error("Failed to generate embedding during product creation:", err);
+    }
+
     if (data.sku) {
       const existingSku = await Product.findOne({ sku: data.sku });
       if (existingSku) throw new Error("Product with this SKU already exists.");
@@ -76,6 +88,18 @@ export async function updateProduct(id: string, data: any) {
 
     const currentProduct = await Product.findById(id);
     if (!currentProduct) throw new Error("Product not found");
+
+    try {
+      const { AIService } = require("@/backend/services/AIService");
+      const aiService = new AIService();
+      const textToEmbed = `${data.name || currentProduct.name}. ${data.description || currentProduct.description || ""}. Category: ${data.material || currentProduct.material || ""}`;
+      const embedding = await aiService.generateEmbedding(textToEmbed);
+      if (embedding) {
+        data.embedding = embedding;
+      }
+    } catch (err) {
+      console.error("Failed to generate embedding during product update:", err);
+    }
 
     const previousStock = currentProduct.stock;
     

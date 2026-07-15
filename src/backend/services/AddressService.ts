@@ -9,7 +9,7 @@ export class AddressService {
   }
 
   async getUserAddresses(userId: string) {
-    return this.repository.find({ user: userId });
+    return this.repository.findAll({ user: userId });
   }
 
   async createAddress(userId: string, addressData: any) {

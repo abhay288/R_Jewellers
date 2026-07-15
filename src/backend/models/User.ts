@@ -8,6 +8,12 @@ export interface IUser extends Document {
   role: 'user' | 'admin';
   emailVerified?: Date;
   providers?: string[]; // e.g., ['google', 'credentials']
+  notificationPreferences?: {
+    orderStatus: boolean;
+    lowStock: boolean;
+    newReturns: boolean;
+    promotions: boolean;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +27,12 @@ const UserSchema: Schema<IUser> = new Schema(
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     emailVerified: { type: Date },
     providers: [{ type: String }],
+    notificationPreferences: {
+      orderStatus: { type: Boolean, default: true },
+      lowStock: { type: Boolean, default: true },
+      newReturns: { type: Boolean, default: true },
+      promotions: { type: Boolean, default: true },
+    },
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt

@@ -35,6 +35,7 @@ export interface IProduct extends Document {
   seoDescription?: string;
   metaKeywords?: string[];
   attributes?: Record<string, string>; // Extra dynamic attributes
+  embedding?: number[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,6 +80,7 @@ const ProductSchema: Schema<IProduct> = new Schema(
     seoDescription: { type: String, trim: true },
     metaKeywords: [{ type: String, trim: true }],
     attributes: { type: Map, of: String },
+    embedding: [{ type: Number }],
   },
   {
     timestamps: true,

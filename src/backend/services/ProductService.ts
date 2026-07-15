@@ -6,6 +6,8 @@ import User from '../models/User';
 import mongoose from 'mongoose';
 import { IProduct } from '../models/Product';
 import { IInventoryHistory } from '../models/InventoryHistory';
+import { AIService } from './AIService';
+import { SettingService } from './SettingService';
 
 export class ProductService {
   private repository: ProductRepository;
@@ -169,6 +171,21 @@ export class ProductService {
   }
 
   async getRelatedProducts(productId: string, limit: number = 4) {
+    try {
+      const settingService = new SettingService();
+      const enableAi = await settingService.getSettingByKey('enableAiRecommendations', 'true');
+      
+      if (enableAi === 'true' || enableAi === true) {
+        const aiService = new AIService();
+        const recommendations = await aiService.getRecommendations(productId, limit);
+        if (recommendations && recommendations.length > 0) {
+          return recommendations;
+        }
+      }
+    } catch (error) {
+      console.error('AI Recommendations failed, falling back to category matching:', error);
+    }
+
     const product = await this.repository.findById(productId);
     if (!product) return [];
     

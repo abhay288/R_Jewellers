@@ -38,8 +38,19 @@ if (typeof window !== "undefined") {
   });
 }
 
+import { getMessaging, isSupported as isMessagingSupported } from "firebase/messaging";
+
 // Initialize providers
 export const googleProvider = new GoogleAuthProvider();
 
-export { analytics };
+let messaging: any = null;
+if (typeof window !== "undefined") {
+  isMessagingSupported().then((supported) => {
+    if (supported) {
+      messaging = getMessaging(app);
+    }
+  });
+}
+
+export { analytics, messaging };
 export default app;

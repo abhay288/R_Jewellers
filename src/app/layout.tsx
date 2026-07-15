@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Outfit } from "next/font/google";
 import SmoothScroll from "@/frontend/components/layout/SmoothScroll";
 import "./globals.css";
@@ -13,9 +13,50 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#8c765c",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
-  title: "Radhika Jewellers | Luxury Artificial Jewellery",
-  description: "Discover our premium collection of luxury artificial jewellery. Elegance crafted for you.",
+  title: {
+    default: "Radhika Jewellers | Luxury Artificial Jewellery",
+    template: "%s | Radhika Jewellers"
+  },
+  description: "Discover our premium collection of handcrafted luxury artificial jewellery. Elegance, heritage, and royal designs crafted for your special moments.",
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "Radhika Jewellers | Luxury Artificial Jewellery",
+    description: "Premium handcrafted luxury artificial jewellery. Elegance crafted for you.",
+    url: '/',
+    siteName: 'Radhika Jewellers',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Radhika Jewellers Royal Collection'
+      }
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Radhika Jewellers | Luxury Artificial Jewellery",
+    description: "Premium handcrafted luxury artificial jewellery. Elegance crafted for you.",
+    images: ['/og-image.jpg'],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Radhika Jewellers',
+  },
 };
 
 export default function RootLayout({
@@ -23,11 +64,51 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Radhika Jewellers",
+    "url": process.env.NEXTAUTH_URL || 'http://localhost:3000',
+    "logo": `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/icon.png`,
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+91-9876543210",
+      "contactType": "customer service",
+      "availableLanguage": ["English", "Hindi"]
+    },
+    "sameAs": [
+      "https://www.facebook.com/radhikajewellers",
+      "https://www.instagram.com/radhikajewellers",
+      "https://twitter.com/radhikajewellers"
+    ]
+  };
+
   return (
     <html
       lang="en"
       className={`${playfair.variable} ${outfit.variable} antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('ServiceWorker registered with scope:', reg.scope);
+                  }).catch(function(err) {
+                    console.error('ServiceWorker registration failed:', err);
+                  });
+                });
+              }
+            `
+          }}
+        />
+      </head>
       <body className="flex flex-col font-sans bg-background text-foreground min-h-screen">
         <SmoothScroll>
           {children}

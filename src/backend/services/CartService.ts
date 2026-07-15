@@ -25,7 +25,7 @@ export class CartService {
     // We sum up the quantities if the product already exists, otherwise add it.
     // This handles the merge from guest cart.
     for (const item of items) {
-      const existingItemIndex = cart.items.findIndex(i => i.product.toString() === item.product);
+      const existingItemIndex = cart.items.findIndex((i: any) => i.product.toString() === item.product);
       if (existingItemIndex > -1) {
         cart.items[existingItemIndex].quantity += item.quantity;
       } else {
@@ -46,7 +46,7 @@ export class CartService {
             return null;
         }
     } else {
-        const itemIndex = cart.items.findIndex(i => i.product.toString() === productId);
+        const itemIndex = cart.items.findIndex((i: any) => i.product.toString() === productId);
         if (itemIndex > -1) {
             if (quantity <= 0) {
                 cart.items.splice(itemIndex, 1);

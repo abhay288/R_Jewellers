@@ -4,18 +4,29 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingBag, Heart, User, Menu, X } from "lucide-react";
+import { Search, ShoppingBag, Heart, User, Menu, X, History, Camera } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/frontend/store/useCartStore";
+import { useRecentlyViewedStore } from "@/frontend/store/useRecentlyViewedStore";
+import VisualSearchModal from "../shop/VisualSearchModal";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isRecentlyViewedOpen, setIsRecentlyViewedOpen] = useState(false);
+  const [isVisualSearchOpen, setIsVisualSearchOpen] = useState(false);
   const { items, toggleCart } = useCartStore();
+  const { items: recentlyViewedItems } = useRecentlyViewedStore();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((window.scrollY / totalHeight) * 100);
+      }
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -42,6 +53,12 @@ export default function Navbar() {
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
+        {/* Scroll Progress Bar */}
+        <div 
+          className="absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-100 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
+
         <div className="container mx-auto px-6 flex items-center justify-between">
           {/* Mobile Menu Toggle */}
           <button
@@ -78,12 +95,18 @@ export default function Navbar() {
 
           {/* Icons */}
           <div className="flex items-center space-x-4 md:space-x-6 text-foreground">
+            <button className="hover:text-primary transition-colors" onClick={() => setIsVisualSearchOpen(true)}>
+              <Camera size={20} strokeWidth={1.5} />
+            </button>
             <button className="hover:text-primary transition-colors">
               <Search size={20} strokeWidth={1.5} />
             </button>
             <Link href="/account" className="hidden md:block hover:text-primary transition-colors">
               <User size={20} strokeWidth={1.5} />
             </Link>
+            <button className="hover:text-primary transition-colors" onClick={() => setIsRecentlyViewedOpen(true)}>
+              <History size={20} strokeWidth={1.5} />
+            </button>
             <button className="hover:text-primary transition-colors">
               <Heart size={20} strokeWidth={1.5} />
             </button>
@@ -146,6 +169,79 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Recently Viewed Drawer */}
+      <AnimatePresence>
+        {isRecentlyViewedOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRecentlyViewedOpen(false)}
+            />
+            {/* Panel */}
+            <motion.div
+              className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-background border-l border-border/50 shadow-2xl p-6 flex flex-col"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            >
+              <div className="flex justify-between items-center pb-6 border-b border-border/50">
+                <div>
+                  <h3 className="font-playfair text-2xl font-semibold text-primary">Recently Viewed</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Your recently browsed luxury pieces</p>
+                </div>
+                <button
+                  onClick={() => setIsRecentlyViewedOpen(false)}
+                  className="text-foreground hover:text-primary transition-colors p-2"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Items List */}
+              <div className="flex-1 overflow-y-auto py-6 space-y-4">
+                {recentlyViewedItems.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground">
+                    <History size={40} className="stroke-1 mb-4 opacity-50" />
+                    <p className="text-sm">No recently viewed items yet.</p>
+                  </div>
+                ) : (
+                  recentlyViewedItems.map((product) => (
+                    <Link
+                      key={product._id}
+                      href={`/product/${product.slug || product._id}`}
+                      onClick={() => setIsRecentlyViewedOpen(false)}
+                      className="flex items-center space-x-4 p-3 rounded-xl border border-border/50 hover:border-primary/50 transition-all hover:bg-secondary/20"
+                    >
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-border/50 bg-secondary shrink-0">
+                        <Image
+                          src={product.images?.[0] || "/assets/placeholder.jpg"}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold truncate text-foreground">{product.name}</h4>
+                        <p className="text-xs text-muted-foreground mt-1">{product.category}</p>
+                        <p className="text-sm font-medium text-primary mt-2">₹{product.finalPrice || product.price}</p>
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Visual Search Modal */}
+      <VisualSearchModal isOpen={isVisualSearchOpen} onClose={() => setIsVisualSearchOpen(false)} />
     </>
   );
 }
