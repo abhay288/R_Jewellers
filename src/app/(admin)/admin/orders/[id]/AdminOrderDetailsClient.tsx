@@ -1,0 +1,268 @@
+"use client";
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, User, MapPin, Package, Download, Save, CreditCard, CheckCircle2 } from 'lucide-react';
+import { generateInvoicePDF } from '@/frontend/lib/InvoiceGenerator';
+
+export default function AdminOrderDetailsClient({ initialOrder }: { initialOrder: any }) {
+  const router = useRouter();
+  const [order, setOrder] = useState(initialOrder);
+  const [status, setStatus] = useState(initialOrder.status);
+  const [notes, setNotes] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const validTransitions: any = {
+    'Order Placed': ['Confirmed', 'Cancelled'],
+    'Confirmed': ['Packed', 'Cancelled'],
+    'Packed': ['Shipped'], 
+    'Shipped': ['Out For Delivery'],
+    'Out For Delivery': ['Delivered'],
+    'Delivered': ['Returned'],
+    'Cancelled': [],
+    'Returned': []
+  };
+
+  const availableOptions = validTransitions[order.status] || [];
+
+  const handleUpdateStatus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (status === order.status) return;
+
+    setIsUpdating(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const res = await fetch(`/api/admin/orders/${order.orderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, notes }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to update order status');
+      }
+
+      const updatedOrder = await res.json();
+      setOrder({ ...order, ...updatedOrder });
+      setNotes('');
+      setSuccess(`Order status successfully updated to ${status}`);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-6 flex justify-between items-center">
+        <Link href="/admin/orders" className="text-sm font-medium text-gray-500 hover:text-black flex items-center">
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Orders
+        </Link>
+        <button 
+          onClick={() => generateInvoicePDF(order)}
+          className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center hover:bg-black/80"
+        >
+          <Download className="w-4 h-4 mr-2" /> Download Invoice
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Order Info */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* Status Update Form */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-bold mb-4">Update Order Status</h2>
+            {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">{error}</div>}
+            {success && <div className="mb-4 text-sm text-green-600 bg-green-50 p-3 rounded-lg border border-green-200">{success}</div>}
+            
+            <form onSubmit={handleUpdateStatus} className="space-y-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Status</label>
+                  <input type="text" disabled value={order.status} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 font-medium" />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">New Status</label>
+                  <select 
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    disabled={availableOptions.length === 0}
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-black outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                  >
+                    <option value={order.status}>No Change</option>
+                    {availableOptions.map((opt: string) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Internal Notes (Optional)</label>
+                <textarea 
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  disabled={availableOptions.length === 0}
+                  className="w-full p-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-black outline-none h-20 resize-none disabled:bg-gray-50"
+                  placeholder="E.g., Courier tracking ID: 123456789"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button 
+                  type="submit" 
+                  disabled={isUpdating || status === order.status}
+                  className="bg-black text-white px-6 py-2.5 rounded-lg text-sm font-medium flex items-center hover:bg-black/80 disabled:opacity-50"
+                >
+                  {isUpdating ? 'Updating...' : 'Update Status'}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Products List */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-bold mb-6 flex items-center">
+              <Package className="w-5 h-5 mr-2 text-gray-400" /> Products Ordered
+            </h2>
+            <div className="divide-y divide-gray-100">
+              {order.products.map((item: any, idx: number) => (
+                <div key={idx} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                      {item.product?.images?.[0] && (
+                        <img src={item.product.images[0].url} alt={item.name} className="w-full h-full object-cover" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{item.name}</p>
+                      <p className="text-xs text-gray-500">SKU: {item.product?.sku || 'N/A'}</p>
+                      <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">₹{item.finalPrice}</p>
+                    {item.discount > 0 && <p className="text-xs text-green-600">Disc: ₹{item.discount}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-6 pt-6 border-t border-gray-100 space-y-2 text-sm">
+              <div className="flex justify-between text-gray-500">
+                <span>Subtotal</span>
+                <span>₹{order.totalAmount + order.discount - order.deliveryCharges}</span>
+              </div>
+              <div className="flex justify-between text-green-600">
+                <span>Total Discount</span>
+                <span>-₹{order.discount}</span>
+              </div>
+              <div className="flex justify-between text-gray-500">
+                <span>Delivery Charges</span>
+                <span>{order.deliveryCharges === 0 ? 'Free' : `₹${order.deliveryCharges}`}</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg pt-2">
+                <span>Grand Total</span>
+                <span>₹{order.totalAmount}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Order Timeline */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-bold mb-6">Activity Timeline</h2>
+            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
+              {order.trackingTimeline.map((item: any, idx: number) => (
+                <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-gray-100 group-[.is-active]:bg-black text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded border border-gray-200 shadow-sm">
+                    <div className="flex items-center justify-between space-x-2 mb-1">
+                      <div className="font-bold text-gray-900 text-sm">{item.status}</div>
+                      <time className="text-xs font-medium text-gray-500">{new Date(item.date).toLocaleDateString()} {new Date(item.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time>
+                    </div>
+                    {item.note && <div className="text-gray-500 text-xs mt-2">{item.note}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Column - Customer / Shipping Info */}
+        <div className="space-y-8">
+          
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-bold mb-4 flex items-center">
+              <User className="w-5 h-5 mr-2 text-gray-400" /> Customer Details
+            </h2>
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="text-gray-500 text-xs">Name</p>
+                <p className="font-medium">{order.user?.name || 'Guest User'}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs">Email</p>
+                <p className="font-medium">{order.user?.email || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs">Phone</p>
+                <p className="font-medium">{order.user?.phone || 'N/A'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-bold mb-4 flex items-center">
+              <MapPin className="w-5 h-5 mr-2 text-gray-400" /> Shipping Address
+            </h2>
+            {order.shippingAddress ? (
+              <div className="text-sm space-y-1 text-gray-700">
+                <p className="font-medium text-gray-900 mb-2">{order.shippingAddress.fullName}</p>
+                <p>{order.shippingAddress.houseNo}, {order.shippingAddress.street}</p>
+                {order.shippingAddress.landmark && <p>Landmark: {order.shippingAddress.landmark}</p>}
+                <p>{order.shippingAddress.area}, {order.shippingAddress.city}</p>
+                <p>{order.shippingAddress.state} - {order.shippingAddress.postalCode}</p>
+                <p className="mt-3 font-medium">
+                  Phone: {order.shippingAddress.phone}
+                  {order.shippingAddress.alternatePhone && `, ${order.shippingAddress.alternatePhone}`}
+                </p>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No address details available.</p>
+            )}
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-bold mb-4 flex items-center">
+              <CreditCard className="w-5 h-5 mr-2 text-gray-400" /> Payment Info
+            </h2>
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="text-gray-500 text-xs">Method</p>
+                <p className="font-medium">{order.paymentMethod}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs">Status</p>
+                <span className={`inline-flex mt-1 px-2.5 py-1 text-xs rounded-full border font-medium 
+                  ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}
+                `}>
+                  {order.paymentStatus.toUpperCase()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}

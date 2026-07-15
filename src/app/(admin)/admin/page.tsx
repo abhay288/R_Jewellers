@@ -26,6 +26,17 @@ export default async function AdminDashboard() {
   const totalCustomers = await User.countDocuments({ role: 'user' });
   const recentActivities = await ActivityLog.find().sort({ createdAt: -1 }).limit(5).populate('user', 'name');
 
+  // Return & Refund Analytics
+  const mongoose = require('mongoose');
+  const Return = mongoose.models.Return || require('@/backend/models/Return').default;
+  const pendingReturns = await Return.countDocuments({ status: { $in: ['Return Requested', 'Under Review', 'Quality Check'] } });
+  
+  const refundStats = await Return.aggregate([
+    { $match: { status: 'Refund Completed' } },
+    { $group: { _id: null, totalRefunded: { $sum: '$totalRefundAmount' } } }
+  ]);
+  const totalRefundedAmount = refundStats[0]?.totalRefunded || 0;
+
   const stats = [
     {
       title: "Total Revenue",
@@ -55,6 +66,20 @@ export default async function AdminDashboard() {
       isPositive: true,
       icon: Users,
     },
+    {
+      title: "Pending Returns",
+      value: pendingReturns.toString(),
+      change: "Action required",
+      isPositive: false,
+      icon: AlertTriangle,
+    },
+    {
+      title: "Refunds Processed",
+      value: `₹${totalRefundedAmount.toLocaleString('en-IN')}`,
+      change: "Total refunded",
+      isPositive: true,
+      icon: ArrowDownRight,
+    },
   ];
 
   return (
@@ -66,7 +91,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, index) => (
           <div key={index} className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">

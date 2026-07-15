@@ -6,12 +6,16 @@ import Product from '../models/Product';
 import Cart from '../models/Cart';
 import Coupon from '../models/Coupon';
 import Address from '../models/Address';
+import OrderTimeline from '../models/OrderTimeline';
+import { NotificationService } from './NotificationService';
 
 export class OrderService {
   private repository: OrderRepository;
+  private notificationService: NotificationService;
 
   constructor() {
     this.repository = new OrderRepository();
+    this.notificationService = new NotificationService();
   }
 
   /**
@@ -164,12 +168,23 @@ export class OrderService {
         trackingTimeline: [{ status: 'Order Placed', note: 'Order has been placed successfully.' }]
       }], { session });
 
-      // 7. Clear Cart
+      // 7. Create standalone OrderTimeline entry
+      await OrderTimeline.create([{
+        order: newOrder[0]._id,
+        status: 'Order Placed',
+        updatedBy: userId, // Customer placed the order
+        notes: 'Order placed successfully by customer.'
+      }], { session });
+
+      // 8. Clear Cart
       await Cart.findByIdAndUpdate(totals.cartId, { $set: { items: [] } }, { session });
 
       // Commit Transaction
       await session.commitTransaction();
       session.endSession();
+
+      // Fire notification non-blocking
+      this.notificationService.sendOrderStatusNotification(userId, orderId, 'Order Placed');
 
       return newOrder[0];
 
@@ -181,13 +196,164 @@ export class OrderService {
   }
 
   /**
-   * Get Orders for user
+   * Admin: Update Order Status
    */
-  async getUserOrders(userId: string) {
-    return Order.find({ user: userId })
-      .sort({ createdAt: -1 })
-      .populate('shippingAddress')
-      .populate('products.product', 'images name sku slug');
+  async updateOrderStatus(orderId: string, status: string, notes: string, updatedBy: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const order = await Order.findOne({ orderId }).session(session);
+      if (!order) throw new Error("Order not found");
+
+      // Allowed transitions logic
+      const validTransitions: any = {
+        'Order Placed': ['Confirmed', 'Cancelled'],
+        'Confirmed': ['Packed', 'Cancelled'],
+        'Packed': ['Shipped'], // Cannot cancel after Packed
+        'Shipped': ['Out For Delivery'],
+        'Out For Delivery': ['Delivered'],
+        'Delivered': ['Returned'],
+        'Cancelled': [],
+        'Returned': []
+      };
+
+      if (!validTransitions[order.status]?.includes(status)) {
+        throw new Error(`Invalid status transition from ${order.status} to ${status}`);
+      }
+
+      // Update Order document
+      order.status = status as any;
+      if (status === 'Delivered') {
+        order.returnEligibilityDate = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
+      }
+      order.trackingTimeline.push({ status, date: new Date(), note: notes });
+      await order.save({ session });
+
+      // Insert standalone timeline record
+      await OrderTimeline.create([{
+        order: order._id,
+        status: status as any,
+        updatedBy, // Admin ID
+        notes
+      }], { session });
+
+      // Commit Transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      // Fire notification
+      this.notificationService.sendOrderStatusNotification(order.user.toString(), order.orderId, status);
+
+      return order;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+  }
+
+  /**
+   * Customer: Cancel Order
+   */
+  async cancelOrder(orderId: string, reason: string, customerId: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const order = await Order.findOne({ orderId, user: customerId }).session(session);
+      if (!order) throw new Error("Order not found");
+
+      if (['Packed', 'Shipped', 'Out For Delivery', 'Delivered', 'Cancelled', 'Returned'].includes(order.status)) {
+        throw new Error("Order cannot be cancelled at this stage");
+      }
+
+      const status = 'Cancelled';
+      order.status = status;
+      order.trackingTimeline.push({ status, date: new Date(), note: `Cancelled by Customer: ${reason}` });
+      await order.save({ session });
+
+      // Revert Inventory Stock
+      for (const item of order.products) {
+        await Product.findByIdAndUpdate(
+          item.product,
+          { $inc: { stock: item.quantity } },
+          { session }
+        );
+      }
+
+      // Insert timeline record
+      await OrderTimeline.create([{
+        order: order._id,
+        status: status as any,
+        updatedBy: customerId,
+        notes: `Cancelled by Customer: ${reason}`
+      }], { session });
+
+      // Commit
+      await session.commitTransaction();
+      session.endSession();
+
+      // Notification
+      this.notificationService.sendOrderStatusNotification(order.user.toString(), order.orderId, status);
+
+      return order;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+  }
+
+  /**
+   * Get Orders for user with pagination
+   */
+  async getUserOrders(userId: string, page: number = 1, limit: number = 10, statusFilter?: string) {
+    const query: any = { user: userId };
+    if (statusFilter && statusFilter !== 'All') {
+      query.status = statusFilter;
+    }
+
+    const skip = (page - 1) * limit;
+    
+    const [orders, total] = await Promise.all([
+      Order.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('products.product', 'images name sku slug'),
+      Order.countDocuments(query)
+    ]);
+
+    return { orders, total, pages: Math.ceil(total / limit) };
+  }
+
+  /**
+   * Admin: Get all orders with search/filter
+   */
+  async getAdminOrders(page: number = 1, limit: number = 10, search?: string, statusFilter?: string) {
+    const query: any = {};
+    if (statusFilter && statusFilter !== 'All') {
+      query.status = statusFilter;
+    }
+
+    if (search) {
+      // Search by Order ID only for now, since customer name/email is inside the user doc
+      // A more advanced aggregation is needed for user name search, but we stick to orderId here
+      query.orderId = { $regex: search, $options: 'i' };
+    }
+
+    const skip = (page - 1) * limit;
+    
+    const [orders, total] = await Promise.all([
+      Order.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('user', 'name email phone')
+        .populate('shippingAddress'),
+      Order.countDocuments(query)
+    ]);
+
+    return { orders, total, pages: Math.ceil(total / limit) };
   }
 
   /**
@@ -198,8 +364,8 @@ export class OrderService {
     if (userId) query.user = userId;
     
     return Order.findOne(query)
+      .populate('user', 'name email phone')
       .populate('shippingAddress')
-      .populate('products.product', 'images name sku slug');
+      .populate('products.product', 'images name sku slug price');
   }
 }
-

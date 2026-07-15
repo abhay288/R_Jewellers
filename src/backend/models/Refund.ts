@@ -1,36 +1,43 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IRefund extends Document {
-  returnRequest: mongoose.Types.ObjectId;
+  return: mongoose.Types.ObjectId;
   order: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   amount: number;
-  status: 'pending' | 'processed' | 'failed';
-  transactionId?: string;
+  upiId: string;
+  transactionReference?: string;
+  processedBy?: mongoose.Types.ObjectId;
+  processedAt?: Date;
+  status: 'Pending' | 'Completed' | 'Failed';
   createdAt: Date;
   updatedAt: Date;
 }
 
 const RefundSchema: Schema<IRefund> = new Schema(
   {
-    returnRequest: { type: Schema.Types.ObjectId, ref: 'Return', required: true },
+    return: { type: Schema.Types.ObjectId, ref: 'Return', required: true, unique: true },
     order: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     amount: { type: Number, required: true, min: 0 },
+    upiId: { type: String, required: true },
+    transactionReference: { type: String },
+    processedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    processedAt: { type: Date },
     status: {
       type: String,
-      enum: ['pending', 'processed', 'failed'],
-      default: 'pending',
-    },
-    transactionId: { type: String },
+      enum: ['Pending', 'Completed', 'Failed'],
+      default: 'Pending'
+    }
   },
   {
     timestamps: true,
   }
 );
 
-RefundSchema.index({ user: 1 });
+RefundSchema.index({ return: 1 });
 RefundSchema.index({ order: 1 });
+RefundSchema.index({ user: 1 });
 RefundSchema.index({ status: 1 });
 
 const Refund: Model<IRefund> = mongoose.models.Refund || mongoose.model<IRefund>('Refund', RefundSchema);
