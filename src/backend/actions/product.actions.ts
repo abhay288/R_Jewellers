@@ -125,7 +125,7 @@ export async function updateProduct(id: string, data: any) {
   }
 }
 
-export async function updateProductStock(id: string, newStock: number, reason: string, notes?: string) {
+export async function updateProductStock(id: string, newStock: number, reason: 'Added' | 'Reduced' | 'Sold' | 'Returned' | 'Adjusted' | 'Damaged', notes?: string) {
   try {
     const session = await requireAdmin();
     await connectDB();

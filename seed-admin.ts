@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -12,8 +14,11 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 async function seedAdmin() {
-  const uri = "mongodb://radhikajewellers699:radhika%23699@ac-xaeydbi-shard-00-00.bnqjzp6.mongodb.net:27017,ac-xaeydbi-shard-00-01.bnqjzp6.mongodb.net:27017,ac-xaeydbi-shard-00-02.bnqjzp6.mongodb.net:27017/?ssl=true&replicaSet=atlas-jzp6-shard-0&authSource=admin&retryWrites=true&w=majority";
-
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error("Error seeding admin: MONGODB_URI is not defined");
+    process.exit(1);
+  }
   try {
     await mongoose.connect(uri);
     console.log("Connected to MongoDB.");

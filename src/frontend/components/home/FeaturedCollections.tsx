@@ -5,28 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-const collections = [
-  {
-    id: "bridal",
-    name: "Bridal Elegance",
-    description: "Make your special day unforgettable with our premium bridal sets.",
-    href: "/collections/bridal",
-  },
-  {
-    id: "everyday",
-    name: "Everyday Luxury",
-    description: "Subtle elegance for your daily wear.",
-    href: "/collections/everyday",
-  },
-  {
-    id: "festive",
-    name: "Festive Radiance",
-    description: "Shine brightest during the celebrations.",
-    href: "/collections/festive",
-  }
-];
-
-export default function FeaturedCollections() {
+export default function FeaturedCollections({ collections }: { collections: any[] }) {
+  // If no dynamic collections are passed, use fallbacks or an empty array.
+  const displayCollections = collections && collections.length > 0 ? collections : [];
+  
   return (
     <section className="py-32 bg-background">
       <div className="container mx-auto px-6">
@@ -46,22 +28,26 @@ export default function FeaturedCollections() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {collections.map((collection, index) => (
+          {displayCollections.map((collection, index) => (
             <motion.div
-              key={collection.id}
+              key={collection._id?.toString() || collection.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, delay: index * 0.2 }}
               className="group cursor-pointer"
             >
-              <Link href={collection.href} className="block relative h-[500px] rounded-3xl overflow-hidden mb-6 bg-secondary/30">
+              <Link href={`/shop?category=${collection.slug}`} className="block relative h-[500px] rounded-3xl overflow-hidden mb-6 bg-secondary/30">
                 {/* Placeholder Image container */}
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="font-playfair text-2xl text-muted-foreground/30 animate-pulse">
-                    Image
-                  </span>
+                  {collection.icon ? (
+                    <Image src={collection.icon} alt={collection.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                  ) : (
+                    <span className="font-playfair text-2xl text-muted-foreground/30 animate-pulse">
+                      {collection.name}
+                    </span>
+                  )}
                 </div>
                 {/* Example of Image component once we have real assets */}
                 {/* <Image src={`/images/${collection.id}.jpg`} alt={collection.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> */}

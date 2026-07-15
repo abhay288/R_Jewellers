@@ -32,9 +32,6 @@ export function CategoryForm({ initialData, parentCategories = [] }: CategoryFor
       icon: "",
       color: "#000000",
       parentCategory: "",
-      seoTitle: "",
-      seoDescription: "",
-      seoKeywords: [],
     },
   });
 
@@ -42,11 +39,7 @@ export function CategoryForm({ initialData, parentCategories = [] }: CategoryFor
     try {
       setLoading(true);
       
-      // Convert keywords string back to array if entered as string in some implementations
       let formattedData = { ...data };
-      if (typeof data.seoKeywords === 'string') {
-          formattedData.seoKeywords = (data.seoKeywords as string).split(',').map((k: string) => k.trim()).filter((k: string) => k);
-      }
 
       if (initialData) {
         await updateCategory(initialData.id, formattedData);
@@ -151,35 +144,6 @@ export function CategoryForm({ initialData, parentCategories = [] }: CategoryFor
         </div>
       </div>
 
-      <div className="border border-border/50 rounded-xl p-6 bg-secondary/10 space-y-6">
-        <h3 className="text-lg font-semibold font-playfair">SEO Settings</h3>
-        <div className="grid grid-cols-1 gap-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">SEO Title</label>
-            <input 
-              {...form.register("seoTitle")} 
-              className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-              placeholder="Title for search engines"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">SEO Description</label>
-            <textarea 
-              {...form.register("seoDescription")} 
-              className="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm custom-scrollbar"
-              placeholder="Meta description for search results"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">SEO Keywords (Comma separated)</label>
-            <input 
-              {...form.register("seoKeywords")} 
-              className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-              placeholder="jewellery, gold, rings"
-            />
-          </div>
-        </div>
-      </div>
 
       <div className="flex items-center space-x-2 border border-border rounded-xl p-4 bg-secondary/20">
         <input 

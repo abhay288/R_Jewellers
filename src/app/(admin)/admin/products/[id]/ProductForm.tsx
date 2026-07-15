@@ -48,9 +48,6 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
       isBestSeller: false,
       isTrending: false,
       tags: [],
-      seoTitle: "",
-      seoDescription: "",
-      metaKeywords: [],
     },
   });
 
@@ -271,42 +268,6 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
         </div>
       </div>
 
-      {/* 5. SEO */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-playfair font-bold border-b border-border/50 pb-2">Search Engine Optimization</h2>
-        
-        <div className="grid grid-cols-1 gap-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">SEO Title</label>
-            <input {...form.register("seoTitle")} className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">SEO Description</label>
-            <textarea {...form.register("seoDescription")} className="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary custom-scrollbar" />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Meta Keywords</label>
-            <div className="flex items-center space-x-2">
-              <input 
-                value={keywordInput}
-                onChange={e => setKeywordInput(e.target.value)}
-                onKeyDown={e => addTag(e, 'metaKeywords', keywordInput, setKeywordInput)}
-                className="flex h-10 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" 
-                placeholder="Press Enter to add keywords" 
-              />
-              <button type="button" onClick={e => addTag(e, 'metaKeywords', keywordInput, setKeywordInput)} className="bg-secondary p-2 rounded-lg"><Plus className="w-5 h-5" /></button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {form.watch("metaKeywords")?.map((t, i) => (
-                <span key={i} className="bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded-md flex items-center">
-                  {t}
-                  <button type="button" onClick={() => removeTag(i, 'metaKeywords')} className="ml-1 hover:text-red-500"><X className="w-3 h-3" /></button>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* 6. Status & Toggles */}
       <div className="space-y-6">
