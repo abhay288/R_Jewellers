@@ -188,15 +188,16 @@ export class OrderService {
       // Fire notification non-blocking
       this.notificationService.sendOrderStatusNotification(userId, orderId, 'Order Placed');
 
-      // Send Order Confirmation Email
+      // Send Order Confirmation & Owner Alert Emails
       try {
         const userObj = await User.findById(userId);
+        const emailService = new EmailService();
         if (userObj) {
-          const emailService = new EmailService();
           await emailService.sendOrderConfirmationEmail(userObj.email, userObj.name, newOrder[0]);
         }
+        await emailService.sendOwnerNewOrderAlertEmail(newOrder[0]);
       } catch (emailErr) {
-        console.error('Failed to send order confirmation email:', emailErr);
+        console.error('Failed to send order confirmation or owner alert emails:', emailErr);
       }
 
       // Check for low stock on purchased items
@@ -338,6 +339,17 @@ export class OrderService {
 
       // Notification
       this.notificationService.sendOrderStatusNotification(order.user.toString(), order.orderId, status);
+
+      // Notify Admin
+      try {
+        this.notificationService.sendAdminPushNotification(
+          'Order Cancelled by Customer',
+          `Order ${order.orderId} has been cancelled by the customer.`,
+          `/admin/orders/${order.orderId}`
+        );
+      } catch (adminPushErr) {
+        console.error('Failed to notify admins of order cancellation via push:', adminPushErr);
+      }
 
       // Send cancellation email
       try {

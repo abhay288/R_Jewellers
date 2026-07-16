@@ -148,8 +148,12 @@ export class ReturnService {
           `A new return request ${returnIdStr} has been submitted by customer.`,
           `/admin/returns/${returnIdStr}`
         );
+
+        // Send owner new return alert email
+        const emailService = new EmailService();
+        await emailService.sendOwnerNewReturnAlertEmail(newReturn[0]);
       } catch (adminPushErr) {
-        console.error('Failed to notify admins of new return request:', adminPushErr);
+        console.error('Failed to notify admins of new return request via push/email:', adminPushErr);
       }
 
       return newReturn[0];
@@ -291,6 +295,20 @@ export class ReturnService {
 
       await session.commitTransaction();
       session.endSession();
+
+      // Notify customer
+      try {
+        this.notificationService.createNotification(
+          returnReq.user.toString(),
+          'Return Quality Check Completed',
+          `Your return request ${returnId} has successfully completed quality inspection.`,
+          'order',
+          `/profile/returns/${returnId}`
+        );
+      } catch (custPushErr) {
+        console.error('Failed to notify customer of quality check completion via push:', custPushErr);
+      }
+
       return returnReq;
     } catch (error) {
       await session.abortTransaction();

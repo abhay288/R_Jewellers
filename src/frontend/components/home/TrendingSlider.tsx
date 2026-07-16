@@ -71,7 +71,7 @@ export default function TrendingSlider({ products }: { products: any[] }) {
                 <div className="relative h-[450px] bg-secondary/30 rounded-2xl overflow-hidden mb-6">
                   <div className="absolute inset-0 flex items-center justify-center">
                     {product.images && product.images[0] ? (
-                        <Image src={product.images[0]} alt={product.name} fill className="object-cover object-center transition-transform duration-700 group-hover:scale-105" />
+                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw" className="object-cover object-center transition-transform duration-700 group-hover:scale-105" />
                     ) : (
                         <span className="font-playfair text-xl text-muted-foreground/30 animate-pulse">Product Image</span>
                     )}

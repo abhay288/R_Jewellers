@@ -7,6 +7,7 @@ import { useCheckoutStore } from "@/frontend/store/useCheckoutStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronRight, MapPin, CreditCard, ShoppingBag, Loader2 } from "lucide-react";
 import Image from "next/image";
+import Script from "next/script";
 
 interface CheckoutClientProps {
   session: any;
@@ -20,6 +21,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [totals, setTotals] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Razorpay'>('COD');
   
   // New Address Form State
   const [showNewAddress, setShowNewAddress] = useState(false);
@@ -122,24 +124,108 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
     if (!selectedAddressId) return alert("Please select an address");
     setLoading(true);
     try {
+      // Step A: Place the local order first with pending payment status
       const res = await fetch('/api/shop/checkout/place-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ addressId: selectedAddressId, couponCode, paymentMethod: 'COD' })
+        body: JSON.stringify({ addressId: selectedAddressId, couponCode, paymentMethod })
       });
       
-      if (res.ok) {
-        const data = await res.json();
-        clearCart();
-        resetCheckout();
-        router.push(`/checkout/success/${data.orderId}`);
-      } else {
+      if (!res.ok) {
         const err = await res.json();
         alert(err.error);
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      const localOrderId = data.orderId;
+
+      if (paymentMethod === 'COD') {
+        clearCart();
+        resetCheckout();
+        router.push(`/checkout/success/${localOrderId}`);
+      } else {
+        // Step B: Call backend to create Razorpay Order
+        const rpRes = await fetch('/api/shop/checkout/razorpay/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: localOrderId })
+        });
+
+        if (!rpRes.ok) {
+          const rpErr = await rpRes.json();
+          alert(rpErr.error || 'Failed to initialize online payment');
+          setLoading(false);
+          return;
+        }
+
+        const rpData = await rpRes.json();
+
+        // Step C: Trigger Razorpay Checkout Modal
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          amount: rpData.amount,
+          currency: rpData.currency,
+          name: 'Radhika Jewellers',
+          description: 'Payment for Order #' + localOrderId,
+          image: '/icon.png',
+          order_id: rpData.order_id,
+          handler: async function (response: any) {
+            setLoading(true);
+            try {
+              // Step D: Send signature verification to backend
+              const verifyRes = await fetch('/api/shop/checkout/razorpay/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: localOrderId,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                })
+              });
+
+              if (verifyRes.ok) {
+                clearCart();
+                resetCheckout();
+                router.push(`/checkout/success/${localOrderId}`);
+              } else {
+                const verifyErr = await verifyRes.json();
+                alert(verifyErr.error || 'Payment signature verification failed.');
+              }
+            } catch (err) {
+              console.error('Payment verification request failed:', err);
+              alert('An error occurred during payment verification.');
+            } finally {
+              setLoading(false);
+            }
+          },
+          prefill: {
+            name: session?.user?.name || '',
+            email: session?.user?.email || '',
+          },
+          theme: {
+            color: '#8c765c'
+          },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+              alert('Payment modal closed. You can complete this payment later or select COD.');
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function (response: any) {
+          alert('Payment failed: ' + response.error.description);
+          setLoading(false);
+        });
+        rzp.open();
       }
     } catch (err) {
       console.error(err);
-    } finally {
+      alert('An error occurred while placing your order.');
       setLoading(false);
     }
   };
@@ -230,48 +316,48 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                     <form onSubmit={handleSaveAddress} className="space-y-4 bg-secondary/20 p-6 rounded-2xl border border-border">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Full Name</label>
-                          <input required type="text" value={newAddress.fullName} onChange={e => setNewAddress({...newAddress, fullName: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="fullName" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Full Name</label>
+                          <input id="fullName" required type="text" value={newAddress.fullName} onChange={e => setNewAddress({...newAddress, fullName: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Mobile Number</label>
-                          <input required type="tel" value={newAddress.phone} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="phone" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Mobile Number</label>
+                          <input id="phone" required type="tel" value={newAddress.phone} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div className="col-span-2">
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Email Address</label>
-                          <input required type="email" value={newAddress.email} onChange={e => setNewAddress({...newAddress, email: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="email" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Email Address</label>
+                          <input id="email" required type="email" value={newAddress.email} onChange={e => setNewAddress({...newAddress, email: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">House / Flat No</label>
-                          <input required type="text" value={newAddress.houseNo} onChange={e => setNewAddress({...newAddress, houseNo: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="houseNo" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">House / Flat No</label>
+                          <input id="houseNo" required type="text" value={newAddress.houseNo} onChange={e => setNewAddress({...newAddress, houseNo: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Street</label>
-                          <input required type="text" value={newAddress.street} onChange={e => setNewAddress({...newAddress, street: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="street" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Street</label>
+                          <input id="street" required type="text" value={newAddress.street} onChange={e => setNewAddress({...newAddress, street: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Area / Locality</label>
-                          <input required type="text" value={newAddress.area} onChange={e => setNewAddress({...newAddress, area: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="area" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Area / Locality</label>
+                          <input id="area" required type="text" value={newAddress.area} onChange={e => setNewAddress({...newAddress, area: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">PIN Code</label>
-                          <input required type="text" value={newAddress.postalCode} onChange={e => setNewAddress({...newAddress, postalCode: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="postalCode" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">PIN Code</label>
+                          <input id="postalCode" required type="text" value={newAddress.postalCode} onChange={e => setNewAddress({...newAddress, postalCode: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">City</label>
-                          <input required type="text" value={newAddress.city} onChange={e => setNewAddress({...newAddress, city: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="city" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">City</label>
+                          <input id="city" required type="text" value={newAddress.city} onChange={e => setNewAddress({...newAddress, city: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">District</label>
-                          <input required type="text" value={newAddress.district} onChange={e => setNewAddress({...newAddress, district: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="district" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">District</label>
+                          <input id="district" required type="text" value={newAddress.district} onChange={e => setNewAddress({...newAddress, district: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">State</label>
-                          <input required type="text" value={newAddress.state} onChange={e => setNewAddress({...newAddress, state: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="state" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">State</label>
+                          <input id="state" required type="text" value={newAddress.state} onChange={e => setNewAddress({...newAddress, state: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Address Type</label>
-                          <select required value={newAddress.addressType} onChange={e => setNewAddress({...newAddress, addressType: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3">
+                          <label htmlFor="addressType" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Address Type</label>
+                          <select id="addressType" required value={newAddress.addressType} onChange={e => setNewAddress({...newAddress, addressType: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3">
                             <option value="Home">Home</option>
                             <option value="Office">Office</option>
                             <option value="Other">Other</option>
@@ -343,25 +429,32 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                   <h2 className="text-2xl font-playfair mb-6 flex items-center"><CreditCard className="mr-3" /> Payment Method</h2>
                   
                   <div className="space-y-4">
-                    <div className="p-6 rounded-2xl border-2 border-primary bg-primary/5 flex items-center space-x-4 cursor-pointer">
-                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                    <div 
+                      onClick={() => setPaymentMethod('COD')}
+                      className={`p-6 rounded-2xl border-2 flex items-center space-x-4 cursor-pointer transition-all ${paymentMethod === 'COD' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/35'}`}
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${paymentMethod === 'COD' ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'}`}>
                         ₹
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium text-lg">Cash on Delivery (COD)</h4>
                         <p className="text-muted-foreground text-sm">Pay at your doorstep when receiving the order.</p>
                       </div>
-                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-4 h-4" /></div>
+                      {paymentMethod === 'COD' && <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-4 h-4" /></div>}
                     </div>
                     
-                    <div className="p-6 rounded-2xl border border-border opacity-50 flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
-                        <CreditCard className="w-5 h-5 text-muted-foreground" />
+                    <div 
+                      onClick={() => setPaymentMethod('Razorpay')}
+                      className={`p-6 rounded-2xl border-2 flex items-center space-x-4 cursor-pointer transition-all ${paymentMethod === 'Razorpay' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/35'}`}
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${paymentMethod === 'Razorpay' ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'}`}>
+                        <CreditCard className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-lg">Online Payment</h4>
-                        <p className="text-muted-foreground text-sm">Credit Card, UPI, Netbanking (Coming Soon)</p>
+                        <h4 className="font-medium text-lg">Online Payment (Razorpay)</h4>
+                        <p className="text-muted-foreground text-sm">Credit Card, UPI, Netbanking, Wallets (Secure & Instant)</p>
                       </div>
+                      {paymentMethod === 'Razorpay' && <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center"><Check className="w-4 h-4" /></div>}
                     </div>
 
                     <div className="flex justify-between mt-8">
@@ -421,6 +514,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
         </div>
 
       </div>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
     </div>
   );
 }

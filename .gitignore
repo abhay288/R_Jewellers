@@ -43,3 +43,6 @@ next-env.d.ts
 # credentials
 *-firebase-adminsdk-*.json
 firebase-service-account.json
+cloudinary_test.js
+*.log
+

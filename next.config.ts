@@ -1,8 +1,9 @@
-import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   /* config options here */
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -31,6 +32,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  sentry: {
+    widenClientFileUpload: true,
+    tunnelRoute: "/monitoring",
+    hideSourceMaps: true,
+    disableLogger: true,
+  },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig as any, {
+  silent: true,
+  org: "radhika-jewellers",
+  project: "jewellers-website",
+});

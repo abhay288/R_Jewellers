@@ -34,6 +34,10 @@ export interface IOrder extends Document {
   paymentMethod: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
   
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
+  
   trackingTimeline: ITrackingTimeline[];
   returnEligibilityDate?: Date;
   
@@ -80,6 +84,9 @@ const OrderSchema: Schema<IOrder> = new Schema(
       enum: ['pending', 'paid', 'failed'], 
       default: 'pending' 
     },
+    razorpayOrderId: { type: String },
+    razorpayPaymentId: { type: String },
+    razorpaySignature: { type: String },
     
     trackingTimeline: [TrackingTimelineSchema],
     returnEligibilityDate: { type: Date },

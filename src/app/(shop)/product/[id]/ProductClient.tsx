@@ -62,7 +62,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
             <div className="flex-1 relative aspect-4/5 bg-secondary/30 rounded-3xl overflow-hidden group">
               <div className="absolute inset-0 flex items-center justify-center">
                 {images[activeImage] ? (
-                  <Image src={images[activeImage]} alt={product.name} fill className="object-cover" />
+                  <Image src={images[activeImage]} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                 ) : (
                   <span className="font-playfair text-xl text-muted-foreground/30 animate-pulse">Main Product View</span>
                 )}
@@ -88,7 +88,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                 >
                   <div className="absolute inset-0 bg-secondary/30 flex items-center justify-center">
                     {img ? (
-                      <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                      <Image src={img} alt={`Thumbnail ${idx + 1}`} fill sizes="80px" className="object-cover" />
                     ) : (
                       <span className="text-[10px] text-muted-foreground/30 uppercase">Thumb {idx + 1}</span>
                     )}

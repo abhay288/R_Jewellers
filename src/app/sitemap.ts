@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     await connectDB();
 
     // Fetch products
-    const products = await Product.find({ status: 'Published' }).select('slug updatedAt');
+    const products = await Product.find({ status: 'Published', isActive: true }).select('slug updatedAt');
     const productRoutes = products.map((prod) => ({
       url: `${baseUrl}/product/${prod.slug || prod._id.toString()}`,
       lastModified: prod.updatedAt || new Date(),
@@ -34,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Fetch categories
-    const categories = await Category.find({}).select('slug updatedAt');
+    const categories = await Category.find({ isActive: true, isDeleted: false }).select('slug updatedAt');
     const categoryRoutes = categories.map((cat) => ({
       url: `${baseUrl}/collections/${cat.slug || cat._id.toString()}`,
       lastModified: cat.updatedAt || new Date(),

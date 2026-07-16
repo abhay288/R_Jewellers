@@ -43,14 +43,10 @@ import { getMessaging, isSupported as isMessagingSupported } from "firebase/mess
 // Initialize providers
 export const googleProvider = new GoogleAuthProvider();
 
-let messaging: any = null;
-if (typeof window !== "undefined") {
-  isMessagingSupported().then((supported) => {
-    if (supported) {
-      messaging = getMessaging(app);
-    }
-  });
-}
+// Export messaging as a promise so that client-side hooks can await its initialization
+export const messaging = typeof window !== "undefined"
+  ? isMessagingSupported().then((supported) => (supported ? getMessaging(app) : null)).catch(() => null)
+  : Promise.resolve(null);
 
-export { analytics, messaging };
+export { analytics };
 export default app;

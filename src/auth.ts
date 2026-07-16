@@ -68,9 +68,18 @@ export const {
             providers: ["google"],
             emailVerified: new Date(),
           });
-        } else if (!existingUser.providers?.includes("google")) {
-           existingUser.providers?.push("google");
-           await existingUser.save();
+        } else {
+          let updated = false;
+          if (!existingUser.providers) {
+            existingUser.providers = ["google"];
+            updated = true;
+          } else if (!existingUser.providers.includes("google")) {
+            existingUser.providers.push("google");
+            updated = true;
+          }
+          if (updated) {
+            await existingUser.save();
+          }
         }
       }
       return true;

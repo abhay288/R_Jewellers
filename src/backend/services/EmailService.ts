@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { SettingService } from './SettingService';
+import User from '../models/User';
 
 export class EmailService {
   private settingService: SettingService;
@@ -407,5 +408,120 @@ export class EmailService {
       `
     );
     return this.sendEmail(to, 'Subscribed to Radhika Jewellers News & Offers', html);
+  }
+
+  /**
+   * Helper to retrieve all admin emails or fallback to supportEmail.
+   */
+  private async getAdminEmails(): Promise<string[]> {
+    try {
+      const admins = await User.find({ role: 'admin' }).select('email').exec();
+      if (admins && admins.length > 0) {
+        return admins.map((a: any) => a.email);
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin emails from DB:', err);
+    }
+    const fallbackEmail = await this.settingService.getSettingByKey('supportEmail', 'support@radhikajewellers.com');
+    return [fallbackEmail];
+  }
+
+  /**
+   * Send a new order alert email to the store owner (admins)
+   */
+  async sendOwnerNewOrderAlertEmail(order: any) {
+    const adminEmails = await this.getAdminEmails();
+    if (adminEmails.length === 0) return;
+
+    const itemsHtml = order.products.map((item: any) => `
+      <tr>
+        <td style="padding: 10px 0; border-bottom: 1px solid #f5f2ef;">${item.name} (x${item.quantity})</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #f5f2ef; text-align: right;">₹${item.finalPrice * item.quantity}</td>
+      </tr>
+    `).join('');
+
+    const html = this.getLuxuryWrapper(
+      'New Order Received',
+      `
+        <h2 class="title">New Order Received</h2>
+        <p>Dear Owner,</p>
+        <p>A new order <strong>${order.orderId}</strong> has been successfully placed by a customer.</p>
+        
+        <div style="background-color: #faf8f6; padding: 20px; border: 1px solid #e5dfd9; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #8c765c; font-family: 'Playfair Display', serif;">Order Details</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            ${itemsHtml}
+            <tr>
+              <td style="padding: 15px 0 5px; font-weight: bold;">Subtotal</td>
+              <td style="padding: 15px 0 5px; text-align: right; font-weight: bold;">₹${order.totalAmount - order.deliveryCharges + order.discount}</td>
+            </tr>
+            ${order.discount ? `
+            <tr>
+              <td style="padding: 5px 0; color: #8c765c;">Discount</td>
+              <td style="padding: 5px 0; text-align: right; color: #8c765c;">-₹${order.discount}</td>
+            </tr>` : ''}
+            <tr>
+              <td style="padding: 5px 0;">Delivery Charges</td>
+              <td style="padding: 5px 0; text-align: right;">₹${order.deliveryCharges}</td>
+            </tr>
+            <tr style="border-top: 2px solid #8c765c;">
+              <td style="padding: 10px 0 0; font-weight: bold; font-size: 16px;">Total Amount</td>
+              <td style="padding: 10px 0 0; text-align: right; font-weight: bold; font-size: 16px; color: #8c765c;">₹${order.totalAmount}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="button-container">
+          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin/orders/${order.orderId}" class="button">Manage Order in Admin Portal</a>
+        </div>
+      `
+    );
+
+    for (const email of adminEmails) {
+      await this.sendEmail(email, `Admin Notification: New Order Placed - ${order.orderId}`, html);
+    }
+  }
+
+  /**
+   * Send a new return request alert email to the store owner (admins)
+   */
+  async sendOwnerNewReturnAlertEmail(returnObj: any) {
+    const adminEmails = await this.getAdminEmails();
+    if (adminEmails.length === 0) return;
+
+    const html = this.getLuxuryWrapper(
+      'New Return Request Submitted',
+      `
+        <h2 class="title">New Return Requested</h2>
+        <p>Dear Owner,</p>
+        <p>A customer has submitted a new return request for order ID <strong>${returnObj.order}</strong>.</p>
+        
+        <div style="background-color: #faf8f6; padding: 20px; border: 1px solid #e5dfd9; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #8c765c; font-family: 'Playfair Display', serif;">Return Details</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+              <td style="padding: 5px 0; font-weight: bold;">Return ID:</td>
+              <td style="padding: 5px 0; text-align: right;">${returnObj.returnId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0; font-weight: bold;">Reason:</td>
+              <td style="padding: 5px 0; text-align: right;">${returnObj.reason}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0; font-weight: bold;">Estimated Refund:</td>
+              <td style="padding: 5px 0; text-align: right; color: #8c765c; font-weight: bold;">₹${returnObj.totalRefundAmount}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="button-container">
+          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin/returns/${returnObj.returnId}" class="button">Manage Return in Admin Portal</a>
+        </div>
+      `
+    );
+
+    for (const email of adminEmails) {
+      await this.sendEmail(email, `Admin Notification: New Return Requested - ${returnObj.returnId}`, html);
+    }
   }
 }

@@ -42,7 +42,7 @@ export default function FeaturedCollections({ collections }: { collections: any[
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   {collection.icon ? (
-                    <Image src={collection.icon} alt={collection.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <Image src={collection.icon} alt={collection.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
                     <span className="font-playfair text-2xl text-muted-foreground/30 animate-pulse">
                       {collection.name}

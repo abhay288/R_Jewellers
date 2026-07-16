@@ -6,11 +6,13 @@ import "./globals.css";
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const viewport: Viewport = {
@@ -27,6 +29,7 @@ export const metadata: Metadata = {
   },
   description: "Discover our premium collection of handcrafted luxury artificial jewellery. Elegance, heritage, and royal designs crafted for your special moments.",
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  manifest: '/manifest.json',
   alternates: {
     canonical: '/',
   },
@@ -89,6 +92,9 @@ export default function RootLayout({
       className={`${playfair.variable} ${outfit.variable} antialiased`}
     >
       <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}

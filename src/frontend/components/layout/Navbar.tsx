@@ -64,6 +64,7 @@ export default function Navbar() {
           <button
             className="md:hidden text-foreground hover:text-primary transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open navigation menu"
           >
             <Menu size={24} />
           </button>
@@ -95,22 +96,22 @@ export default function Navbar() {
 
           {/* Icons */}
           <div className="flex items-center space-x-4 md:space-x-6 text-foreground">
-            <button className="hover:text-primary transition-colors" onClick={() => setIsVisualSearchOpen(true)}>
+            <button className="hover:text-primary transition-colors" onClick={() => setIsVisualSearchOpen(true)} aria-label="Search by image">
               <Camera size={20} strokeWidth={1.5} />
             </button>
-            <button className="hover:text-primary transition-colors">
+            <button className="hover:text-primary transition-colors" aria-label="Search products">
               <Search size={20} strokeWidth={1.5} />
             </button>
-            <Link href="/account" className="hidden md:block hover:text-primary transition-colors">
+            <Link href="/account" className="hidden md:block hover:text-primary transition-colors" aria-label="Go to account details">
               <User size={20} strokeWidth={1.5} />
             </Link>
-            <button className="hover:text-primary transition-colors" onClick={() => setIsRecentlyViewedOpen(true)}>
+            <button className="hover:text-primary transition-colors" onClick={() => setIsRecentlyViewedOpen(true)} aria-label="Recently viewed items">
               <History size={20} strokeWidth={1.5} />
             </button>
-            <button className="hover:text-primary transition-colors">
+            <button className="hover:text-primary transition-colors" aria-label="Wishlist">
               <Heart size={20} strokeWidth={1.5} />
             </button>
-            <button className="hover:text-primary transition-colors relative" onClick={toggleCart}>
+            <button className="hover:text-primary transition-colors relative" onClick={toggleCart} aria-label="Shopping Cart">
               <ShoppingBag size={20} strokeWidth={1.5} />
               {items.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
@@ -145,6 +146,7 @@ export default function Navbar() {
               <button
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
+                aria-label="Close navigation menu"
               >
                 <X size={28} />
               </button>
@@ -198,6 +200,7 @@ export default function Navbar() {
                 <button
                   onClick={() => setIsRecentlyViewedOpen(false)}
                   className="text-foreground hover:text-primary transition-colors p-2"
+                  aria-label="Close recently viewed drawer"
                 >
                   <X size={24} />
                 </button>
