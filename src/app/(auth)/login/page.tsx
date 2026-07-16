@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import { signIn } from "next-auth/react";
 
@@ -38,12 +37,7 @@ export default function LoginPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md w-full mx-auto"
-    >
+    <div className="max-w-md w-full mx-auto animate-fade-in-up">
       <h1 className="text-4xl font-playfair font-bold mb-2">Welcome Back</h1>
       <p className="text-muted-foreground mb-8">Sign in to access your wishlist, orders, and exclusive offers.</p>
 
@@ -136,6 +130,6 @@ export default function LoginPage() {
           <span className="text-sm font-medium">Apple</span>
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

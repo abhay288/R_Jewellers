@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 
@@ -73,12 +72,7 @@ export default function SignupPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md w-full mx-auto"
-    >
+    <div className="max-w-md w-full mx-auto animate-fade-in-up">
       <h1 className="text-4xl font-playfair font-bold mb-2">Create Account</h1>
       <p className="text-muted-foreground mb-8">Join Radhika Jewellers to unlock exclusive collections and rewards.</p>
 
@@ -194,6 +188,6 @@ export default function SignupPage() {
           <span className="text-sm font-medium">Google</span>
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

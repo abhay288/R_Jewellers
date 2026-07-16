@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 export default function OTPPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -29,12 +28,7 @@ export default function OTPPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md w-full mx-auto text-center"
-    >
+    <div className="max-w-md w-full mx-auto text-center animate-fade-in-up">
       <h1 className="text-4xl font-playfair font-bold mb-2">Verify Email</h1>
       <p className="text-muted-foreground mb-8">
         We've sent a 6-digit code to <span className="font-medium text-foreground">radhika@example.com</span>. Please enter it below.
@@ -77,6 +71,6 @@ export default function OTPPage() {
           Back to Login
         </Link>
       </div>
-    </motion.div>
+    </div>
   );
 }
