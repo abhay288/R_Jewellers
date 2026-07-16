@@ -56,7 +56,8 @@ export default function Footer() {
             <ul className="space-y-4 text-sm text-muted-foreground">
               <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
               <li><Link href="/shipping" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
-              <li><Link href="/returns" className="hover:text-primary transition-colors">Returns & Exchanges</Link></li>
+              <li><Link href="/returns" className="hover:text-primary transition-colors">Return & Refund Policy</Link></li>
+              <li><Link href="/cancellation" className="hover:text-primary transition-colors">Cancellation Policy</Link></li>
               <li><Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
               <li><Link href="/track-order" className="hover:text-primary transition-colors">Track Order</Link></li>
             </ul>
@@ -68,11 +69,11 @@ export default function Footer() {
             <ul className="space-y-4 text-sm text-muted-foreground">
               <li className="flex items-start space-x-3">
                 <MapPin size={18} className="text-primary shrink-0 mt-0.5" />
-                <span>123 Luxury Avenue, Diamond District, NY 10001</span>
+                <span>Showroom 4, Royal Plaza, MG Road, Mumbai, Maharashtra 400001</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone size={18} className="text-primary shrink-0" />
-                <span>+1 (800) 123-4567</span>
+                <span>+91 98765 43210</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail size={18} className="text-primary shrink-0" />
@@ -86,7 +87,7 @@ export default function Footer() {
           <p>&copy; {new Date().getFullYear()} Radhika Jewellers. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
           </div>
         </div>
       </div>

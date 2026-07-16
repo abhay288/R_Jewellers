@@ -44,9 +44,9 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-medium text-lg mb-1">Flagship Store</h3>
                     <p className="text-muted-foreground font-light leading-relaxed">
-                      123 Luxury Avenue<br />
-                      Diamond District, NY 10001<br />
-                      United States
+                      Showroom 4, Royal Plaza<br />
+                      MG Road, Mumbai<br />
+                      Maharashtra 400001, India
                     </p>
                   </div>
                 </div>
@@ -54,7 +54,7 @@ export default function ContactPage() {
                   <Phone className="w-6 h-6 text-primary shrink-0" />
                   <div>
                     <h3 className="font-medium text-lg mb-1">Phone</h3>
-                    <p className="text-muted-foreground font-light">+1 (800) 123-4567</p>
+                    <p className="text-muted-foreground font-light">+91 98765 43210</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -69,8 +69,8 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-medium text-lg mb-1">Store Hours</h3>
                     <p className="text-muted-foreground font-light leading-relaxed">
-                      Monday - Saturday: 10:00 AM - 7:00 PM<br />
-                      Sunday: 11:00 AM - 5:00 PM
+                      Monday - Saturday: 10:00 AM - 8:00 PM<br />
+                      Sunday: Closed
                     </p>
                   </div>
                 </div>
