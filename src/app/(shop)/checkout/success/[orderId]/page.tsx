@@ -4,6 +4,7 @@ import { OrderService } from '@/backend/services/OrderService';
 import dbConnect from '@/shared/lib/mongodb';
 import { auth } from '@/auth';
 import { notFound } from 'next/navigation';
+import DownloadInvoiceButton from './DownloadInvoiceButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,10 +80,11 @@ export default async function CheckoutSuccessPage({ params }: { params: Promise<
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <Link href="/shop" className="w-full sm:w-auto bg-primary text-primary-foreground px-8 py-4 rounded-full uppercase tracking-wider text-sm font-medium hover:opacity-90 transition-opacity">
+          <Link href="/shop" className="w-full sm:w-auto bg-primary text-primary-foreground px-8 py-4 rounded-full uppercase tracking-wider text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center">
             Continue Shopping
           </Link>
-          <Link href="/profile/orders" className="w-full sm:w-auto py-4 px-8 border border-border rounded-full font-medium hover:bg-secondary transition-colors text-sm uppercase tracking-wider">
+          <DownloadInvoiceButton order={order} />
+          <Link href="/profile/orders" className="w-full sm:w-auto py-4 px-8 border border-border rounded-full font-medium hover:bg-secondary transition-colors text-sm uppercase tracking-wider flex items-center justify-center">
             View My Orders
           </Link>
         </div>
