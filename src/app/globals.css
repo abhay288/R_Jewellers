@@ -145,7 +145,7 @@
 /* Custom Luxury Gradients and Utilities */
 @layer utilities {
   .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-linear-to-r from-[#C88C7D] via-[#D4AF37] to-[#A86A5A] pr-[0.15em];
+    @apply bg-clip-text text-transparent bg-linear-to-r from-[#C88C7D] via-[#D4AF37] to-[#A86A5A] pr-[0.15em] py-[0.1em] inline-block;
   }
   .bg-gradient-gold {
     @apply bg-linear-to-r from-[#C88C7D] via-[#D4AF37] to-[#A86A5A];
