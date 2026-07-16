@@ -56,7 +56,12 @@ export async function middleware(request: NextRequest) {
   );
 
   // 3. Protected Routes Logic
-  const session = await auth();
+  let session = null;
+  try {
+    session = await auth();
+  } catch (err) {
+    console.error('NextAuth session error in middleware:', err);
+  }
 
   // Protect admin routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
