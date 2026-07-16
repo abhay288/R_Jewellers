@@ -32,16 +32,16 @@ const nextConfig = {
       },
     ];
   },
-  sentry: {
-    widenClientFileUpload: true,
-    tunnelRoute: "/monitoring",
-    hideSourceMaps: true,
-    disableLogger: true,
-  },
 };
 
 export default withSentryConfig(nextConfig as any, {
   silent: true,
   org: "radhika-jewellers",
   project: "jewellers-website",
+  widenClientFileUpload: true,
+  tunnelRoute: "/monitoring",
+  disableLogger: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
 });
