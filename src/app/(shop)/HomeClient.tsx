@@ -46,8 +46,19 @@ export default function HomeClient({
 
   const scrollWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
+  const [particles, setParticles] = useState<any[]>([]);
+
   // Set loading timeout on mount (Lenis smooth scroll is managed globally by SmoothScroll)
   useEffect(() => {
+    const generated = Array.from({ length: 15 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 10}s`,
+      duration: `${10 + Math.random() * 8}s`,
+      opacity: Math.random()
+    }));
+    setParticles(generated);
+
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
     }, 1600);
@@ -189,15 +200,15 @@ export default function HomeClient({
 
         {/* Gold Dust Background Particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          {Array.from({ length: 15 }).map((_, i) => (
+          {particles.map((p) => (
             <div 
-              key={i} 
+              key={p.id} 
               className="dust-particle" 
               style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 10}s`,
-                animationDuration: `${10 + Math.random() * 8}s`,
-                opacity: Math.random()
+                left: p.left,
+                animationDelay: p.delay,
+                animationDuration: p.duration,
+                opacity: p.opacity
               }}
             />
           ))}
