@@ -46,32 +46,15 @@ export default function HomeClient({
 
   const scrollWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
-  // Initialize Lenis smooth scroll on mount
+  // Set loading timeout on mount (Lenis smooth scroll is managed globally by SmoothScroll)
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const Lenis = require("lenis").default;
-      const lenis = new Lenis({
-        duration: 1.4,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true
-      });
+    const loadingTimeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 1600);
 
-      function raf(time: number) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
-
-      requestAnimationFrame(raf);
-      
-      const loadingTimeout = setTimeout(() => {
-        setIsLoading(false);
-      }, 1600);
-
-      return () => {
-        lenis.destroy();
-        clearTimeout(loadingTimeout);
-      };
-    }
+    return () => {
+      clearTimeout(loadingTimeout);
+    };
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {

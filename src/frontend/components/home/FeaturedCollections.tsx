@@ -27,7 +27,7 @@ export default function FeaturedCollections({ collections }: { collections: any[
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {displayCollections.map((collection, index) => (
             <motion.div
               key={collection._id?.toString() || collection.id}
@@ -37,7 +37,7 @@ export default function FeaturedCollections({ collections }: { collections: any[
               transition={{ duration: 0.8, delay: index * 0.2 }}
               className="group cursor-pointer"
             >
-              <Link href={`/shop?category=${collection.slug}`} className="block relative h-[500px] rounded-3xl overflow-hidden mb-6 bg-secondary/30">
+              <Link href={`/shop?category=${collection.slug}`} className="block relative h-[450px] rounded-3xl overflow-hidden mb-6 bg-secondary/30">
                 {/* Placeholder Image container */}
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -51,7 +51,7 @@ export default function FeaturedCollections({ collections }: { collections: any[
                     )} 
                     alt={collection.name} 
                     fill 
-                    sizes="(max-width: 768px) 100vw, 33vw" 
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" 
                     className="object-cover transition-transform duration-700 group-hover:scale-105" 
                   />
                 </div>
