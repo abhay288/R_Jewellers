@@ -9,7 +9,7 @@ export default function AboutPage() {
     "@context": "https://schema.org",
     "@type": "JewelryStore",
     "name": "Radhika Jewellers",
-    "image": "https://images.unsplash.com/photo-1599643478514-4a82a0b12bc5?auto=format&fit=crop&q=80&w=1200",
+    "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1200",
     "@id": "https://radhika-jewellers.vercel.app/#store",
     "url": "https://radhika-jewellers.vercel.app",
     "telephone": "+91-9988776655",
@@ -75,7 +75,7 @@ export default function AboutPage() {
             className="relative aspect-4/5 rounded-2xl overflow-hidden shadow-xl"
           >
             <Image
-              src="https://images.unsplash.com/photo-1599643478514-4a82a0b12bc5?auto=format&fit=crop&q=80&w=1200"
+              src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1200"
               alt="Artisan crafting jewellery at Radhika Jewellers"
               fill
               className="object-cover"

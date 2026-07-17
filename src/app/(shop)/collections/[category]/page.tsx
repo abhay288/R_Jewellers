@@ -11,7 +11,7 @@ const collectionDetails: Record<string, { title: string, description: string, im
   "bridal": {
     title: "Bridal Collection",
     description: "Exquisite pieces crafted for your special day. Make every moment unforgettable with our royal heritage designs.",
-    image: "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=1200",
+    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1200",
   },
   "festival": {
     title: "Festival Wear",
@@ -43,7 +43,7 @@ export default function CollectionCategoryPage({ params }: { params: Promise<{ c
   const collection = collectionDetails[categoryId] || {
     title: categoryId.charAt(0).toUpperCase() + categoryId.slice(1).replace("-", " "),
     description: "Explore our stunning selection of premium jewellery pieces.",
-    image: "https://images.unsplash.com/photo-1515562141207-7a8efbf69c76?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=1200"
   };
 
   return (

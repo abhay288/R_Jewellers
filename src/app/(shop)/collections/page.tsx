@@ -9,7 +9,7 @@ const collections = [
     id: "bridal-2026",
     title: "Bridal Collection",
     description: "Exquisite pieces crafted for your special day.",
-    image: "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800",
     href: "/shop?collection=bridal",
   },
   {

@@ -313,7 +313,7 @@ export default function HomeClient({
 
                 <div className="relative w-full h-full animate-float select-none pointer-events-none">
                   <Image 
-                    src="https://images.unsplash.com/photo-1599643478514-4a82a0b12bc5?auto=format&fit=crop&q=80&w=800"
+                    src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800"
                     alt="Luxury Diamond Choker Set"
                     fill
                     className="object-contain drop-shadow-[0_20px_40px_rgba(201,162,39,0.15)] filter brightness-[1.02]"
@@ -372,7 +372,7 @@ export default function HomeClient({
         <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             <Image 
-              src="https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=1200"
+              src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1200"
               alt="Luxury campaign backdrop"
               fill
               className="object-cover scale-105 filter brightness-[0.7]"
@@ -471,7 +471,7 @@ export default function HomeClient({
               {/* Image 4 */}
               <div className="md:col-span-2 relative h-[400px] rounded-3xl overflow-hidden group bg-secondary/30">
                 <Image 
-                  src="https://images.unsplash.com/photo-1515562141207-7a8efbf69c76?auto=format&fit=crop&q=80&w=800"
+                  src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
                   alt="Lifestyle Model"
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"

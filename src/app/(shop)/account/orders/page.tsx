@@ -10,7 +10,7 @@ const orders = [
     status: "Delivered",
     total: "₹1,048.00",
     items: [
-      { name: "Royal Kundan Bridal Choker Set", image: "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=400", qty: 1 },
+      { name: "Royal Kundan Bridal Choker Set", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400", qty: 1 },
       { name: "Rose Gold Diamond Bangles", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400", qty: 1 }
     ]
   },

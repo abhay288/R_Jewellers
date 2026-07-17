@@ -87,7 +87,7 @@ export default function ImageUpload({
             disabled={value.length >= maxFiles}
             onClick={(e) => {
               e.preventDefault();
-              const dummyUrl = `https://images.unsplash.com/photo-1599643478514-4a82a0b12bc5?auto=format&fit=crop&q=80&w=400&h=400&random=${Math.random()}`;
+              const dummyUrl = `https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400&h=400&random=${Math.random()}`;
               if (maxFiles === 1) {
                 onChange([dummyUrl]);
               } else {
