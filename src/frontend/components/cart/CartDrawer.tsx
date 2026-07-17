@@ -84,9 +84,20 @@ export default function CartDrawer() {
                     key={item.id} 
                     className="flex gap-4 border border-border/50 p-3 rounded-2xl bg-background/50"
                   >
-                    <div className="relative w-24 h-24 bg-secondary/30 rounded-xl overflow-hidden shrink-0 flex items-center justify-center">
-                      <span className="text-[10px] text-muted-foreground/30 uppercase">Img</span>
-                      {/* <Image src={item.image} alt={item.name} fill className="object-cover" /> */}
+                    <div className="relative w-24 h-24 bg-secondary/30 rounded-xl overflow-hidden shrink-0">
+                      <Image 
+                        src={item.image || (
+                          item.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=400" :
+                          item.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=400" :
+                          item.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=400" :
+                          item.name?.toLowerCase().includes('bangle') || item.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400" :
+                          "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                        )} 
+                        alt={item.name} 
+                        fill 
+                        sizes="96px"
+                        className="object-cover" 
+                      />
                     </div>
                     <div className="flex flex-1 flex-col justify-between">
                       <div className="flex justify-between items-start">
@@ -102,7 +113,7 @@ export default function CartDrawer() {
                         </button>
                       </div>
                       <div className="flex justify-between items-end">
-                        <p className="font-medium">₹${item.price.toFixed(2)}</p>
+                        <p className="font-medium">₹{item.price.toFixed(2)}</p>
                         
                         <div className="flex items-center space-x-3 bg-secondary/30 rounded-full px-2 py-1 border border-border/50">
                           <button 
@@ -133,7 +144,7 @@ export default function CartDrawer() {
                 <div className="space-y-3 mb-6 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
-                    <span>₹${subtotal.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Shipping</span>
@@ -141,7 +152,7 @@ export default function CartDrawer() {
                   </div>
                   <div className="border-t border-border/50 pt-3 flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">₹${subtotal.toFixed(2)}</span>
+                    <span className="text-primary">₹{subtotal.toFixed(2)}</span>
                   </div>
                 </div>
                 

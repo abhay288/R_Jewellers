@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Package, ChevronRight } from "lucide-react";
 
 // Mock Orders Data
@@ -9,8 +10,8 @@ const orders = [
     status: "Delivered",
     total: "₹1,048.00",
     items: [
-      { name: "Royal Kundan Bridal Choker Set", image: "/images/trending-1.jpg", qty: 1 },
-      { name: "Rose Gold Diamond Bangles", image: "/images/trending-2.jpg", qty: 1 }
+      { name: "Royal Kundan Bridal Choker Set", image: "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=400", qty: 1 },
+      { name: "Rose Gold Diamond Bangles", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400", qty: 1 }
     ]
   },
   {
@@ -19,7 +20,7 @@ const orders = [
     status: "Processing",
     total: "₹299.00",
     items: [
-      { name: "Emerald Drop Earrings", image: "/images/trending-3.jpg", qty: 2 }
+      { name: "Emerald Drop Earrings", image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=400", qty: 2 }
     ]
   }
 ];
@@ -63,8 +64,8 @@ export default function OrdersPage() {
               <div className="flex gap-4 overflow-x-auto hide-scrollbar">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex items-center space-x-3 shrink-0">
-                    <div className="w-16 h-16 rounded-xl bg-secondary overflow-hidden flex items-center justify-center shrink-0">
-                      <span className="text-[8px] uppercase text-muted-foreground/50">Img</span>
+                    <div className="w-16 h-16 rounded-xl bg-secondary overflow-hidden shrink-0 relative">
+                      <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
                     </div>
                     <div>
                       <p className="text-sm font-medium line-clamp-1 max-w-[150px]">{item.name}</p>

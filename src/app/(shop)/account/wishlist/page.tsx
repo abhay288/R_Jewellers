@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 
 // Mock Wishlist Data
@@ -8,7 +9,7 @@ const wishlistItems = [
     name: "Classic Diamond Tennis Bracelet",
     price: "₹499.00",
     category: "Everyday",
-    image: "/images/product-3.jpg",
+    image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400",
     inStock: true,
   },
   {
@@ -16,7 +17,7 @@ const wishlistItems = [
     name: "Temple Jewellery Gold Necklace",
     price: "₹750.00",
     category: "Festive",
-    image: "/images/product-5.jpg",
+    image: "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=400",
     inStock: false,
   }
 ];
@@ -45,9 +46,8 @@ export default function WishlistPage() {
               </button>
 
               <Link href={`/product/${item.id}`}>
-                <div className="aspect-square rounded-xl bg-secondary overflow-hidden mb-4 relative flex items-center justify-center">
-                  <span className="text-xs uppercase text-muted-foreground/50">Img</span>
-                  {/* <Image src={item.image} fill className="object-cover" alt={item.name} /> */}
+                <div className="aspect-square rounded-xl bg-secondary overflow-hidden mb-4 relative">
+                  <Image src={item.image} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" alt={item.name} />
                   {!item.inStock && (
                     <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
                       <span className="bg-background text-foreground px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Out of Stock</span>

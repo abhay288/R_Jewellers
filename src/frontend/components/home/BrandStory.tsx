@@ -31,11 +31,14 @@ export default function BrandStory() {
             className="flex-1 relative w-full h-[600px] lg:h-[800px] rounded-t-[50%] rounded-b-3xl overflow-hidden glass-card p-2"
             style={{ y, scale }}
           >
-            <div className="absolute inset-0 bg-secondary/40 rounded-t-[50%] rounded-b-3xl m-2 overflow-hidden flex items-center justify-center">
-               <span className="font-playfair text-2xl text-muted-foreground/30 animate-pulse">Brand Story Image</span>
-            </div>
-            {/* The real image goes here */}
-            {/* <Image src="/images/brand-story.jpg" alt="Craftsmanship" fill className="object-cover rounded-t-[50%] rounded-b-3xl m-2" /> */}
+            <Image 
+              src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&q=80&w=800" 
+              alt="Legacy Craftsmanship" 
+              fill 
+              className="object-cover rounded-t-[50%] rounded-b-3xl"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
           </motion.div>
           
           {/* Content Side */}

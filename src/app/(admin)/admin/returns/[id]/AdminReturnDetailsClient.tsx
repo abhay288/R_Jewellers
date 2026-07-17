@@ -369,11 +369,17 @@ export default function AdminReturnDetailsClient({ returnId }: { returnId: strin
               {returnReq.products.map((item: any, idx: number) => (
                 <div key={idx} className="flex gap-4 p-4 border border-border rounded-xl">
                   <div className="w-20 h-20 bg-secondary rounded-lg border border-border overflow-hidden shrink-0">
-                    {item.product?.images?.[0] ? (
-                      <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Box className="w-8 h-8 m-6 text-muted-foreground" />
-                    )}
+                    <img 
+                      src={item.product?.images?.[0]?.url || item.product?.images?.[0] || (
+                        item.product?.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                        item.product?.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=800" :
+                        item.product?.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                        item.product?.name?.toLowerCase().includes('bangle') || item.product?.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                      )} 
+                      alt={item.product?.name} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <div>
                     <Link href={`/product/${item.product?._id}`} className="font-medium text-primary hover:underline">

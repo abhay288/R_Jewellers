@@ -41,16 +41,20 @@ export default function FeaturedCollections({ collections }: { collections: any[
                 {/* Placeholder Image container */}
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  {collection.icon ? (
-                    <Image src={collection.icon} alt={collection.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                  ) : (
-                    <span className="font-playfair text-2xl text-muted-foreground/30 animate-pulse">
-                      {collection.name}
-                    </span>
-                  )}
+                  <Image 
+                    src={collection.icon || (
+                      collection.slug?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                      collection.slug?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=800" :
+                      collection.slug?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                      collection.slug?.toLowerCase().includes('bangle') || collection.slug?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                    )} 
+                    alt={collection.name} 
+                    fill 
+                    sizes="(max-width: 768px) 100vw, 33vw" 
+                    className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                  />
                 </div>
-                {/* Example of Image component once we have real assets */}
-                {/* <Image src={`/images/${collection.id}.jpg`} alt={collection.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" /> */}
                 
                 <div className="absolute bottom-0 left-0 w-full p-8 z-20 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                   <h3 className="text-2xl font-playfair text-white mb-2">{collection.name}</h3>

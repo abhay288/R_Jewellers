@@ -38,7 +38,14 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
     });
   };
 
-  const images = product.images && product.images.length > 0 ? product.images : [""];
+  const fallbackImage = 
+    product.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+    product.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=800" :
+    product.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+    product.name?.toLowerCase().includes('bangle') || product.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+    "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800";
+
+  const images = product.images && product.images.length > 0 && product.images[0] ? product.images : [fallbackImage];
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",

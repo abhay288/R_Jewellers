@@ -94,11 +94,17 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
                   <div className="flex -space-x-4">
                     {order.products.slice(0, 4).map((p: any, i: number) => (
                       <div key={i} className="w-12 h-12 rounded-full border-2 border-background overflow-hidden bg-secondary relative">
-                        {p.product?.images?.[0] ? (
-                          <img src={p.product.images[0].url} alt={p.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">{p.name.charAt(0)}</div>
-                        )}
+                        <img 
+                          src={p.product?.images?.[0]?.url || p.product?.images?.[0] || (
+                            p.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                            p.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=800" :
+                            p.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                            p.name?.toLowerCase().includes('bangle') || p.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                            "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                          )} 
+                          alt={p.name} 
+                          className="w-full h-full object-cover" 
+                        />
                       </div>
                     ))}
                     {order.products.length > 4 && (

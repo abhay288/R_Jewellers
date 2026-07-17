@@ -186,11 +186,19 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                 >
                   <div className="relative aspect-3/4 bg-secondary/30 rounded-2xl overflow-hidden mb-6">
                     <div className="absolute inset-0 flex items-center justify-center">
-                      {product.images && product.images[0] ? (
-                        <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                      ) : (
-                        <span className="font-playfair text-xl text-muted-foreground/30 animate-pulse">Product</span>
-                      )}
+                      <Image 
+                        src={(product.images && product.images[0]) || (
+                          product.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                          product.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=800" :
+                          product.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                          product.name?.toLowerCase().includes('bangle') || product.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                          "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                        )} 
+                        alt={product.name} 
+                        fill 
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" 
+                        className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                      />
                     </div>
                     
                     {/* Action Buttons overlay */}

@@ -188,11 +188,17 @@ export default function ReturnDetailsClient({ returnId }: { returnId: string }) 
               {returnReq.products.map((item: any, idx: number) => (
                 <div key={idx} className="flex flex-col sm:flex-row gap-6">
                   <div className="w-24 h-24 sm:w-32 sm:h-32 bg-secondary/30 rounded-2xl border border-border overflow-hidden shrink-0">
-                    {item.product?.images?.[0] ? (
-                      <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Box className="w-8 h-8 m-auto h-full text-muted-foreground" />
-                    )}
+                    <img 
+                      src={item.product?.images?.[0]?.url || item.product?.images?.[0] || (
+                        item.product?.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                        item.product?.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643477873-1ef912f71625?auto=format&fit=crop&q=80&w=800" :
+                        item.product?.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                        item.product?.name?.toLowerCase().includes('bangle') || item.product?.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                      )} 
+                      alt={item.product?.name || 'Returned product'} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <h4 className="font-medium text-lg mb-1">{item.product?.name || 'Unknown Item'}</h4>
