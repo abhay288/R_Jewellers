@@ -129,49 +129,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Meet our Experts (EEAT) */}
-      <div className="container mx-auto px-6 mb-32">
-        <h2 className="font-playfair text-4xl text-center text-foreground mb-16">Meet Our Master Curators</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-          <div className="text-center space-y-4">
-            <div className="relative w-40 h-40 rounded-full overflow-hidden mx-auto border-2 border-primary">
-              <Image
-                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400"
-                alt="Radhika Sen - Founder & Head Designer"
-                fill
-                className="object-cover"
-                unoptimized={true}
-              />
-            </div>
-            <div>
-              <h3 className="font-playfair text-lg font-bold">Radhika Sen</h3>
-              <p className="text-xs text-primary uppercase tracking-wider font-semibold">Founder & Head Designer</p>
-            </div>
-            <p className="text-muted-foreground text-sm font-light max-w-xs mx-auto leading-relaxed">
-              With a degree in Gemology and over 15 years in luxury design, Radhika oversees the selection and styling of every single collection.
-            </p>
-          </div>
-
-          <div className="text-center space-y-4">
-            <div className="relative w-40 h-40 rounded-full overflow-hidden mx-auto border-2 border-primary">
-              <Image
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400"
-                alt="Devendra Prasad - Chief Goldsmith"
-                fill
-                className="object-cover"
-                unoptimized={true}
-              />
-            </div>
-            <div>
-              <h3 className="font-playfair text-lg font-bold">Devendra Prasad</h3>
-              <p className="text-xs text-primary uppercase tracking-wider font-semibold">Chief Goldsmith</p>
-            </div>
-            <p className="text-muted-foreground text-sm font-light max-w-xs mx-auto leading-relaxed">
-              Devendra leads our Jaipur workshop with 28 years of jewelry smithing expertise, ensuring flawless Kundan, Meenakari, and stone-setting.
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Values Section */}
       <div className="bg-secondary/40 py-24 border-t border-border/30">
