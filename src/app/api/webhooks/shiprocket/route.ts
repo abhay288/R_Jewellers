@@ -23,6 +23,14 @@ const mapStatus = (shiprocketStatus: string): 'Order Placed' | 'Confirmed' | 'Pa
 
 export async function POST(req: Request) {
   try {
+    // Validate Webhook Signature/Token to prevent spoofing
+    const headerToken = req.headers.get('x-api-key') || req.headers.get('Authorization');
+    const expectedToken = process.env.SHIPROCKET_WEBHOOK_TOKEN;
+    if (expectedToken && headerToken !== expectedToken) {
+      logger.warn(`Unauthorized Shiprocket webhook attempt with token: ${headerToken}`);
+      return NextResponse.json({ error: 'Unauthorized webhook access' }, { status: 401 });
+    }
+
     const body = await req.json();
     logger.info(`Shiprocket Webhook Received: ${JSON.stringify(body)}`);
 

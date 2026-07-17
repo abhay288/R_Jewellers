@@ -8,8 +8,13 @@ const { auth } = NextAuth(authConfig);
 // Memory-based IP cache for rate limiting (ephemeral on serverless but highly effective locally)
 const ipCache = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_API_REQUESTS = 60; // 60 requests/min for APIs
-const MAX_PAGE_REQUESTS = 120; // 120 requests/min for pages
+
+const LIMITS = {
+  auth: 5,        // login, register, reset password
+  checkout: 10,   // checkout, contact message, returns
+  api: 60,        // other shop and catalog APIs
+  page: 120,      // standard pages
+};
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,7 +22,25 @@ export async function middleware(request: NextRequest) {
   // 1. IP Rate Limiting
   const ip = (request as any).ip || request.headers.get('x-forwarded-for') || 'unknown';
   if (ip !== 'unknown') {
-    const limit = pathname.startsWith('/api/') ? MAX_API_REQUESTS : MAX_PAGE_REQUESTS;
+    let limit = LIMITS.page;
+    if (pathname.startsWith('/api/')) {
+      if (
+        pathname.startsWith('/api/auth/signup') || 
+        pathname.startsWith('/api/auth/signin') || 
+        pathname.includes('forgot-password')
+      ) {
+        limit = LIMITS.auth;
+      } else if (
+        pathname.startsWith('/api/shop/checkout') || 
+        pathname.startsWith('/api/shop/contact') || 
+        pathname.startsWith('/api/admin/returns/')
+      ) {
+        limit = LIMITS.checkout;
+      } else {
+        limit = LIMITS.api;
+      }
+    }
+
     const now = Date.now();
     const clientData = ipCache.get(ip);
 
@@ -42,12 +65,15 @@ export async function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  // 2. Add Security Headers (similar to Helmet)
+  // 2. Add Security Headers (OWASP Recommended)
   response.headers.set('X-DNS-Prefetch-Control', 'on');
-  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
   
   // Custom CSP allowing fonts, scripts, and media resources securely
   response.headers.set(

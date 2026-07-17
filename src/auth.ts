@@ -33,16 +33,40 @@ export const {
 
         await connectDB();
 
-        const user = await User.findOne({ email: credentials.email }).select("+password");
+        const emailLower = (credentials.email as string).toLowerCase().trim();
+        const user = await User.findOne({ email: emailLower }).select("+password +failedLoginAttempts +lockUntil");
 
         if (!user) return null;
+
+        // Check if account is locked
+        if (user.lockUntil && user.lockUntil > new Date()) {
+          throw new Error('Account is temporarily locked. Please try again after 15 minutes.');
+        }
 
         const isPasswordMatch = await bcrypt.compare(
           credentials.password as string,
           user.password || ""
         );
 
-        if (!isPasswordMatch) return null;
+        if (!isPasswordMatch) {
+          user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+          if (user.failedLoginAttempts >= 5) {
+            user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+          }
+          await user.save();
+          
+          if (user.failedLoginAttempts >= 5) {
+            throw new Error('Too many failed attempts. Account locked for 15 minutes.');
+          }
+          throw new Error('Invalid email or password.');
+        }
+
+        // Reset counters on successful login
+        if (user.failedLoginAttempts > 0 || user.lockUntil) {
+          user.failedLoginAttempts = 0;
+          user.lockUntil = undefined;
+          await user.save();
+        }
 
         return {
           id: user._id.toString(),

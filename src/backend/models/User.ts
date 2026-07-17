@@ -14,6 +14,8 @@ export interface IUser extends Document {
     newReturns: boolean;
     promotions: boolean;
   };
+  failedLoginAttempts: number;
+  lockUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +35,8 @@ const UserSchema: Schema<IUser> = new Schema(
       newReturns: { type: Boolean, default: true },
       promotions: { type: Boolean, default: true },
     },
+    failedLoginAttempts: { type: Number, required: true, default: 0 },
+    lockUntil: { type: Date },
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt

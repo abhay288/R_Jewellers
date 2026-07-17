@@ -27,6 +27,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
+    // Prevent duplicate processing and replay attacks
+    if (order.paymentStatus === 'paid') {
+      return NextResponse.json({ success: true, message: 'Payment already processed' });
+    }
+
     // 2. Verify signature
     if (!process.env.RAZORPAY_KEY_SECRET) {
       return NextResponse.json({ error: 'Razorpay keys not configured' }, { status: 500 });
