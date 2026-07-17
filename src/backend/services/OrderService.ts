@@ -403,9 +403,82 @@ export class OrderService {
     }
 
     if (search) {
-      // Search by Order ID only for now, since customer name/email is inside the user doc
-      // A more advanced aggregation is needed for user name search, but we stick to orderId here
-      query.orderId = { $regex: search, $options: 'i' };
+      const pipeline: any[] = [];
+
+      if (statusFilter && statusFilter !== 'All') {
+        pipeline.push({ $match: { status: statusFilter } });
+      }
+
+      // Join with users collection
+      pipeline.push({
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'userDetails'
+        }
+      });
+
+      pipeline.push({
+        $unwind: {
+          path: '$userDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      });
+
+      // Search filters
+      pipeline.push({
+        $match: {
+          $or: [
+            { orderId: { $regex: search, $options: 'i' } },
+            { awbNumber: { $regex: search, $options: 'i' } },
+            { trackingNumber: { $regex: search, $options: 'i' } },
+            { 'userDetails.name': { $regex: search, $options: 'i' } }
+          ]
+        }
+      });
+
+      // Count total
+      const countPipeline = [...pipeline, { $count: 'total' }];
+      const countResult = await Order.aggregate(countPipeline);
+      const total = countResult[0]?.total || 0;
+
+      // Sort & Paginate
+      pipeline.push({ $sort: { createdAt: -1 } });
+      pipeline.push({ $skip: (page - 1) * limit });
+      pipeline.push({ $limit: limit });
+
+      // Join with shippingAddress
+      pipeline.push({
+        $lookup: {
+          from: 'addresses',
+          localField: 'shippingAddress',
+          foreignField: '_id',
+          as: 'shippingAddressDetails'
+        }
+      });
+
+      pipeline.push({
+        $unwind: {
+          path: '$shippingAddressDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      });
+
+      const results = await Order.aggregate(pipeline);
+
+      const formattedOrders = results.map(o => ({
+        ...o,
+        user: o.userDetails ? {
+          _id: o.userDetails._id,
+          name: o.userDetails.name,
+          email: o.userDetails.email,
+          phone: o.userDetails.phone
+        } : null,
+        shippingAddress: o.shippingAddressDetails || null
+      }));
+
+      return { orders: formattedOrders, total, pages: Math.ceil(total / limit) };
     }
 
     const skip = (page - 1) * limit;

@@ -17,6 +17,16 @@ export interface IReturn extends Document {
   upiDetails: string;
   status: 'Return Requested' | 'Under Review' | 'Approved' | 'Pickup Scheduled' | 'Picked Up' | 'Received' | 'Quality Check' | 'Refund Approved' | 'Refund Completed' | 'Rejected';
   totalRefundAmount: number;
+
+  // Shiprocket Return Shipping Details
+  shipmentId?: string;
+  awbNumber?: string;
+  trackingNumber?: string;
+  courierName?: string;
+  pickupStatus?: string;
+  pickupId?: string;
+  pickupDate?: Date;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,7 +56,16 @@ const ReturnSchema: Schema<IReturn> = new Schema(
       ],
       default: 'Return Requested'
     },
-    totalRefundAmount: { type: Number, required: true, min: 0 }
+    totalRefundAmount: { type: Number, required: true, min: 0 },
+
+    // Return shipping details
+    shipmentId: { type: String },
+    awbNumber: { type: String },
+    trackingNumber: { type: String },
+    courierName: { type: String },
+    pickupStatus: { type: String },
+    pickupId: { type: String },
+    pickupDate: { type: Date }
   },
   {
     timestamps: true,
@@ -58,6 +77,7 @@ ReturnSchema.index({ order: 1 });
 ReturnSchema.index({ user: 1 });
 ReturnSchema.index({ status: 1 });
 ReturnSchema.index({ createdAt: -1 });
+ReturnSchema.index({ awbNumber: 1 });
 
 const Return: Model<IReturn> = mongoose.models.Return || mongoose.model<IReturn>('Return', ReturnSchema);
 

@@ -40,8 +40,37 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
 
   const images = product.images && product.images.length > 0 ? product.images : [""];
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://radhikajewellers.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Shop",
+        "item": "https://radhikajewellers.com/shop"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.name,
+        "item": `https://radhikajewellers.com/product/${product._id}`
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background pt-24 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <div className="container mx-auto px-6">
         
         {/* Breadcrumb */}

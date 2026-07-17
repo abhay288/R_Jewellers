@@ -40,6 +40,19 @@ export interface IOrder extends Document {
   
   trackingTimeline: ITrackingTimeline[];
   returnEligibilityDate?: Date;
+
+  // Shiprocket Shipping Details
+  shipmentId?: string;
+  awbNumber?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  courierName?: string;
+  courierId?: string;
+  pickupId?: string;
+  pickupStatus?: string;
+  estimatedDelivery?: Date;
+  shipmentStatus?: string;
+  lastTrackingUpdate?: Date;
   
   createdAt: Date;
   updatedAt: Date;
@@ -90,6 +103,19 @@ const OrderSchema: Schema<IOrder> = new Schema(
     
     trackingTimeline: [TrackingTimelineSchema],
     returnEligibilityDate: { type: Date },
+
+    // Shiprocket details
+    shipmentId: { type: String },
+    awbNumber: { type: String },
+    trackingNumber: { type: String },
+    trackingUrl: { type: String },
+    courierName: { type: String },
+    courierId: { type: String },
+    pickupId: { type: String },
+    pickupStatus: { type: String },
+    estimatedDelivery: { type: Date },
+    shipmentStatus: { type: String },
+    lastTrackingUpdate: { type: Date },
   },
   {
     timestamps: true,
@@ -100,6 +126,8 @@ OrderSchema.index({ orderId: 1 });
 OrderSchema.index({ user: 1 });
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({ awbNumber: 1 });
+OrderSchema.index({ trackingNumber: 1 });
 
 const Order: Model<IOrder> = mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
 

@@ -23,7 +23,7 @@ export default function Footer() {
               Exquisite luxury artificial jewellery crafted to perfection. Elevate your elegance with our premium collections for every occasion.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="https://www.instagram.com/radhika_jeweller15" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                 <FaInstagram size={18} />
               </a>
               <a href="#" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">

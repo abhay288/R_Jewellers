@@ -22,7 +22,8 @@ import {
   Star,
   Image as ImageIcon,
   LineChart,
-  UserCircle
+  UserCircle,
+  Mail
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
@@ -32,8 +33,9 @@ const navigation = [
   { name: "Categories", href: "/admin/categories", icon: ListTree },
   { name: "Inventory", href: "/admin/inventory", icon: Warehouse },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Returns", href: "/admin/returns", icon: Undo2 },
+  { name: "Messages", href: "/admin/messages", icon: Mail },
+  { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Coupons", href: "/admin/coupons", icon: TicketPercent },
   { name: "Reviews", href: "/admin/reviews", icon: Star },
   { name: "Banner Management", href: "/admin/banners", icon: ImageIcon },

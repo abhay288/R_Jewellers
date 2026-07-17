@@ -129,6 +129,28 @@ export default function AdminReturnDetailsClient({ returnId }: { returnId: strin
     }
   };
 
+  const handleScheduleReturnPickup = async () => {
+    setIsUpdating(true);
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch(`/api/admin/returns/${returnId}/pickup`, {
+        method: 'POST'
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to schedule return pickup');
+      }
+      const data = await res.json();
+      setSuccess(`Return pickup scheduled successfully! AWB: ${data.awbNumber} via ${data.courierName}`);
+      fetchReturnDetails();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="p-8 text-center animate-pulse">Loading return details...</div>;
   }
@@ -189,40 +211,56 @@ export default function AdminReturnDetailsClient({ returnId }: { returnId: strin
 
             {/* Standard Status Update */}
             {returnReq.status !== 'Received' && returnReq.status !== 'Quality Check' && returnReq.status !== 'Refund Approved' && allowedStatuses.length > 0 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              returnReq.status === 'Approved' ? (
+                <div className="space-y-4 border border-amber-200 bg-amber-500/5 p-5 rounded-2xl">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Update Status To</label>
-                    <select 
-                      value={newStatus}
-                      onChange={(e) => setNewStatus(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-border bg-background focus:border-primary outline-none"
-                    >
-                      <option value={returnReq.status} disabled>{returnReq.status} (Current)</option>
-                      {allowedStatuses.map((s: string) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
+                    <h4 className="font-bold text-lg text-amber-800">Shiprocket Return Pickup</h4>
+                    <p className="text-sm text-neutral-600 mt-1">This return request has been approved. Click below to schedule a return courier pickup on Shiprocket, assign courier, and generate return AWB.</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Internal Notes (Optional)</label>
-                    <input 
-                      type="text"
-                      value={adminNotes}
-                      onChange={(e) => setAdminNotes(e.target.value)}
-                      placeholder="Visible in timeline"
-                      className="w-full p-3 rounded-xl border border-border bg-background focus:border-primary outline-none"
-                    />
-                  </div>
+                  <button 
+                    onClick={handleScheduleReturnPickup}
+                    disabled={isUpdating}
+                    className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-full text-sm font-semibold transition-colors disabled:opacity-50"
+                  >
+                    {isUpdating ? 'Scheduling Return...' : 'Schedule Return Pickup'}
+                  </button>
                 </div>
-                <button 
-                  onClick={handleUpdateStatus}
-                  disabled={isUpdating || newStatus === returnReq.status}
-                  className="px-6 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-medium disabled:opacity-50"
-                >
-                  {isUpdating ? 'Updating...' : 'Update Status'}
-                </button>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Update Status To</label>
+                      <select 
+                        value={newStatus}
+                        onChange={(e) => setNewStatus(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-border bg-background focus:border-primary outline-none"
+                      >
+                        <option value={returnReq.status} disabled>{returnReq.status} (Current)</option>
+                        {allowedStatuses.map((s: string) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Internal Notes (Optional)</label>
+                      <input 
+                        type="text"
+                        value={adminNotes}
+                        onChange={(e) => setAdminNotes(e.target.value)}
+                        placeholder="Visible in timeline"
+                        className="w-full p-3 rounded-xl border border-border bg-background focus:border-primary outline-none"
+                      />
+                    </div>
+                  </div>
+                  <button 
+                    onClick={handleUpdateStatus}
+                    disabled={isUpdating || newStatus === returnReq.status}
+                    className="px-6 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-medium disabled:opacity-50"
+                  >
+                    {isUpdating ? 'Updating...' : 'Update Status'}
+                  </button>
+                </div>
+              )
             )}
 
             {/* Quality Check Section */}
@@ -388,6 +426,17 @@ export default function AdminReturnDetailsClient({ returnId }: { returnId: strin
               <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Refund Required</h3>
               <p className="text-3xl font-bold text-primary">₹{returnReq.totalRefundAmount.toLocaleString('en-IN')}</p>
             </div>
+
+            {returnReq.awbNumber && (
+              <div className="pt-4 border-t border-border space-y-1">
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Return Shipping</h3>
+                <p className="font-semibold text-neutral-950 text-sm">Courier: {returnReq.courierName}</p>
+                <p className="text-xs text-neutral-500">AWB: <span className="font-mono">{returnReq.awbNumber}</span></p>
+                {returnReq.pickupStatus && (
+                  <p className="text-xs text-neutral-500 mt-0.5">Status: <span className="text-primary font-medium">{returnReq.pickupStatus}</span></p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">

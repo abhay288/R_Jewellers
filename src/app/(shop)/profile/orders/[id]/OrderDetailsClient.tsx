@@ -134,6 +134,15 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
             <Download className="w-4 h-4 mr-2" />
             Invoice
           </button>
+          {order.trackingNumber && (
+            <Link 
+              href={`/orders/track/${order.trackingNumber}`}
+              className="flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-neutral-900 text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors"
+            >
+              <Truck className="w-4 h-4 mr-2" />
+              Track Shipment
+            </Link>
+          )}
         </div>
       </div>
 
@@ -192,6 +201,27 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
               })}
             </div>
           </div>
+
+          {order.awbNumber && (
+            <div className="mt-8 pt-6 border-t border-border flex flex-wrap gap-x-8 gap-y-4 text-sm text-muted-foreground">
+              <div>
+                <span className="font-semibold text-foreground">Courier Partner:</span> {order.courierName || 'Blue Dart'}
+              </div>
+              <div>
+                <span className="font-semibold text-foreground">AWB (Tracking No):</span> <span className="font-mono">{order.awbNumber}</span>
+              </div>
+              {order.estimatedDelivery && (
+                <div>
+                  <span className="font-semibold text-foreground">Estimated Delivery:</span> {new Date(order.estimatedDelivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </div>
+              )}
+              {order.shipmentStatus && (
+                <div>
+                  <span className="font-semibold text-foreground">Courier Status:</span> <span className="text-primary font-medium">{order.shipmentStatus}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -202,7 +232,7 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
             <div className="divide-y divide-border">
               {order.products.map((item: any, idx: number) => (
                 <div key={idx} className="py-4 first:pt-0 last:pb-0 flex gap-4">
-                  <div className="w-20 h-20 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="w-20 h-20 bg-secondary rounded-lg overflow-hidden shrink-0">
                     {item.product?.images?.[0] && (
                       <img src={item.product.images[0].url} alt={item.name} className="w-full h-full object-cover" />
                     )}
