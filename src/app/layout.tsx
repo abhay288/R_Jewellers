@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Outfit } from "next/font/google";
 import SmoothScroll from "@/frontend/components/layout/SmoothScroll";
+import Script from "next/script";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -99,21 +100,19 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
-                    console.log('ServiceWorker registered with scope:', reg.scope);
-                  }).catch(function(err) {
-                    console.error('ServiceWorker registration failed:', err);
-                  });
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                  console.log('ServiceWorker registered with scope:', reg.scope);
+                }).catch(function(err) {
+                  console.error('ServiceWorker registration failed:', err);
                 });
-              }
-            `
-          }}
-        />
+              });
+            }
+          `}
+        </Script>
       </head>
       <body className="flex flex-col font-sans bg-background text-foreground min-h-screen">
         <SmoothScroll>
