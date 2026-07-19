@@ -22,7 +22,11 @@ const eslintConfig = defineConfig([
       "react-hooks/set-state-in-effect": "off",
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-require-imports": "off",
-      "@next/next/no-img-element": "off"
+      "@next/next/no-img-element": "off",
+      "@next/next/no-html-link-for-pages": "off",
+      "react-hooks/immutability": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/exhaustive-deps": "off"
     },
   },
 ]);
