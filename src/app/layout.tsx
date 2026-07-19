@@ -4,6 +4,7 @@ import SmoothScroll from "@/frontend/components/layout/SmoothScroll";
 import DiamondCursor from "@/frontend/components/layout/DiamondCursor";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -135,6 +136,7 @@ export default function RootLayout({
           {children}
         </SmoothScroll>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
