@@ -114,6 +114,16 @@ export default function RootLayout({
             }
           `}
         </Script>
+        {/* Google Analytics */}
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-X0J8L9TSGR" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-X0J8L9TSGR');
+          `}
+        </Script>
       </head>
       <body className="flex flex-col font-sans bg-background text-foreground min-h-screen">
         <DiamondCursor />
