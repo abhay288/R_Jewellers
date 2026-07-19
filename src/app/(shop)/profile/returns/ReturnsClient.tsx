@@ -9,10 +9,6 @@ export default function ReturnsClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchReturns();
-  }, []);
-
   const fetchReturns = async () => {
     try {
       const res = await fetch('/api/shop/returns');
@@ -25,6 +21,12 @@ export default function ReturnsClient() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReturns();
+  }, []);
+
+
 
   const getStatusColor = (status: string) => {
     switch (status) {

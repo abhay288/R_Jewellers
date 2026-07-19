@@ -35,7 +35,7 @@ const RefundSchema: Schema<IRefund> = new Schema(
   }
 );
 
-RefundSchema.index({ return: 1 });
+// RefundSchema.index({ return: 1 }); // Removed due to duplicate index warning (already unique: true)
 RefundSchema.index({ order: 1 });
 RefundSchema.index({ user: 1 });
 RefundSchema.index({ status: 1 });

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { Search, ShoppingBag, Heart, User, Menu, X, History, Camera } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/frontend/store/useCartStore";
@@ -12,21 +12,22 @@ import VisualSearchModal from "../shop/VisualSearchModal";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRecentlyViewedOpen, setIsRecentlyViewedOpen] = useState(false);
   const [isVisualSearchOpen, setIsVisualSearchOpen] = useState(false);
   const { items, toggleCart } = useCartStore();
   const { items: recentlyViewedItems } = useRecentlyViewedStore();
 
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-      
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        setScrollProgress((window.scrollY / totalHeight) * 100);
-      }
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -52,9 +53,9 @@ export default function Navbar() {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Scroll Progress Bar */}
-        <div 
-          className="absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-100 ease-out"
-          style={{ width: `${scrollProgress}%` }}
+        <motion.div 
+          className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary origin-left z-50"
+          style={{ scaleX }}
         />
 
         {/* Main Navbar: h-[90px] */}

@@ -29,19 +29,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
     fullName: "", phone: "", email: "", houseNo: "", street: "", area: "", city: "", district: "", state: "", postalCode: "", addressType: "Home"
   });
 
-  useEffect(() => {
-    if (!session?.user) {
-      router.push("/login?callbackUrl=/checkout");
-    } else {
-      fetchAddresses();
-    }
-  }, [session, router]);
 
-  useEffect(() => {
-    if (step === 3 && items.length > 0) {
-      validateCheckout();
-    }
-  }, [step, items]);
 
   const fetchAddresses = async () => {
     setLoading(true);
@@ -108,6 +96,20 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!session?.user) {
+      router.push("/login?callbackUrl=/checkout");
+    } else {
+      fetchAddresses();
+    }
+  }, [session, router]);
+
+  useEffect(() => {
+    if (step === 3 && items.length > 0) {
+      validateCheckout();
+    }
+  }, [step, items]);
 
   const handleApplyCoupon = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

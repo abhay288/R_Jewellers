@@ -47,11 +47,7 @@ export default function OrderTrackingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (trackingNumber) {
-      fetchTrackingInfo();
-    }
-  }, [trackingNumber]);
+
 
   const fetchTrackingInfo = async () => {
     setLoading(true);
@@ -70,6 +66,12 @@ export default function OrderTrackingPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (trackingNumber) {
+      fetchTrackingInfo();
+    }
+  }, [trackingNumber]);
 
   const steps = [
     { label: 'Order Placed', icon: Package, desc: 'Order received and being processed' },

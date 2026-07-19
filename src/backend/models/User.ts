@@ -44,7 +44,7 @@ const UserSchema: Schema<IUser> = new Schema(
 );
 
 // Indexes for optimization
-UserSchema.index({ email: 1 });
+// UserSchema.index({ email: 1 }); // Removed due to duplicate index warning (already unique: true)
 UserSchema.index({ role: 1 });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

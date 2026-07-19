@@ -20,7 +20,7 @@ export async function getInventoryDashboardStats() {
 
     const products = await Product.find({ isDeleted: { $ne: true } });
     
-    let totalProducts = products.length;
+    const totalProducts = products.length;
     let lowStock = 0;
     let outOfStock = 0;
     let availableStock = 0;

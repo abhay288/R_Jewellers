@@ -88,7 +88,7 @@ const ProductSchema: Schema<IProduct> = new Schema(
 );
 
 // Indexes for optimization
-ProductSchema.index({ slug: 1 });
+// ProductSchema.index({ slug: 1 }); // Removed due to duplicate index warning (already unique: true)
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ isActive: 1 });
 ProductSchema.index({ price: 1 });

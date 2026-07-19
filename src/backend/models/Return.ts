@@ -72,7 +72,7 @@ const ReturnSchema: Schema<IReturn> = new Schema(
   }
 );
 
-ReturnSchema.index({ returnId: 1 });
+// ReturnSchema.index({ returnId: 1 }); // Removed due to duplicate index warning (already unique: true)
 ReturnSchema.index({ order: 1 });
 ReturnSchema.index({ user: 1 });
 ReturnSchema.index({ status: 1 });

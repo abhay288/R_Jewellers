@@ -39,7 +39,7 @@ export function CategoryForm({ initialData, parentCategories = [] }: CategoryFor
     try {
       setLoading(true);
       
-      let formattedData = { ...data };
+      const formattedData = { ...data };
 
       if (initialData) {
         await updateCategory(initialData.id, formattedData);

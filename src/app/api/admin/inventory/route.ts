@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const search = searchParams.get('search');
     const status = searchParams.get('status');
 
-    let filter: any = {};
+    const filter: any = {};
     if (search) {
       filter.$text = { $search: search };
     }

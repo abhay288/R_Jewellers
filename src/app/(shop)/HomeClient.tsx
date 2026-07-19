@@ -41,7 +41,7 @@ const circularCategories = [
 
 // Motion Videos
 const motionJewellery = [
-  { title: "Diamond Collection", category: "High Jewellery", desc: "Brilliance captured in every facet — our finest CZ diamond pieces.", video: "https://player.vimeo.com/external/459389137.hd.mp4?s=87af39ab59b83b38e2448378822002f2323cc2f9&profile_id=170&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600" },
+  { title: "Diamond Collection", category: "High Jewellery", desc: "Brilliance captured in every facet — our finest CZ diamond pieces.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448320/Diamond_kv5xpu.mp4", fallback: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600" },
   { title: "Bridal Collection", category: "Heritage Gold", desc: "Every piece tells the story of an extraordinary day.", video: "https://player.vimeo.com/external/538571059.hd.mp4?s=1d743a699ba14c62b258e72c83c27ee98236d8d6&profile_id=172&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
   { title: "Festival Wear", category: "Contemporary Designs", desc: "Vivid, celebratory jewellery made for the grandest occasions.", video: "https://player.vimeo.com/external/371433846.hd.mp4?s=4bf1f1eb5bc9f1c7d2b51ff73dbb8e967a57a5cf&profile_id=174&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=600" },
   { title: "Necklace Showcase", category: "Choker Series", desc: "Statement collars crafted for the modern woman.", video: "https://player.vimeo.com/external/517602120.hd.mp4?s=4a20fb8932599723ec083b482ee4e1957248f219&profile_id=174&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
@@ -154,7 +154,7 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
           ref={videoRef}
           src={item.video}
           loop
-          muted={isMuted}
+          muted
           playsInline
           autoPlay
           className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.06] filter brightness-[0.65]"

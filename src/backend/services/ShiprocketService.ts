@@ -36,7 +36,7 @@ export class ShiprocketService {
     const url = `${this.baseUrl}${endpoint}`;
     
     // Auto authentication bypass for login itself
-    let headers: Record<string, string> = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };

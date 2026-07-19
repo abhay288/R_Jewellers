@@ -61,34 +61,34 @@ export default function DiamondCursor() {
     // Spawn sparkles on move
     const spawnSparkle = (x: number, y: number) => {
       const now = performance.now();
-      if (now - lastSpawnRef.current < 30) return; // throttle ~33fps spawning
+      if (now - lastSpawnRef.current < 80) return; // throttle spawning to reduce count
       lastSpawnRef.current = now;
 
-      const count = Math.random() > 0.6 ? 2 : 1;
+      const count = 1; // only 1 at a time
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 0.4 + Math.random() * 1.2;
-        const maxLife = 55 + Math.random() * 40;
+        const speed = 0.3 + Math.random() * 0.8;
+        const maxLife = 40 + Math.random() * 30; // slightly shorter life
         sparklesRef.current.push({
           id: idRef.current++,
           x: x + (Math.random() - 0.5) * 12,
           y: y + (Math.random() - 0.5) * 12,
-          size: 7 + Math.random() * 10,
+          size: 4 + Math.random() * 6, // smaller size
           opacity: 1,
           vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 0.6, // slight upward drift
+          vy: Math.sin(angle) * speed - 0.4, // slighter upward drift
           life: 0,
           maxLife,
           char: SPARKLE_CHARS[Math.floor(Math.random() * SPARKLE_CHARS.length)],
           rotation: Math.random() * Math.PI * 2,
-          rotationSpeed: (Math.random() - 0.5) * 0.12,
+          rotationSpeed: (Math.random() - 0.5) * 0.08,
           color: GOLD_COLORS[Math.floor(Math.random() * GOLD_COLORS.length)],
         });
       }
 
       // Cap particle count
-      if (sparklesRef.current.length > 80) {
-        sparklesRef.current = sparklesRef.current.slice(-80);
+      if (sparklesRef.current.length > 30) {
+        sparklesRef.current = sparklesRef.current.slice(-30);
       }
     };
 
@@ -116,15 +116,15 @@ export default function DiamondCursor() {
         ctx.save();
         ctx.translate(s.x, s.y);
         ctx.rotate(s.rotation);
-        ctx.globalAlpha = s.opacity * 0.9;
+        ctx.globalAlpha = s.opacity * 0.15; // barely visible
         ctx.font = `${s.size}px serif`;
         ctx.fillStyle = s.color;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         // Subtle glow
-        ctx.shadowColor = "rgba(201,162,39,0.8)";
-        ctx.shadowBlur = 6;
+        ctx.shadowColor = "rgba(201,162,39,0.1)"; // minimal glow
+        ctx.shadowBlur = 2;
         ctx.fillText(s.char, 0, 0);
 
         ctx.restore();

@@ -17,7 +17,7 @@ const WishlistSchema: Schema<IWishlist> = new Schema(
   }
 );
 
-WishlistSchema.index({ user: 1 });
+// WishlistSchema.index({ user: 1 }); // Removed due to duplicate index warning (already unique: true)
 
 const Wishlist: Model<IWishlist> = mongoose.models.Wishlist || mongoose.model<IWishlist>('Wishlist', WishlistSchema);
 

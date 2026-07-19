@@ -122,7 +122,7 @@ const OrderSchema: Schema<IOrder> = new Schema(
   }
 );
 
-OrderSchema.index({ orderId: 1 });
+// OrderSchema.index({ orderId: 1 }); // Removed due to duplicate index warning (already unique: true)
 OrderSchema.index({ user: 1 });
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ createdAt: -1 });

@@ -28,7 +28,7 @@ export async function GET(
     const resolvedParams = await params;
     const trackingNumber = resolvedParams.trackingNumber;
 
-    let order = await Order.findOne({
+    const order = await Order.findOne({
       $or: [{ awbNumber: trackingNumber }, { trackingNumber }]
     }).populate('shippingAddress');
 
@@ -101,7 +101,7 @@ export async function GET(
       });
     }
 
-    let returnReq = await Return.findOne({
+    const returnReq = await Return.findOne({
       $or: [{ awbNumber: trackingNumber }, { trackingNumber }]
     }).populate('order');
 

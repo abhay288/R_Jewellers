@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const productId = searchParams.get('productId');
     const reason = searchParams.get('reason');
 
-    let filter: any = {};
+    const filter: any = {};
     if (productId) {
       filter.product = productId;
     }

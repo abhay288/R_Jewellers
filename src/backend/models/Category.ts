@@ -49,7 +49,7 @@ const CategorySchema: Schema<ICategory> = new Schema(
   }
 );
 
-CategorySchema.index({ slug: 1 });
+// CategorySchema.index({ slug: 1 }); // Removed due to duplicate index warning (already unique: true)
 CategorySchema.index({ isActive: 1 });
 CategorySchema.index({ isDeleted: 1 });
 CategorySchema.index({ parentCategory: 1 });

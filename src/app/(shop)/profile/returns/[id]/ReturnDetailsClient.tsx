@@ -11,30 +11,24 @@ export default function ReturnDetailsClient({ returnId }: { returnId: string }) 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchReturnDetails();
-  }, [returnId]);
-
   const fetchReturnDetails = async () => {
     try {
-      // Assuming GET /api/shop/returns/[id] includes timeline, or we fetch it separately.
-      // Wait, we didn't expose a dedicated timeline fetch route, let's assume the GET /api/shop/returns/[id] doesn't return timeline yet. 
-      // Actually we need the timeline. Let me just use tracking timeline logic if it's there. 
-      // I will simulate timeline or fetch it if I update the backend.
-      // For now, let's fetch the return request.
       const res = await fetch(`/api/shop/returns/${returnId}`);
       if (!res.ok) throw new Error("Failed to load return details");
       const data = await res.json();
       setReturnReq(data);
-      
-      // We will create a fake timeline based on status if we can't fetch it, but ideally we should fetch it.
-      // For this UI, let's just use the current status to highlight the pipeline.
     } catch (err: any) {
       setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReturnDetails();
+  }, [returnId]);
+
+
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -19,7 +19,7 @@ const DeviceTokenSchema: Schema<IDeviceToken> = new Schema(
   }
 );
 
-DeviceTokenSchema.index({ token: 1 });
+// DeviceTokenSchema.index({ token: 1 }); // Removed due to duplicate index warning (already unique: true)
 DeviceTokenSchema.index({ user: 1 });
 
 const DeviceToken: Model<IDeviceToken> =

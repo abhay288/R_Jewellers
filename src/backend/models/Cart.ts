@@ -27,7 +27,7 @@ const CartSchema: Schema<ICart> = new Schema(
   }
 );
 
-CartSchema.index({ user: 1 });
+// CartSchema.index({ user: 1 }); // Removed due to duplicate index warning (already unique: true)
 
 const Cart: Model<ICart> = mongoose.models.Cart || mongoose.model<ICart>('Cart', CartSchema);
 

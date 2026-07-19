@@ -23,7 +23,7 @@ const SettingSchema: Schema<ISetting> = new Schema(
   }
 );
 
-SettingSchema.index({ key: 1 });
+// SettingSchema.index({ key: 1 }); // Removed due to duplicate index warning (already unique: true)
 SettingSchema.index({ group: 1 });
 
 const Setting: Model<ISetting> = mongoose.models.Setting || mongoose.model<ISetting>('Setting', SettingSchema);

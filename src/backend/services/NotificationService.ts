@@ -138,7 +138,7 @@ export class NotificationService {
   async sendOrderStatusNotification(userId: string, orderId: string, status: string) {
     let title = '';
     let message = '';
-    let link = `/profile/orders/${orderId}`;
+    const link = `/profile/orders/${orderId}`;
 
     switch (status) {
       case 'Order Placed':
