@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Outfit } from "next/font/google";
 import SmoothScroll from "@/frontend/components/layout/SmoothScroll";
+import DiamondCursor from "@/frontend/components/layout/DiamondCursor";
 import Script from "next/script";
 import "./globals.css";
 
@@ -115,6 +116,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="flex flex-col font-sans bg-background text-foreground min-h-screen">
+        <DiamondCursor />
         <SmoothScroll>
           {children}
         </SmoothScroll>

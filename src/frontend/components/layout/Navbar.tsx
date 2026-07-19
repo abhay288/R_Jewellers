@@ -44,10 +44,8 @@ export default function Navbar() {
     <>
       <motion.header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled
-            ? "bg-background/80 backdrop-blur-md shadow-sm py-4"
-            : "bg-transparent py-6"
+          "sticky top-0 left-0 right-0 z-50 bg-background transition-shadow duration-300",
+          isScrolled ? "shadow-md border-b border-border/10" : "shadow-xs border-b border-border/5"
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -59,7 +57,8 @@ export default function Navbar() {
           style={{ width: `${scrollProgress}%` }}
         />
 
-        <div className="container mx-auto px-6 flex items-center justify-between">
+        {/* Main Navbar: h-[90px] */}
+        <div className="container mx-auto px-6 flex items-center justify-between h-[90px]">
           {/* Mobile Menu Toggle */}
           <button
             className="md:hidden text-foreground hover:text-primary transition-colors"
@@ -74,8 +73,9 @@ export default function Navbar() {
             <Image 
               src="/assets/logo.png" 
               alt="Radhika Jewellers" 
-              width={120} 
-              height={120} 
+              width={96} 
+              height={96} 
+              style={{ width: "auto", height: "auto" }}
               className="object-contain drop-shadow-sm w-20 h-20 md:w-24 md:h-24 mix-blend-multiply"
               priority
             />
@@ -108,9 +108,9 @@ export default function Navbar() {
             <button className="hover:text-primary transition-colors" onClick={() => setIsRecentlyViewedOpen(true)} aria-label="Recently viewed items">
               <History size={20} strokeWidth={1.5} />
             </button>
-            <button className="hover:text-primary transition-colors" aria-label="Wishlist">
+            <Link href="/account/wishlist" className="hover:text-primary transition-colors" aria-label="Wishlist">
               <Heart size={20} strokeWidth={1.5} />
-            </button>
+            </Link>
             <button className="hover:text-primary transition-colors relative" onClick={toggleCart} aria-label="Shopping Cart">
               <ShoppingBag size={20} strokeWidth={1.5} />
               {items.length > 0 && (
@@ -119,6 +119,33 @@ export default function Navbar() {
                 </span>
               )}
             </button>
+          </div>
+        </div>
+
+        {/* Secondary Category Navigation (desktop only, 50px height) */}
+        <div className="hidden md:block h-[50px] border-t border-border/10 bg-background/95 backdrop-blur-md">
+          <div className="container mx-auto px-6 h-full flex items-center justify-center space-x-10 text-[11px] tracking-[0.25em] uppercase font-bold text-foreground/80">
+            {[
+              { name: "New Arrivals", href: "/shop?sort=newest" },
+              { name: "Bridal", href: "/collections/bridal-sets" },
+              { name: "Necklaces", href: "/collections/necklaces" },
+              { name: "Earrings", href: "/collections/earrings" },
+              { name: "Rings", href: "/collections/rings" },
+              { name: "Bracelets", href: "/collections/bracelets" },
+              { name: "Anklets", href: "/collections/anklets" },
+              { name: "Gift Collection", href: "/collections/gift-collection" },
+              { name: "Festival Collection", href: "/collections/festival-collection" },
+              { name: "Offers", href: "/shop" }
+            ].map((cat) => (
+              <Link
+                key={cat.name}
+                href={cat.href}
+                className="relative py-3 group hover:text-primary transition-colors duration-300"
+              >
+                <span>{cat.name}</span>
+                <span className="absolute bottom-1 left-0 w-full h-[1.5px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              </Link>
+            ))}
           </div>
         </div>
       </motion.header>
