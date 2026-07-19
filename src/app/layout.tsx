@@ -62,6 +62,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'Radhika Jewellers',
   },
+  verification: {
+    google: 'lrveydvWzw2CUUx-6gdxmuBZFaC1J37qZ-BL2RgE06I',
+  },
 };
 
 export default function RootLayout({
