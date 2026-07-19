@@ -31,7 +31,8 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+    e.preventDefault();
     setLoading(true);
     await signIn("google", { callbackUrl: "/admin" });
   };
@@ -119,6 +120,7 @@ export default function LoginPage() {
       
       <div className="mt-6 flex flex-col">
         <button 
+          type="button"
           onClick={handleGoogleSignIn}
           className="flex items-center justify-center space-x-2 py-3 w-full border border-border/50 rounded-full hover:bg-secondary/50 transition-colors"
         >
