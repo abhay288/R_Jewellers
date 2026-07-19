@@ -3,6 +3,7 @@ import { Playfair_Display, Outfit } from "next/font/google";
 import SmoothScroll from "@/frontend/components/layout/SmoothScroll";
 import DiamondCursor from "@/frontend/components/layout/DiamondCursor";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -133,6 +134,7 @@ export default function RootLayout({
         <SmoothScroll>
           {children}
         </SmoothScroll>
+        <Analytics />
       </body>
     </html>
   );
