@@ -13,7 +13,7 @@ const editorialCampaigns = [
     tagline: "HERITAGE LEGACY",
     number: "01",
     desc: "Exquisite heavy Kundan and Polki designs crafted for your once-in-a-lifetime moments. Each piece is a story told in gold.",
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=1200"
   },
   {
     title: "Daily Luxury",
@@ -45,7 +45,7 @@ const editorialCampaigns = [
     tagline: "ROYAL MAHARANIS",
     number: "05",
     desc: "Ornate masterpieces that embody royal heritage, designed for the modern bride seeking timeless grandeur.",
-    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?q=80&w=1200"
   },
   {
     title: "Limited Edition",
@@ -53,7 +53,7 @@ const editorialCampaigns = [
     tagline: "EXCLUSIVE DESIGNS",
     number: "06",
     desc: "Highly exclusive designer pieces made in low batches for the discerning collector who values true rarity.",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1200"
   }
 ];
 

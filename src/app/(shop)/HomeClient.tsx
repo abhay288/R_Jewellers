@@ -27,12 +27,12 @@ function Counter({ value, suffix = "", duration = 2 }: { value: number; suffix?:
 
 // Category data — portrait cards
 const circularCategories = [
-  { name: "Necklaces", slug: "necklaces", subtitle: "Statement Pieces", image: "https://images.unsplash.com/photo-1599643477873-d100c565dfc8?q=80&w=800" },
+  { name: "Necklaces", slug: "necklaces", subtitle: "Statement Pieces", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800" },
   { name: "Rings", slug: "rings", subtitle: "Eternal Symbols", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800" },
   { name: "Bracelets", slug: "bracelets", subtitle: "Wrist Elegance", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800" },
-  { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1579965561138-038258cc5c46?q=80&w=800" },
+  { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800" },
   { name: "Earrings", slug: "earrings", subtitle: "Face Framing", image: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=800" },
-  { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800" },
+  { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800" },
   { name: "Bridal Sets", slug: "bridal-sets", subtitle: "Royal Occasions", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=800" },
   { name: "Festival", slug: "festival-collection", subtitle: "Celebration", image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?q=80&w=800" },
   { name: "Gifts", slug: "gift-collection", subtitle: "Curated Giving", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800" },
