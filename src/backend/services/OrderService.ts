@@ -10,6 +10,7 @@ import OrderTimeline from '../models/OrderTimeline';
 import { NotificationService } from './NotificationService';
 import User from '../models/User';
 import { EmailService } from './EmailService';
+import { generateServerInvoicePDF } from '../lib/ServerInvoiceGenerator';
 
 export class OrderService {
   private repository: OrderRepository;
@@ -188,12 +189,21 @@ export class OrderService {
       // Fire notification non-blocking
       this.notificationService.sendOrderStatusNotification(userId, orderId, 'Order Placed');
 
-      // Send Order Confirmation & Owner Alert Emails
+      // Send Order Confirmation + Invoice PDF attachment
       try {
         const userObj = await User.findById(userId);
         const emailService = new EmailService();
         if (userObj) {
-          await emailService.sendOrderConfirmationEmail(userObj.email, userObj.name, newOrder[0]);
+          // Populate shippingAddress for the invoice
+          const populatedOrder = await Order.findById(newOrder[0]._id)
+            .populate('shippingAddress')
+            .lean();
+
+          // Generate invoice PDF as Buffer
+          const pdfBuffer = generateServerInvoicePDF(populatedOrder ?? newOrder[0]);
+
+          // Send confirmation email with PDF attached
+          await emailService.sendInvoiceEmail(userObj.email, userObj.name, populatedOrder ?? newOrder[0], pdfBuffer);
         }
         await emailService.sendOwnerNewOrderAlertEmail(newOrder[0]);
       } catch (emailErr) {

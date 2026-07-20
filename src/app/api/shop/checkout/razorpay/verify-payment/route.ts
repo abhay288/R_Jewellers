@@ -58,12 +58,19 @@ export async function POST(req: Request) {
     order.trackingTimeline.push({ status: 'Confirmed', date: new Date(), note: 'Payment received via Razorpay.' });
     await order.save();
 
-    // 4. Send Confirmation & Alert Emails
+    // 4. Send Invoice PDF + Alert Emails
     try {
       const userObj = await User.findById(session.user.id);
       const emailService = new EmailService();
       if (userObj) {
-        await emailService.sendOrderConfirmationEmail(userObj.email, userObj.name, order);
+        // Populate shipping address for proper invoice rendering
+        const populatedOrder = await Order.findById(order._id)
+          .populate('shippingAddress')
+          .lean();
+
+        const { generateServerInvoicePDF } = await import('@/backend/lib/ServerInvoiceGenerator');
+        const pdfBuffer = generateServerInvoicePDF(populatedOrder ?? order);
+        await emailService.sendInvoiceEmail(userObj.email, userObj.name, populatedOrder ?? order, pdfBuffer);
       }
       await emailService.sendOwnerNewOrderAlertEmail(order);
     } catch (emailErr) {
