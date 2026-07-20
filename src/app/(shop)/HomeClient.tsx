@@ -27,16 +27,16 @@ function Counter({ value, suffix = "", duration = 2 }: { value: number; suffix?:
 
 // Category data — portrait cards
 const circularCategories = [
-  { name: "Necklaces", slug: "necklaces", subtitle: "Statement Pieces", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400" },
-  { name: "Rings", slug: "rings", subtitle: "Eternal Symbols", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=400" },
-  { name: "Bracelets", slug: "bracelets", subtitle: "Wrist Elegance", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400" },
-  { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400" },
-  { name: "Earrings", slug: "earrings", subtitle: "Face Framing", image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=400" },
-  { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400" },
-  { name: "Bridal Sets", slug: "bridal-sets", subtitle: "Royal Occasions", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400" },
-  { name: "Festival", slug: "festival-collection", subtitle: "Celebration", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=400" },
-  { name: "Gifts", slug: "gift-collection", subtitle: "Curated Giving", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400" },
-  { name: "Mangalsutras", slug: "necklaces", subtitle: "Sacred Bonds", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400" },
+  { name: "Necklaces", slug: "necklaces", subtitle: "Statement Pieces", image: "https://images.unsplash.com/photo-1599643477873-d100c565dfc8?q=80&w=800" },
+  { name: "Rings", slug: "rings", subtitle: "Eternal Symbols", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800" },
+  { name: "Bracelets", slug: "bracelets", subtitle: "Wrist Elegance", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800" },
+  { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1579965561138-038258cc5c46?q=80&w=800" },
+  { name: "Earrings", slug: "earrings", subtitle: "Face Framing", image: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=800" },
+  { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800" },
+  { name: "Bridal Sets", slug: "bridal-sets", subtitle: "Royal Occasions", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=800" },
+  { name: "Festival", slug: "festival-collection", subtitle: "Celebration", image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?q=80&w=800" },
+  { name: "Gifts", slug: "gift-collection", subtitle: "Curated Giving", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800" },
+  { name: "Mangalsutras", slug: "necklaces", subtitle: "Sacred Bonds", image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?q=80&w=800" },
 ];
 
 // Motion Videos
@@ -200,40 +200,45 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
 function CategoryCard({ cat, index }: { cat: typeof circularCategories[0]; index: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      className="group cursor-pointer"
+      initial={{ opacity: 0, y: 50, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      whileHover={{ y: -8 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.8, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      className="group cursor-pointer relative"
     >
-      <Link href={`/shop?category=${cat.slug}`} className="block">
+      <Link href={`/shop?category=${cat.slug}`} className="block relative aspect-[4/5] overflow-hidden bg-[#1A1A18] shadow-2xl">
         {/* Image */}
-        <div className="relative h-[320px] md:h-[380px] overflow-hidden mb-4 bg-[#F5EDD8]">
-          <Image
-            src={cat.image}
-            alt={cat.name}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className="object-cover transition-transform duration-1200 ease-out group-hover:scale-[1.08]"
-          />
-          {/* Gradient */}
-          <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent z-10" />
-          {/* Gold border on hover */}
-          <div className="absolute inset-0 border border-[#C9A227]/0 group-hover:border-[#C9A227]/50 transition-all duration-700 pointer-events-none z-20" />
-          {/* Category name inside image */}
-          <div className="absolute bottom-5 left-5 z-20">
-            <h3 className="font-playfair text-white text-xl font-bold leading-tight">
-              {cat.name}
-            </h3>
-            <p className="text-white/65 text-[10px] tracking-[0.2em] uppercase mt-1">
-              {cat.subtitle}
-            </p>
+        <Image
+          src={cat.image}
+          alt={cat.name}
+          fill
+          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          className="object-cover transition-all duration-[1.5s] ease-[0.22,1,0.36,1] group-hover:scale-110 group-hover:rotate-1 opacity-90 group-hover:opacity-100"
+        />
+        
+        {/* Premium Gradient */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-700 z-10" />
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 mix-blend-overlay" />
+        
+        {/* Luxury Gold Border on Hover */}
+        <div className="absolute inset-3 border border-[#C9A227]/0 group-hover:border-[#C9A227]/50 transition-all duration-700 pointer-events-none z-20 scale-95 group-hover:scale-100 opacity-0 group-hover:opacity-100" />
+
+        {/* Content Wrapper */}
+        <div className="absolute inset-0 p-5 z-20 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-700 ease-[0.22,1,0.36,1]">
+          <h3 className="font-playfair text-white text-xl md:text-2xl font-bold leading-tight mb-1 group-hover:text-[#F5E6C4] transition-colors duration-500">
+            {cat.name}
+          </h3>
+          <div className="w-8 h-px bg-[#C9A227] mb-3 group-hover:w-16 transition-all duration-700 ease-out" />
+          <p className="text-white/70 text-[9px] md:text-[10px] tracking-[0.25em] uppercase mb-1 transition-all duration-500">
+            {cat.subtitle}
+          </p>
+          
+          {/* CTA Link (Fades in) */}
+          <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.3em] font-bold text-[#C9A227] opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100 h-0 group-hover:h-auto overflow-hidden mt-3">
+            <span>Explore Collection</span>
+            <ArrowRight className="w-3 h-3 transform -translate-x-2 group-hover:translate-x-0 transition-transform duration-700 delay-100" />
           </div>
-        </div>
-        {/* CTA link */}
-        <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.3em] font-bold text-muted-foreground group-hover:text-primary transition-colors duration-300">
-          <span>Shop Now</span>
-          <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
         </div>
       </Link>
     </motion.div>
