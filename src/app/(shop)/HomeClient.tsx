@@ -42,10 +42,10 @@ const circularCategories = [
 // Motion Videos
 const motionJewellery = [
   { title: "Diamond Collection", category: "High Jewellery", desc: "Brilliance captured in every facet — our finest CZ diamond pieces.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448320/Diamond_kv5xpu.mp4", fallback: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600" },
-  { title: "Bridal Collection", category: "Heritage Gold", desc: "Every piece tells the story of an extraordinary day.", video: "https://player.vimeo.com/external/538571059.hd.mp4?s=1d743a699ba14c62b258e72c83c27ee98236d8d6&profile_id=172&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
-  { title: "Festival Wear", category: "Contemporary Designs", desc: "Vivid, celebratory jewellery made for the grandest occasions.", video: "https://player.vimeo.com/external/371433846.hd.mp4?s=4bf1f1eb5bc9f1c7d2b51ff73dbb8e967a57a5cf&profile_id=174&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=600" },
-  { title: "Necklace Showcase", category: "Choker Series", desc: "Statement collars crafted for the modern woman.", video: "https://player.vimeo.com/external/517602120.hd.mp4?s=4a20fb8932599723ec083b482ee4e1957248f219&profile_id=174&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
-  { title: "Royal Rings", category: "Classic Solitaires", desc: "Timeless solitaires that define quiet luxury.", video: "https://player.vimeo.com/external/435674703.hd.mp4?s=6f4834ab023af7cc41147a469a475a80d5d4d39f&profile_id=174&oauth2_token_id=57447761", fallback: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=600" }
+  { title: "Bridal Collection", category: "Heritage Gold", desc: "Every piece tells the story of an extraordinary day.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448318/Bridal_bv9vi2.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
+  { title: "Festival Wear", category: "Contemporary Designs", desc: "Vivid, celebratory jewellery made for the grandest occasions.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448304/festive_ifmamp.mp4", fallback: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=600" },
+  { title: "Necklace Showcase", category: "Choker Series", desc: "Statement collars crafted for the modern woman.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448322/necklace_g6euru.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
+  { title: "Royal Rings", category: "Classic Solitaires", desc: "Timeless solitaires that define quiet luxury.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448335/ring_ix8wel.mp4", fallback: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=600" }
 ];
 
 // Bridal Lookbook
@@ -125,18 +125,17 @@ const whyChooseReasons = [
 // Motion Video Card
 function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; index: number }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.load();
+      video.play().catch(e => console.error("Autoplay blocked:", e));
+    }
+  }, []);
 
   const handleMouseEnter = () => {
     if (videoRef.current) videoRef.current.play().catch(() => {});
-  };
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setIsMuted(videoRef.current.muted);
-    }
   };
 
   return (
@@ -148,7 +147,7 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
       onMouseEnter={handleMouseEnter}
       className="w-72 md:w-84 shrink-0 group relative h-[600px] overflow-hidden bg-[#1a1a18] cursor-pointer luxury-card"
     >
-      {/* Video */}
+      {/* Video — no CSS filter on video element to avoid GPU black frame in Chromium */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <video
           ref={videoRef}
@@ -157,9 +156,11 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
           muted
           playsInline
           autoPlay
-          className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.06] filter brightness-[0.65]"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent z-10" />
+        {/* Dimming overlay replaces brightness filter */}
+        <div className="absolute inset-0 bg-black/35" style={{zIndex: 1}} />
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" style={{zIndex: 2}} />
       </div>
 
       {/* Category badge */}
@@ -169,21 +170,6 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
         </span>
       </div>
 
-      {/* Mute button */}
-      <button
-        onClick={toggleMute}
-        className="absolute top-6 right-6 z-20 w-9 h-9 bg-black/40 backdrop-blur-sm border border-white/15 flex items-center justify-center text-white hover:border-[#C9A227]/60 transition-colors cursor-pointer"
-      >
-        {isMuted ? (
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l-2.25-2.25M19.5 12l-2.25 2.25m-10.5-6L4.5 9H1.5v6h3l4.5 3.75V5.25z" />
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-          </svg>
-        )}
-      </button>
 
       {/* Bottom content */}
       <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
@@ -473,17 +459,6 @@ export default function HomeClient({
           <div className="absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-black/65 z-1 pointer-events-none" />
           <div className="luxury-grain opacity-15 z-2" />
 
-          {/* Top left — Season badge */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.8, duration: 0.8 }}
-            className="absolute top-6 left-6 md:left-12 z-20"
-          >
-            <span className="text-[9px] uppercase tracking-[0.45em] font-bold text-white/90 bg-white/8 backdrop-blur-md border border-white/15 px-5 py-2.5">
-              New Bridal Collection — 2025
-            </span>
-          </motion.div>
 
           {/* Top right — logo watermark */}
           <div className="absolute top-6 right-6 z-20 opacity-25 select-none hidden md:block">

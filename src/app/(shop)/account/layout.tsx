@@ -61,7 +61,7 @@ export default function AccountLayout({
           </aside>
 
           {/* Main Content Area */}
-          <main className="flex-1 bg-card border border-border/50 rounded-3xl p-6 md:p-8 lg:p-10 shadow-sm min-h-[500px]">
+          <main className="flex-1 bg-card border border-border/50 rounded-3xl p-6 md:p-8 lg:p-10 shadow-sm min-h-125">
             {children}
           </main>
         </div>

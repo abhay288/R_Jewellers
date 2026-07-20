@@ -394,6 +394,12 @@
     animation: clipReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
+  /* Skeleton gold shimmer sweep — used in MotionVideoCard loading state */
+  @keyframes skeletonSweep {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+  }
+
   /* Floating particles */
   @keyframes floatParticle {
     0% { transform: translateY(100%) translateX(0) scale(0.5); opacity: 0; }

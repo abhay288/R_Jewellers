@@ -23,8 +23,8 @@ export default function AuthLayout({
         <div className="absolute inset-0 bg-gradient-gold opacity-10" />
         
         {/* Abstract shapes mimicking the hero section */}
-        <div className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-secondary/40 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/4 -left-32 w-100 h-100 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-32 w-125 h-125 bg-secondary/40 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="relative z-10 text-center px-12">
           <Link href="/" className="inline-block">

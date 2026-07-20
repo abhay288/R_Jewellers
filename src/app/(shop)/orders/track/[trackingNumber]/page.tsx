@@ -206,12 +206,12 @@ export default function OrderTrackingPage() {
               
               <div className="relative">
                 {/* Vertical line for mobile, horizontal for desktop (using desktop vertical layout for premium detailed view) */}
-                <div className="absolute left-[20px] top-6 bottom-6 w-0.5 bg-neutral-100" />
+                <div className="absolute left-5 top-6 bottom-6 w-0.5 bg-neutral-100" />
                 <motion.div 
                   initial={{ height: 0 }}
                   animate={{ height: `${(Math.max(0, currentStepIdx) / (steps.length - 1)) * 100}%` }}
                   transition={{ duration: 1.2, ease: 'easeInOut' }}
-                  className="absolute left-[20px] top-6 w-0.5 bg-amber-600"
+                  className="absolute left-5 top-6 w-0.5 bg-amber-600"
                 />
 
                 <div className="space-y-8 relative">

@@ -140,7 +140,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
             <label className="text-sm font-medium">Description *</label>
             <textarea 
               {...form.register("description")} 
-              className="flex min-h-[150px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary custom-scrollbar"
+              className="flex min-h-37.5 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary custom-scrollbar"
               placeholder="Rich description of the product..."
             />
             {form.formState.errors.description && <p className="text-xs text-red-500">{form.formState.errors.description.message}</p>}

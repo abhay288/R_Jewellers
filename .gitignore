@@ -51,3 +51,6 @@ firebase-service-account.json
 cloudinary_test.js
 *.log
 
+
+.vercel
+.env*

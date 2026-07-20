@@ -115,7 +115,7 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Chart Area */}
-        <div className="lg:col-span-2 bg-card border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col h-[400px]">
+        <div className="lg:col-span-2 bg-card border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col h-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-playfair font-bold text-lg">Revenue Overview</h3>
             <select className="bg-secondary/30 border-none text-xs rounded-lg px-2 py-1 outline-none">

@@ -68,7 +68,7 @@ export default function OrdersPage() {
                       <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium line-clamp-1 max-w-[150px]">{item.name}</p>
+                      <p className="text-sm font-medium line-clamp-1 max-w-37.5">{item.name}</p>
                       <p className="text-xs text-muted-foreground">Qty: {item.qty}</p>
                     </div>
                   </div>
