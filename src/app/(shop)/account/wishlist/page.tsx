@@ -2,25 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 
-// Mock Wishlist Data
-const wishlistItems = [
-  {
-    id: "p3",
-    name: "Classic Diamond Tennis Bracelet",
-    price: "₹499.00",
-    category: "Everyday",
-    image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400",
-    inStock: true,
-  },
-  {
-    id: "p5",
-    name: "Temple Jewellery Gold Necklace",
-    price: "₹750.00",
-    category: "Festive",
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400",
-    inStock: false,
-  }
-];
+// Remove fake data until API is implemented
+const wishlistItems: any[] = [];
 
 export default function WishlistPage() {
   return (

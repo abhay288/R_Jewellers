@@ -2,28 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Package, ChevronRight } from "lucide-react";
 
-// Mock Orders Data
-const orders = [
-  {
-    id: "ORD-2026-8492",
-    date: "July 02, 2026",
-    status: "Delivered",
-    total: "₹1,048.00",
-    items: [
-      { name: "Royal Kundan Bridal Choker Set", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400", qty: 1 },
-      { name: "Rose Gold Diamond Bangles", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400", qty: 1 }
-    ]
-  },
-  {
-    id: "ORD-2026-3821",
-    date: "June 15, 2026",
-    status: "Processing",
-    total: "₹299.00",
-    items: [
-      { name: "Emerald Drop Earrings", image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=400", qty: 2 }
-    ]
-  }
-];
+// Remove fake data until API is implemented
+const orders: any[] = [];
 
 export default function OrdersPage() {
   return (
@@ -62,7 +42,7 @@ export default function OrdersPage() {
               </div>
 
               <div className="flex gap-4 overflow-x-auto hide-scrollbar">
-                {order.items.map((item, idx) => (
+                {order.items?.map((item: any, idx: number) => (
                   <div key={idx} className="flex items-center space-x-3 shrink-0">
                     <div className="w-16 h-16 rounded-xl bg-secondary overflow-hidden shrink-0 relative">
                       <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />

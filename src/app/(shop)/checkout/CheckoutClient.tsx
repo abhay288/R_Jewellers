@@ -54,18 +54,28 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Validate phone number (Indian mobile: 10 digits, starting with 6-9)
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const rawPhone = newAddress.phone.replace(/[\s+\-()]/g, '');
+    if (!rawPhone || !phoneRegex.test(rawPhone)) {
+      alert('Please enter a valid 10-digit Indian mobile number.');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/shop/addresses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newAddress)
+        body: JSON.stringify({ ...newAddress, phone: rawPhone })
       });
       if (res.ok) {
         const saved = await res.json();
         setAddresses([...addresses, saved]);
         setSelectedAddressId(saved._id);
         setShowNewAddress(false);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to save address.');
       }
     } catch (err) {
       console.error(err);
@@ -123,7 +133,12 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
   };
 
   const handlePlaceOrder = async () => {
-    if (!selectedAddressId) return alert("Please select an address");
+    if (!selectedAddressId) return alert('Please select a delivery address.');
+    // Ensure the selected address has a phone number
+    const selectedAddr = addresses.find((a: any) => a._id === selectedAddressId);
+    if (!selectedAddr?.phone) {
+      return alert('The selected address is missing a contact number. Please add a valid address with a mobile number.');
+    }
     setLoading(true);
     try {
       // Step A: Place the local order first with pending payment status
@@ -322,8 +337,8 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                           <input id="fullName" required type="text" value={newAddress.fullName} onChange={e => setNewAddress({...newAddress, fullName: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div>
-                          <label htmlFor="phone" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Mobile Number</label>
-                          <input id="phone" required type="tel" value={newAddress.phone} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
+                          <label htmlFor="phone" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Mobile Number <span className="text-red-500">*</span></label>
+                          <input id="phone" required type="tel" pattern="[6-9][0-9]{9}" maxLength={10} placeholder="10-digit mobile number" value={newAddress.phone} onChange={e => setNewAddress({...newAddress, phone: e.target.value})} className="w-full bg-background border border-border rounded-xl px-4 py-3" />
                         </div>
                         <div className="col-span-2">
                           <label htmlFor="email" className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Email Address</label>

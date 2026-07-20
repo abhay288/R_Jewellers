@@ -56,8 +56,8 @@ function DiamondMesh() {
 
 export function FloatingJewel() {
   return (
-    <div className="w-full h-full min-h-[400px]">
-      <Canvas shadows camera={{ position: [0, 0, 5], fov: 45 }}>
+    <div className="w-full h-full min-h-100">
+      <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 0, 5], fov: 45 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
         

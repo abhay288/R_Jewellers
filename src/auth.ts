@@ -82,6 +82,7 @@ export const {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
         await connectDB();
+        const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
         const existingUser = await User.findOne({ email: user.email });
 
         if (!existingUser) {
@@ -91,6 +92,7 @@ export const {
             image: user.image || undefined,
             providers: ["google"],
             emailVerified: new Date(),
+            role: user.email === ADMIN_EMAIL ? "admin" : "user",
           });
         } else {
           let updated = false;
@@ -101,9 +103,20 @@ export const {
             existingUser.providers.push("google");
             updated = true;
           }
+          // Ensure admin account always has admin role
+          if (user.email === ADMIN_EMAIL && existingUser.role !== "admin") {
+            existingUser.role = "admin";
+            updated = true;
+          }
           if (updated) {
             await existingUser.save();
           }
+        }
+
+        // Propagate role to JWT user object so the jwt callback picks it up
+        const dbUser = await User.findOne({ email: user.email }).select("role");
+        if (dbUser) {
+          (user as any).role = dbUser.role;
         }
       }
       return true;

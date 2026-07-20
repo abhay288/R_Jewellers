@@ -107,12 +107,18 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect user dashboard/profile
-  if (pathname.startsWith('/profile') || pathname.startsWith('/dashboard') || (pathname.startsWith('/api/shop/') && !pathname.startsWith('/api/shop/products'))) {
+  if (
+    pathname.startsWith('/profile') || 
+    pathname.startsWith('/account') || 
+    pathname.startsWith('/checkout') || 
+    pathname.startsWith('/dashboard') || 
+    (pathname.startsWith('/api/shop/') && !pathname.startsWith('/api/shop/products'))
+  ) {
     if (!session) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL(`/login?callbackUrl=${pathname}`, request.url));
     }
   }
 

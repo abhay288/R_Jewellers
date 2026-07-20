@@ -90,6 +90,10 @@ export default function DiamondCursor() {
       if (sparklesRef.current.length > 30) {
         sparklesRef.current = sparklesRef.current.slice(-30);
       }
+
+      if (!rafRef.current) {
+        rafRef.current = requestAnimationFrame(render);
+      }
     };
 
     window.addEventListener("mousemove", (e) => spawnSparkle(e.clientX, e.clientY));
@@ -99,6 +103,11 @@ export default function DiamondCursor() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       sparklesRef.current = sparklesRef.current.filter((s) => s.life < s.maxLife);
+
+      if (sparklesRef.current.length === 0) {
+        rafRef.current = 0;
+        return;
+      }
 
       for (const s of sparklesRef.current) {
         s.life++;

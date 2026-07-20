@@ -53,7 +53,10 @@ export default function AccountLayout({
               
               <div className="hidden lg:block my-4 border-t border-border/50" />
               
-              <button className="flex items-center space-x-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-colors whitespace-nowrap text-left">
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-colors whitespace-nowrap text-left"
+              >
                 <LogOut className="w-5 h-5 shrink-0" />
                 <span>Sign Out</span>
               </button>

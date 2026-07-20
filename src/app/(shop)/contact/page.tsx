@@ -91,7 +91,7 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6 text-primary shrink-0" />
                   <div>
                     <h3 className="font-medium text-lg mb-1">Email</h3>
-                    <p className="text-muted-foreground font-light">radhikajewellers699@gmail.com</p>
+                    <a href="mailto:radhikajewellers699@gmail.com" className="text-muted-foreground font-light hover:text-primary transition-colors">radhikajewellers699@gmail.com</a>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">
