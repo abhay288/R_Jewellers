@@ -30,9 +30,9 @@ const circularCategories = [
   { name: "Necklaces", slug: "necklaces", subtitle: "Statement Pieces", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800" },
   { name: "Rings", slug: "rings", subtitle: "Eternal Symbols", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800" },
   { name: "Bracelets", slug: "bracelets", subtitle: "Wrist Elegance", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800" },
-  { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800" },
+  { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=800" },
   { name: "Earrings", slug: "earrings", subtitle: "Face Framing", image: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=800" },
-  { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800" },
+  { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800" },
   { name: "Bridal Sets", slug: "bridal-sets", subtitle: "Royal Occasions", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=800" },
   { name: "Festival", slug: "festival-collection", subtitle: "Celebration", image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?q=80&w=800" },
   { name: "Gifts", slug: "gift-collection", subtitle: "Curated Giving", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800" },
@@ -102,10 +102,10 @@ const giftResults = [
 
 // Customer Gallery
 const customerGems = [
-  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The craftsmanship feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600" },
-  { username: "@ananya_rao", location: "Bangalore", rating: 5, product: "Royal Drop Earrings", review: "Wearing these to my sister's reception — everyone asked where they're from. So proud.", likes: 89, image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=600" },
-  { username: "@priyanka.k", location: "Mumbai", rating: 5, product: "Solitaire Kada", review: "Skin-safe and absolutely gorgeous. No tarnish after three months of daily wear.", likes: 215, image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" },
-  { username: "@shruti.j", location: "Delhi", rating: 5, product: "Diamond Choker", review: "The packaging alone made me emotional. Premium velvet box, certificate, the whole experience.", likes: 173, image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=600" }
+  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The craftsmanship feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?auto=format&fit=crop&q=80&w=600" },
+  { username: "@ananya_rao", location: "Bangalore", rating: 5, product: "Royal Drop Earrings", review: "Wearing these to my sister's reception — everyone asked where they're from. So proud.", likes: 89, image: "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=600" },
+  { username: "@priyanka.k", location: "Mumbai", rating: 5, product: "Solitaire Kada", review: "Skin-safe and absolutely gorgeous. No tarnish after three months of daily wear.", likes: 215, image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?auto=format&fit=crop&q=80&w=600" },
+  { username: "@shruti.j", location: "Delhi", rating: 5, product: "Diamond Choker", review: "The packaging alone made me emotional. Premium velvet box, certificate, the whole experience.", likes: 173, image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?auto=format&fit=crop&q=80&w=600" }
 ];
 
 // Why Choose Radhika
