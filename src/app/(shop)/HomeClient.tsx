@@ -145,7 +145,7 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
       viewport={{ once: true }}
       transition={{ duration: 0.9, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={handleMouseEnter}
-      className="w-72 md:w-84 shrink-0 group relative h-[600px] overflow-hidden bg-[#1a1a18] cursor-pointer luxury-card"
+      className="w-72 md:w-84 shrink-0 group relative h-150 overflow-hidden bg-[#1a1a18] cursor-pointer luxury-card"
     >
       {/* Video — no CSS filter on video element to avoid GPU black frame in Chromium */}
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -177,7 +177,7 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
           {item.title}
         </h4>
         <div className="w-8 h-px bg-[#C9A227] mb-4 group-hover:w-16 transition-all duration-700 ease-out" />
-        <p className="text-white/65 text-xs font-light leading-relaxed mb-6 max-w-[240px]">
+        <p className="text-white/65 text-xs font-light leading-relaxed mb-6 max-w-60">
           {item.desc}
         </p>
         <Link
@@ -207,7 +207,7 @@ function CategoryCard({ cat, index }: { cat: typeof circularCategories[0]; index
       transition={{ duration: 0.8, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
       className="group cursor-pointer relative"
     >
-      <Link href={`/shop?category=${cat.slug}`} className="block relative aspect-[4/5] overflow-hidden bg-[#1A1A18] shadow-2xl">
+      <Link href={`/shop?category=${cat.slug}`} className="block relative aspect-4/5 overflow-hidden bg-[#1A1A18] shadow-2xl">
         {/* Image */}
         <Image
           src={cat.image}
@@ -412,7 +412,7 @@ export default function HomeClient({
 
         {/* Scroll Progress Bar */}
         <motion.div
-          className="fixed top-0 left-0 right-0 h-[2px] bg-[#C9A227] z-999 origin-left"
+          className="fixed top-0 left-0 right-0 h-0.5 bg-[#C9A227] z-999 origin-left"
           style={{ width: scrollWidth }}
         />
 
@@ -645,7 +645,7 @@ export default function HomeClient({
             {/* Lookbook display */}
             <div className="flex flex-col lg:flex-row items-stretch gap-0 max-w-6xl mx-auto border border-border/20 overflow-hidden shadow-xl">
               {/* Left — Image */}
-              <div className="relative w-full lg:w-[55%] h-[440px] lg:h-[580px] overflow-hidden">
+              <div className="relative w-full lg:w-[55%] h-110 lg:h-145 overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={lookbookTab + "-image"}
@@ -674,7 +674,7 @@ export default function HomeClient({
                       initial={{ opacity: 0, x: -15 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 + i * 0.1 }}
-                      className="flex items-center gap-2 glass-dark px-4 py-2 max-w-[220px]"
+                      className="flex items-center gap-2 glass-dark px-4 py-2 max-w-55"
                     >
                       <div className="w-1.5 h-1.5 bg-[#C9A227] rounded-full shrink-0" />
                       <span className="text-[9px] text-white/90 font-light tracking-wide truncate">{jewel}</span>
@@ -797,7 +797,7 @@ export default function HomeClient({
                     <h4 className="font-playfair text-sm font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
                       {item.title}
                     </h4>
-                    <p className="text-[10px] text-muted-foreground leading-relaxed max-w-[120px] mx-auto font-light">
+                    <p className="text-[10px] text-muted-foreground leading-relaxed max-w-30 mx-auto font-light">
                       {item.desc}
                     </p>
                   </motion.div>
@@ -961,7 +961,7 @@ export default function HomeClient({
                   className="group relative overflow-hidden luxury-card bg-white"
                 >
                   {/* Portrait image */}
-                  <div className="relative h-[480px] w-full overflow-hidden">
+                  <div className="relative h-120 w-full overflow-hidden">
                     <Image
                       src={cust.image}
                       alt={cust.username}

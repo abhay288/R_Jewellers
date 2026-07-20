@@ -80,10 +80,10 @@ function EditorialBanner({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-      className={`flex flex-col ${isEven ? "lg:flex-row" : "lg:flex-row-reverse"} min-h-[560px] group`}
+      className={`flex flex-col ${isEven ? "lg:flex-row" : "lg:flex-row-reverse"} min-h-140 group`}
     >
       {/* Image Panel — 55% width */}
-      <div className="relative w-full lg:w-[55%] h-[380px] lg:h-auto overflow-hidden">
+      <div className="relative w-full lg:w-[55%] h-95 lg:h-auto overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: imageY }}>
           <Image
             src={collection.image}
