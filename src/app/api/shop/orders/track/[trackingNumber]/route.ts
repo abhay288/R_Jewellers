@@ -72,7 +72,17 @@ export async function GET(
                 notificationService.sendOrderStatusNotification(order.user.toString(), order.orderId, mappedStatus);
                 const userObj = await User.findById(order.user);
                 if (userObj) {
-                  await emailService.sendOrderStatusChangedEmail(userObj.email, userObj.name, order.orderId, mappedStatus);
+                  await emailService.sendOrderStatusChangedEmail(
+                    userObj.email,
+                    userObj.name,
+                    order.orderId,
+                    mappedStatus,
+                    {
+                      courierName: order.courierName,
+                      awbNumber: order.awbNumber,
+                      estimatedDelivery: order.estimatedDelivery,
+                    }
+                  );
                 }
               } catch (notifyErr: any) {
                 logger.error('Failed to notify client during live tracking poll: ' + notifyErr.message);

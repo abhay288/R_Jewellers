@@ -313,23 +313,53 @@ export class EmailService {
   /**
    * 6. Send Order Status Changed Email
    */
-  async sendOrderStatusChangedEmail(to: string, name: string, orderId: string, status: string) {
+  async sendOrderStatusChangedEmail(
+    to: string,
+    name: string,
+    orderId: string,
+    status: string,
+    extras?: { courierName?: string; awbNumber?: string; estimatedDelivery?: Date }
+  ) {
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://radhikajewellers.store';
+    const trackingUrl = extras?.awbNumber
+      ? `${baseUrl}/orders/${extras.awbNumber}`
+      : `${baseUrl}/orders/${orderId}`;
+
+    const isShipped = status === 'Shipped' || status === 'Out For Delivery';
+
+    const shippingInfo = isShipped && extras?.courierName ? `
+      <div style="background-color:#faf8f6;border:1px solid #e5dfd9;border-radius:8px;padding:20px;margin:20px 0;">
+        <table style="width:100%;font-size:14px;border-collapse:collapse;">
+          ${extras.courierName ? `<tr><td style="padding:6px 0;color:#8c765c;font-weight:bold;">Courier Partner</td><td style="padding:6px 0;">${extras.courierName}</td></tr>` : ''}
+          ${extras.awbNumber ? `<tr><td style="padding:6px 0;color:#8c765c;font-weight:bold;">Tracking Number</td><td style="padding:6px 0;font-family:monospace;">${extras.awbNumber}</td></tr>` : ''}
+          ${extras.estimatedDelivery ? `<tr><td style="padding:6px 0;color:#8c765c;font-weight:bold;">Expected Delivery</td><td style="padding:6px 0;">${new Date(extras.estimatedDelivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>` : ''}
+        </table>
+      </div>` : '';
+
+    const subject = isShipped
+      ? `Your order has been shipped 🚚 — ${orderId}`
+      : `Order Update: ${status} — ${orderId}`;
+
+    const body = isShipped
+      ? `Hello ${name},<br><br>Great news! Your order <strong>${orderId}</strong> has been handed over to our courier partner and is on its way to you.${shippingInfo}<p>Click the button below to track your parcel in real-time.</p>`
+      : `Dear ${name},<br><br>Your order <strong>${orderId}</strong> status has been updated to: <strong>${status}</strong>.`;
+
     const html = this.getLuxuryWrapper(
-      'Order Status Update',
+      isShipped ? 'Your Order Is On Its Way! 🚚' : 'Order Status Update',
       `
-        <h2 class="title">Order Status Updated</h2>
-        <p>Dear ${name},</p>
-        <p>We are writing to let you know that your order <strong>${orderId}</strong> has been updated to status: <strong>${status}</strong>.</p>
-        
+        <h2 class="title">${isShipped ? 'Your Order Has Been Shipped!' : 'Order Status Updated'}</h2>
+        <p>${body}</p>
+
         <div class="button-container">
-          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/profile/orders/${orderId}" class="button">Track Order</a>
+          <a href="${trackingUrl}" class="button">Track Your Order</a>
         </div>
 
-        <p>If you have any questions regarding your order, please reply to this email.</p>
+        <p style="font-size:12px;color:#999;margin-top:16px;">Tracking link: <a href="${trackingUrl}" style="color:#8c765c;">${trackingUrl}</a></p>
+        <p>If you have any questions, please reply to this email.</p>
         <p>With Warm Regards,<br>The Radhika Jewellers Team</p>
       `
     );
-    return this.sendEmail(to, `Order Update: ${status} - ${orderId}`, html);
+    return this.sendEmail(to, subject, html);
   }
 
   /**

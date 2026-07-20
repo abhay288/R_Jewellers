@@ -93,31 +93,34 @@ export default function OrdersPage() {
                   <p className="text-sm text-muted-foreground">
                     Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
                   </p>
+                  {order.estimatedDelivery && (
+                    <p className="text-sm text-green-600 font-medium mt-0.5">
+                      Expected Delivery: {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { day: "numeric", month: "long" })}
+                    </p>
+                  )}
                   {order.courierName && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Courier: {order.courierName}
-                      {order.awbNumber && <span className="ml-2 font-mono">AWB: {order.awbNumber}</span>}
+                      {order.courierName}
+                      {order.awbNumber && <span className="ml-2 font-mono opacity-70">{order.awbNumber}</span>}
                     </p>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between md:flex-col md:items-end gap-2">
                   <span className="font-bold text-lg text-primary">₹{order.totalAmount?.toFixed(2)}</span>
-                  <div className="flex gap-2">
-                    {order.awbNumber && (
-                      <Link
-                        href={`/orders/${order.awbNumber}`}
-                        className="text-sm text-primary font-medium hover:underline flex items-center gap-1 border border-primary/30 px-3 py-1.5 rounded-full"
-                      >
-                        <MapPin className="w-3.5 h-3.5" />
-                        Track
-                      </Link>
-                    )}
+                  <div className="flex gap-2 flex-wrap justify-end">
+                    <Link
+                      href={`/orders/${order.awbNumber || order.orderId}`}
+                      className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      Track Order
+                    </Link>
                     <Link
                       href={`/account/orders/${order.orderId}`}
-                      className="text-sm text-primary font-medium hover:underline flex items-center"
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground border border-border/50 px-4 py-2 rounded-full transition-colors"
                     >
-                      Details <ChevronRight className="w-4 h-4 ml-0.5" />
+                      Details <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
                 </div>
