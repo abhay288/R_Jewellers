@@ -73,7 +73,7 @@ export default function Footer() {
               />
             </Link>
 
-            <p style={{ color: "rgba(245,237,216,0.5)" }} className="text-[13px] font-light leading-[1.9] max-w-[220px]">
+            <p style={{ color: "rgba(245,237,216,0.5)" }} className="text-[13px] font-light leading-[1.9] max-w-55">
               Exquisite luxury artificial jewellery crafted to perfection — for every occasion that deserves to be remembered.
             </p>
 
@@ -157,44 +157,34 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4 — Store Info */}
+          {/* Column 4 — Contact Info */}
           <div>
             <h4
               className="font-playfair text-base font-bold mb-7"
               style={{ color: "#F5EDD8" }}
             >
-              Visit Our Store
+              Contact & Address
             </h4>
             <ul className="space-y-5 mb-8">
               <li className="flex items-start gap-3">
                 <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: "#C9A227" }} />
                 <span className="text-[13px] font-light leading-relaxed" style={{ color: "rgba(245,237,216,0.45)" }}>
-                  Showroom 4, Royal Plaza,<br />MG Road, Mumbai 400001
+                  51 khagender nath ganguly lane, 4th floor/flat no 402<br />near pumping iron gym, Nandi bagan<br />Howrah - 711106
                 </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone size={14} className="shrink-0" style={{ color: "#C9A227" }} />
-                <a
-                  href="tel:+919876543210"
-                  className="text-[13px] font-light hover:text-[#C9A227] transition-colors duration-300"
-                  style={{ color: "rgba(245,237,216,0.45)" }}
-                >
-                  +91 98765 43210
-                </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={14} className="shrink-0" style={{ color: "#C9A227" }} />
                 <a
-                  href="mailto:support@radhikajewellers.com"
+                  href="mailto:radhikajewellers699@gmail.com"
                   className="text-[13px] font-light hover:text-[#C9A227] transition-colors duration-300"
                   style={{ color: "rgba(245,237,216,0.45)" }}
                 >
-                  support@radhikajewellers.com
+                  radhikajewellers699@gmail.com
                 </a>
               </li>
             </ul>
 
-            {/* Store hours */}
+            {/* Support hours */}
             <div
               className="pt-6 border-t"
               style={{ borderColor: "rgba(255,255,255,0.07)" }}
@@ -203,7 +193,7 @@ export default function Footer() {
                 className="text-[9px] uppercase tracking-[0.35em] font-bold mb-3"
                 style={{ color: "rgba(201,162,39,0.5)" }}
               >
-                Opening Hours
+                Support Hours
               </p>
               <p className="text-[12px] font-light mb-1" style={{ color: "rgba(245,237,216,0.38)" }}>
                 Mon – Sat &nbsp; 10:00 AM – 8:00 PM

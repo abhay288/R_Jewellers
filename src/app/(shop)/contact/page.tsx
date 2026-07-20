@@ -74,37 +74,30 @@ export default function ContactPage() {
             className="space-y-12"
           >
             <div>
-              <h2 className="font-playfair text-3xl text-foreground mb-8">Visit Our Boutique</h2>
+              <h2 className="font-playfair text-3xl text-foreground mb-8">Contact Information</h2>
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
                   <MapPin className="w-6 h-6 text-primary shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-medium text-lg mb-1">Flagship Store</h3>
+                    <h3 className="font-medium text-lg mb-1">Registered Office</h3>
                     <p className="text-muted-foreground font-light leading-relaxed">
-                      Showroom 4, Royal Plaza<br />
-                      MG Road, Mumbai<br />
-                      Maharashtra 400001, India
+                      51 khagender nath ganguly lane,<br />
+                      4th floor/flat no 402, near pumping iron gym,<br />
+                      Nandi bagan, Howrah - 711106
                     </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Phone className="w-6 h-6 text-primary shrink-0" />
-                  <div>
-                    <h3 className="font-medium text-lg mb-1">Phone</h3>
-                    <p className="text-muted-foreground font-light">+91 98765 43210</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
                   <Mail className="w-6 h-6 text-primary shrink-0" />
                   <div>
                     <h3 className="font-medium text-lg mb-1">Email</h3>
-                    <p className="text-muted-foreground font-light">support@radhikajewellers.com</p>
+                    <p className="text-muted-foreground font-light">radhikajewellers699@gmail.com</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">
                   <Clock className="w-6 h-6 text-primary shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-medium text-lg mb-1">Store Hours</h3>
+                    <h3 className="font-medium text-lg mb-1">Support Hours</h3>
                     <p className="text-muted-foreground font-light leading-relaxed">
                       Monday - Saturday: 10:00 AM - 8:00 PM<br />
                       Sunday: Closed
@@ -114,10 +107,6 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Map Placeholder */}
-            <div className="w-full h-64 bg-secondary rounded-2xl flex items-center justify-center border border-border/50">
-              <span className="text-muted-foreground font-light italic">Interactive Map Area</span>
-            </div>
           </motion.div>
 
           {/* Contact Form */}

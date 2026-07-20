@@ -12,14 +12,13 @@ export default function AboutPage() {
     "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1200",
     "@id": "https://radhika-jewellers.vercel.app/#store",
     "url": "https://radhika-jewellers.vercel.app",
-    "telephone": "+91-9988776655",
     "priceRange": "$$$$",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "102, Palace Road",
-      "addressLocality": "Jaipur",
-      "addressRegion": "Rajasthan",
-      "postalCode": "302001",
+      "streetAddress": "51 khagender nath ganguly lane, 4th floor/flat no 402, near pumping iron gym, Nandi bagan",
+      "addressLocality": "Howrah",
+      "addressRegion": "West Bengal",
+      "postalCode": "711106",
       "addressCountry": "IN"
     },
     "openingHoursSpecification": {
