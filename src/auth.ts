@@ -83,11 +83,12 @@ export const {
       if (account?.provider === "google" && user.email) {
         try {
           await connectDB();
+          const emailLower = user.email.toLowerCase().trim();
           const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
-          const isAdmin = user.email === ADMIN_EMAIL;
+          const isAdmin = emailLower === ADMIN_EMAIL;
 
           const updatedUser = await User.findOneAndUpdate(
-            { email: user.email },
+            { email: emailLower },
             {
               $set: {
                 ...(isAdmin ? { role: "admin" } : {}),
@@ -111,11 +112,12 @@ export const {
           );
 
           if (updatedUser) {
+            (user as any).id = updatedUser._id.toString();
             (user as any).role = updatedUser.role;
           }
         } catch (error) {
           console.error("Error in Google signIn callback:", error);
-          return false;
+          // Return true so user sign in doesn't break if custom profile sync has a non-fatal db warning
         }
       }
       return true;

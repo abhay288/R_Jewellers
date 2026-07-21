@@ -23,6 +23,22 @@ export const authConfig = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        const targetUrl = new URL(url);
+        const baseUrlObj = new URL(baseUrl);
+        if (
+          targetUrl.hostname.endsWith("radhikajewellers.store") ||
+          targetUrl.origin === baseUrlObj.origin
+        ) {
+          return url;
+        }
+      } catch {
+        // Fallback to baseUrl
+      }
+      return baseUrl;
+    },
   },
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
