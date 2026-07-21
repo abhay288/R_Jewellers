@@ -66,35 +66,35 @@ const lookbookLooks = {
     title: "The Haldi Splendor",
     subtitle: "Bright, radiant yellow floral & gold combinations.",
     desc: "An elegant, lightweight ensemble featuring delicate gold-plated floral chokers and matching jhumkas, styled to shine brilliantly alongside traditional yellow turmeric ceremonies.",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=1000",
+    image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?auto=format&fit=crop&q=80&w=1000",
     jewellery: ["Delicate Floral Necklace", "Petal Earrings", "Shining Kada Bracelet"]
   },
   mehendi: {
     title: "The Mehendi Garden",
     subtitle: "Intricate green emerald accents and custom sets.",
     desc: "Exquisite details styled with leaf patterns and emerald drop gems. Heavy cuffs designed to stand out against intricate henna patterns on hands.",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=1000",
+    image: "https://images.unsplash.com/photo-1552662057-0b1e16fdfcc6?auto=format&fit=crop&q=80&w=1000",
     jewellery: ["Emerald Choker Set", "Intricate Leaf Maang Tikka", "Heavy Filigree Bangle Set"]
   },
   engagement: {
     title: "The Engagement Radiance",
     subtitle: "Contemporary diamond lustre and minimalist bands.",
     desc: "Crafted to celebrate new chapters. High-polish CZ diamonds styled to catch every flash of light, offering a sophisticated, modern statement for the evening.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1000",
+    image: "https://images.unsplash.com/photo-1610031853683-16244f77c3da?auto=format&fit=crop&q=80&w=1000",
     jewellery: ["Sparkling CZ Solitaire Choker", "Tear-drop Earrings", "Elegance Diamond Kada"]
   },
   wedding: {
     title: "The Royal Wedding",
     subtitle: "Heavy Kundan and Polki heritage masterpieces.",
     desc: "For the grand moment. Multi-layer heritage Kundan necklaces paired with matching temple jewellery and bridal crowns, creating an unforgettable queenly stance.",
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1000",
+    image: "https://images.unsplash.com/photo-1583391733958-61268350629b?auto=format&fit=crop&q=80&w=1000",
     jewellery: ["Grand Royal Choker", "Long Multi-layer Kundan Haar", "Bespoke Bridal Jhumkas", "Polki Kada Set"]
   },
   reception: {
     title: "The Reception Gala",
     subtitle: "Modern statement collars and high-fashion luxury.",
     desc: "Sleek, glamorous jewellery styling that blends traditional motifs with contemporary silhouettes. Designed to flow elegantly with reception evening gowns.",
-    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=1000",
+    image: "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=1000",
     jewellery: ["Modern Collar Necklace", "Crystalline Statement Earrings", "Shining Platinum Bangle"]
   }
 };
@@ -289,6 +289,19 @@ export default function HomeClient({
   const [likesState, setLikesState] = useState([142, 89, 215, 173]);
   const [likedCards, setLikedCards] = useState<boolean[]>([false, false, false, false]);
   const [testimonialDir, setTestimonialDir] = useState(1);
+
+  // Auto-cycle the lookbook tabs
+  useEffect(() => {
+    const tabs = Object.keys(lookbookLooks) as Array<keyof typeof lookbookLooks>;
+    const interval = setInterval(() => {
+      setLookbookTab((prev) => {
+        const currentIndex = tabs.indexOf(prev);
+        const nextIndex = (currentIndex + 1) % tabs.length;
+        return tabs[nextIndex];
+      });
+    }, 5000); // 5 seconds per slide
+    return () => clearInterval(interval);
+  }, []);
 
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const bannerVideoRef = useRef<HTMLVideoElement>(null);
