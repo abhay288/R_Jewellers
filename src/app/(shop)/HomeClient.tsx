@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, animate } from "framer-motion";
@@ -10,9 +11,20 @@ import {
   Truck, Hammer, CheckCircle, Package, ChevronDown,
   MapPin
 } from "lucide-react";
-import FeaturedCollections from "@/frontend/components/home/FeaturedCollections";
-import BrandStory from "@/frontend/components/home/BrandStory";
-import TrendingSlider from "@/frontend/components/home/TrendingSlider";
+
+// Lazy load heavy below-fold sections
+const FeaturedCollections = dynamic(() => import("@/frontend/components/home/FeaturedCollections"), {
+  loading: () => <div className="h-96 animate-pulse bg-secondary/30 rounded-3xl" />,
+  ssr: false,
+});
+const BrandStory = dynamic(() => import("@/frontend/components/home/BrandStory"), {
+  loading: () => <div className="h-64 animate-pulse bg-secondary/30 rounded-3xl" />,
+  ssr: false,
+});
+const TrendingSlider = dynamic(() => import("@/frontend/components/home/TrendingSlider"), {
+  loading: () => <div className="h-80 animate-pulse bg-secondary/30 rounded-3xl" />,
+  ssr: false,
+});
 
 // Animated counter
 function Counter({ value, suffix = "", duration = 2 }: { value: number; suffix?: string; duration?: number }) {

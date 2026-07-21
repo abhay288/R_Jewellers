@@ -1,24 +1,38 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig = {
-  /* config options here */
+  compress: true,
+  productionBrowserSourceMaps: false,
+
+  // Tree-shake heavy icon/animation libraries (reduces JS bundle size significantly)
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion", "@radix-ui/react-icons"],
+  },
+
   images: {
     formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    minimumCacheTTL: 86400, // 24h CDN cache for images
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google profile photos
     ],
   },
-  // @ts-ignore - Next.js config type is currently missing this property but it is required by the CLI
+
+  // @ts-ignore
   allowedDevOrigins: ['192.168.29.92'],
+
   async headers() {
     return [
+      {
+        // Immutable cache for static assets (JS/CSS/fonts)
+        source: '/_next/static/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [

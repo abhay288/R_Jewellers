@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,14 +31,14 @@ export default function LoginPage() {
       setError("Invalid email or password. Please try again.");
       setLoading(false);
     } else {
-      window.location.href = "/admin"; // Redirect to admin or home upon login
+      window.location.href = callbackUrl;
     }
   };
 
   const handleGoogleSignIn = async (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
-    await signIn("google", { callbackUrl: "/admin" });
+    await signIn("google", { callbackUrl });
   };
 
   return (
@@ -129,5 +133,13 @@ export default function LoginPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
