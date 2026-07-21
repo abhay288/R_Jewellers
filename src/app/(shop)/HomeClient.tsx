@@ -114,10 +114,10 @@ const giftResults = [
 
 // Customer Gallery
 const customerGems = [
-  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The craftsmanship feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?auto=format&fit=crop&q=80&w=600" },
-  { username: "@ananya_rao", location: "Bangalore", rating: 5, product: "Royal Drop Earrings", review: "Wearing these to my sister's reception — everyone asked where they're from. So proud.", likes: 89, image: "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=600" },
-  { username: "@priyanka.k", location: "Mumbai", rating: 5, product: "Solitaire Kada", review: "Skin-safe and absolutely gorgeous. No tarnish after three months of daily wear.", likes: 215, image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?auto=format&fit=crop&q=80&w=600" },
-  { username: "@shruti.j", location: "Delhi", rating: 5, product: "Diamond Choker", review: "The packaging alone made me emotional. Premium velvet box, certificate, the whole experience.", likes: 173, image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?auto=format&fit=crop&q=80&w=600" }
+  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The craftsmanship feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1583391733958-61268350629b?auto=format&fit=crop&q=80&w=600" },
+  { username: "Aishwarya Rai", location: "Mumbai", rating: 5, product: "Royal Drop Earrings", review: "Wearing these to my sister's reception — everyone asked where they're from. So proud.", likes: 89, image: "https://images.unsplash.com/photo-1615886616086-fb788c0373df?auto=format&fit=crop&q=80&w=600" },
+  { username: "@priyanka.k", location: "Mumbai", rating: 5, product: "Solitaire Kada", review: "Skin-safe and absolutely gorgeous. No tarnish after three months of daily wear.", likes: 215, image: "https://images.unsplash.com/photo-1552662057-0b1e16fdfcc6?auto=format&fit=crop&q=80&w=600" },
+  { username: "@shruti.j", location: "Delhi", rating: 5, product: "Diamond Choker", review: "The packaging alone made me emotional. Premium velvet box, certificate, the whole experience.", likes: 173, image: "https://images.unsplash.com/photo-1610031853683-16244f77c3da?auto=format&fit=crop&q=80&w=600" }
 ];
 
 // Why Choose Radhika
@@ -137,17 +137,28 @@ const whyChooseReasons = [
 // Motion Video Card
 function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; index: number }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
+    // Load without autoplay to prevent lag
     const video = videoRef.current;
     if (video) {
       video.load();
-      video.play().catch(e => console.error("Autoplay blocked:", e));
     }
   }, []);
 
   const handleMouseEnter = () => {
-    if (videoRef.current) videoRef.current.play().catch(() => {});
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+      setIsPlaying(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
   };
 
   return (
@@ -157,6 +168,7 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
       viewport={{ once: true }}
       transition={{ duration: 0.9, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
       onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className="w-72 md:w-84 shrink-0 group relative h-150 overflow-hidden bg-[#1a1a18] cursor-pointer luxury-card"
     >
       {/* Video — no CSS filter on video element to avoid GPU black frame in Chromium */}
@@ -164,11 +176,11 @@ function MotionVideoCard({ item, index }: { item: typeof motionJewellery[0]; ind
         <video
           ref={videoRef}
           src={item.video}
+          poster={item.fallback}
           loop
           muted
           playsInline
-          autoPlay
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover transition-opacity duration-700 ${isPlaying ? 'opacity-100' : 'opacity-80'}`}
         />
         {/* Dimming overlay replaces brightness filter */}
         <div className="absolute inset-0 bg-black/35" style={{zIndex: 1}} />
