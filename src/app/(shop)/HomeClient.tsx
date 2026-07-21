@@ -377,9 +377,7 @@ export default function HomeClient({
     }
   ];
 
-  const filteredGifts = giftResults.filter(
-    (gift) => gift.budget === selectedBudget || gift.occasion === selectedOccasion
-  ).slice(0, 3);
+  const filteredGifts = giftResults.slice(0, 6);
 
   const changeTestimonial = (dir: number) => {
     setTestimonialDir(dir);
@@ -858,54 +856,8 @@ export default function HomeClient({
               </p>
             </motion.div>
 
-            {/* Filter bar — full width */}
-            <div className="bg-white border border-border/30 p-8 mb-10 shadow-xs max-w-4xl mx-auto">
-              <div className="flex flex-col md:flex-row gap-8">
-                <div className="flex-1">
-                  <h4 className="text-[9px] uppercase tracking-[0.4em] font-bold text-foreground mb-5">1. Choose Occasion</h4>
-                  <div className="flex flex-wrap gap-2.5">
-                    {["Birthday", "Anniversary", "Wedding", "Festival", "Valentine", "Mother's Day", "Engagement"].map((occ) => (
-                      <button
-                        key={occ}
-                        onClick={() => setSelectedOccasion(occ)}
-                        className={`px-4 py-2 text-[9px] font-bold tracking-[0.25em] uppercase border transition-all duration-300 cursor-pointer ${
-                          selectedOccasion === occ
-                            ? "bg-[#1C1C1A] text-white border-[#1C1C1A]"
-                            : "bg-transparent text-muted-foreground border-border/60 hover:border-foreground/40"
-                        }`}
-                      >
-                        {occ}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="w-px bg-border/30 hidden md:block" />
-                <div className="flex-1">
-                  <h4 className="text-[9px] uppercase tracking-[0.4em] font-bold text-foreground mb-5">2. Select Budget</h4>
-                  <div className="flex flex-wrap gap-2.5">
-                    {["₹499–₹999", "₹999–₹1999", "₹1999–₹2999", "₹2999–₹4999", "₹4999+"].map((bud) => (
-                      <button
-                        key={bud}
-                        onClick={() => setSelectedBudget(bud)}
-                        className={`px-4 py-2 text-[9px] font-bold tracking-[0.25em] uppercase border transition-all duration-300 cursor-pointer ${
-                          selectedBudget === bud
-                            ? "bg-[#C9A227] text-[#1C1C1A] border-[#C9A227]"
-                            : "bg-transparent text-muted-foreground border-border/60 hover:border-[#C9A227]/60"
-                        }`}
-                      >
-                        {bud}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Results */}
             <div className="max-w-4xl mx-auto">
-              <p className="text-[9px] uppercase tracking-[0.35em] font-bold text-muted-foreground mb-8">
-                Showing {filteredGifts.length} Perfect Matches
-              </p>
               {filteredGifts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <AnimatePresence mode="popLayout">
