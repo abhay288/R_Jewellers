@@ -114,10 +114,10 @@ const giftResults = [
 
 // Customer Gallery
 const customerGems = [
-  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The craftsmanship feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1583391733958-61268350629b?auto=format&fit=crop&q=80&w=600" },
-  { username: "Aishwarya Rai", location: "Mumbai", rating: 5, product: "Royal Drop Earrings", review: "Wearing these to my sister's reception — everyone asked where they're from. So proud.", likes: 89, image: "https://images.unsplash.com/photo-1615886616086-fb788c0373df?auto=format&fit=crop&q=80&w=600" },
-  { username: "@priyanka.k", location: "Mumbai", rating: 5, product: "Solitaire Kada", review: "Skin-safe and absolutely gorgeous. No tarnish after three months of daily wear.", likes: 215, image: "https://images.unsplash.com/photo-1552662057-0b1e16fdfcc6?auto=format&fit=crop&q=80&w=600" },
-  { username: "@shruti.j", location: "Delhi", rating: 5, product: "Diamond Choker", review: "The packaging alone made me emotional. Premium velvet box, certificate, the whole experience.", likes: 173, image: "https://images.unsplash.com/photo-1610031853683-16244f77c3da?auto=format&fit=crop&q=80&w=600" }
+  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The craftsmanship feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600" },
+  { username: "Aishwarya Rai", location: "Mumbai", rating: 5, product: "Royal Drop Earrings", review: "Wearing these to my sister's reception — everyone asked where they're from. So proud.", likes: 89, image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=600" },
+  { username: "@priyanka.k", location: "Mumbai", rating: 5, product: "Solitaire Kada", review: "Skin-safe and absolutely gorgeous. No tarnish after three months of daily wear.", likes: 215, image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=600" },
+  { username: "@shruti.j", location: "Delhi", rating: 5, product: "Diamond Choker", review: "The packaging alone made me emotional. Premium velvet box, certificate, the whole experience.", likes: 173, image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" }
 ];
 
 // Why Choose Radhika
