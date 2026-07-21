@@ -83,10 +83,13 @@ export async function middleware(request: NextRequest) {
 
   // 3. Protected Routes Logic
   let session = null;
-  try {
-    session = await auth();
-  } catch (err) {
-    console.error('NextAuth session error in middleware:', err);
+  // Skip calling auth() on NextAuth API routes to prevent consuming the request body
+  if (!pathname.startsWith('/api/auth')) {
+    try {
+      session = await auth();
+    } catch (err) {
+      console.error('NextAuth session error in middleware:', err);
+    }
   }
 
   // Protect admin routes
