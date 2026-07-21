@@ -46,7 +46,7 @@ export default function LoginPopup({ isAuthenticated }: { isAuthenticated: boole
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-[998] bg-black/20 backdrop-blur-[2px]"
+            className="fixed inset-0 z-998 bg-black/20 backdrop-blur-[2px]"
           />
 
           {/* Card */}
@@ -55,7 +55,7 @@ export default function LoginPopup({ isAuthenticated }: { isAuthenticated: boole
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-8 z-[999] w-[340px]"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-8 z-999 w-85"
             role="dialog"
             aria-modal="true"
             aria-label="Sign in prompt"
@@ -71,7 +71,7 @@ export default function LoginPopup({ isAuthenticated }: { isAuthenticated: boole
             >
               {/* Gold shimmer top border */}
               <div
-                className="absolute top-0 left-0 right-0 h-[1px]"
+                className="absolute top-0 left-0 right-0 h-px"
                 style={{
                   background: "linear-gradient(90deg, transparent, rgba(212,175,100,0.8), rgba(255,215,100,1), rgba(212,175,100,0.8), transparent)",
                 }}
@@ -223,7 +223,7 @@ export default function LoginPopup({ isAuthenticated }: { isAuthenticated: boole
 
               {/* Gold bottom border */}
               <div
-                className="absolute bottom-0 left-0 right-0 h-[1px]"
+                className="absolute bottom-0 left-0 right-0 h-px"
                 style={{
                   background: "linear-gradient(90deg, transparent, rgba(212,175,100,0.3), transparent)",
                 }}
