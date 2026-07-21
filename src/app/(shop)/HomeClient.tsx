@@ -281,7 +281,7 @@ export default function HomeClient({
   categories: any[]
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [lookbookTab, setLookbookTab] = useState<keyof typeof lookbookLooks>('wedding');
   const [selectedBudget, setSelectedBudget] = useState('₹999–₹1999');
@@ -349,8 +349,6 @@ export default function HomeClient({
       size: Math.random() > 0.7 ? 3 : 2,
     }));
     setParticles(generated);
-    const t = setTimeout(() => setIsLoading(false), 1600);
-    return () => clearTimeout(t);
   }, []);
 
   const testimonials = [
@@ -486,6 +484,7 @@ export default function HomeClient({
           <video
             ref={heroVideoRef}
             src="/assets/Hero_Video.mp4"
+            poster="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1200"
             autoPlay
             muted
             loop

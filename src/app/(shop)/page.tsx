@@ -3,9 +3,8 @@ import { ProductService } from '@/backend/services/ProductService';
 import { CategoryService } from '@/backend/services/CategoryService';
 import dbConnect from '@/shared/lib/mongodb';
 
-// Ensure the page is dynamically rendered or revalidated properly
-export const dynamic = 'force-dynamic';
-export const revalidate = 60; // Revalidate every 60 seconds (optional)
+// Ensure the page is revalidated properly for ISR cache
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function HomePage() {
   await dbConnect();
