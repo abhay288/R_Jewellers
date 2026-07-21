@@ -16,7 +16,7 @@ const LIMITS = {
   page: 120,      // standard pages
 };
 
-export async function middleware(request: NextRequest) {
+export default auth(async function middleware(request) {
   const { pathname } = request.nextUrl;
   
   // 1. IP Rate Limiting
@@ -81,16 +81,8 @@ export async function middleware(request: NextRequest) {
     "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://cdn.jsdelivr.net https://checkout.razorpay.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https:; media-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://* https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://*;"
   );
 
-  // 3. Protected Routes Logic
-  let session = null;
-  // Skip calling auth() on NextAuth API routes to prevent consuming the request body
-  if (!pathname.startsWith('/api/auth')) {
-    try {
-      session = await auth();
-    } catch (err) {
-      console.error('NextAuth session error in middleware:', err);
-    }
-  }
+  // 3. Protected Routes Logic using req.auth provided by Auth.js wrapper
+  const session = (request as any).auth;
 
   // Protect admin routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
@@ -126,7 +118,7 @@ export async function middleware(request: NextRequest) {
   }
 
   return response;
-}
+});
 
 export const config = {
   matcher: [
