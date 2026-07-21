@@ -79,44 +79,43 @@ export const {
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async signIn({ user, account, profile }) {
-      if (account?.provider === "google") {
-        await connectDB();
-        const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
-        const existingUser = await User.findOne({ email: user.email });
+    async signIn({ user, account }) {
+      if (account?.provider === "google" && user.email) {
+        try {
+          await connectDB();
+          const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
+          const isAdmin = user.email === ADMIN_EMAIL;
 
-        if (!existingUser) {
-          await User.create({
-            email: user.email || "",
-            name: user.name || "User",
-            image: user.image || undefined,
-            providers: ["google"],
-            emailVerified: new Date(),
-            role: user.email === ADMIN_EMAIL ? "admin" : "user",
-          });
-        } else {
-          let updated = false;
-          if (!existingUser.providers) {
-            existingUser.providers = ["google"];
-            updated = true;
-          } else if (!existingUser.providers.includes("google")) {
-            existingUser.providers.push("google");
-            updated = true;
-          }
-          // Ensure admin account always has admin role
-          if (user.email === ADMIN_EMAIL && existingUser.role !== "admin") {
-            existingUser.role = "admin";
-            updated = true;
-          }
-          if (updated) {
-            await existingUser.save();
-          }
-        }
+          const updatedUser = await User.findOneAndUpdate(
+            { email: user.email },
+            {
+              $set: {
+                ...(isAdmin ? { role: "admin" } : {}),
+                emailVerified: new Date(),
+              },
+              $addToSet: { providers: "google" },
+              $setOnInsert: {
+                name: user.name || "User",
+                image: user.image || undefined,
+                role: isAdmin ? "admin" : "user",
+                failedLoginAttempts: 0,
+                notificationPreferences: {
+                  orderStatus: true,
+                  lowStock: true,
+                  newReturns: true,
+                  promotions: true,
+                },
+              },
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+          );
 
-        // Propagate role to JWT user object so the jwt callback picks it up
-        const dbUser = await User.findOne({ email: user.email }).select("role");
-        if (dbUser) {
-          (user as any).role = dbUser.role;
+          if (updatedUser) {
+            (user as any).role = updatedUser.role;
+          }
+        } catch (error) {
+          console.error("Error in Google signIn callback:", error);
+          return false;
         }
       }
       return true;

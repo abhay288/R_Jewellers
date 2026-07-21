@@ -35,7 +35,7 @@ const UserSchema: Schema<IUser> = new Schema(
       newReturns: { type: Boolean, default: true },
       promotions: { type: Boolean, default: true },
     },
-    failedLoginAttempts: { type: Number, required: true, default: 0 },
+    failedLoginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date },
   },
   {
