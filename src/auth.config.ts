@@ -8,7 +8,7 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id || (user as any)._id?.toString() || token.sub;
         token.role = (user as any).role || "user";
       }
       if (trigger === "update" && session?.name) {
