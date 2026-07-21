@@ -124,14 +124,8 @@ const customerGems = [
 const whyChooseReasons = [
   { title: "Certified Jewellery", desc: "Every design backed by our validation certificates.", icon: ShieldCheck },
   { title: "Premium Quality", desc: "Handcrafted using hypoallergenic, skin-safe materials.", icon: Star },
-  { title: "Secure Checkout", desc: "SSL certified channels for complete peace of mind.", icon: Award },
-  { title: "Easy Returns", desc: "Complimentary return shipping and exchanges.", icon: Navigation },
   { title: "Bespoke Packaging", desc: "Velvet-lined legacy cases for timeless gifting.", icon: Package },
-  { title: "Express Delivery", desc: "Complimentary express delivery to your doorstep.", icon: Truck },
   { title: "Artisan Craft", desc: "Finely detailed by veteran traditional jewellery makers.", icon: Hammer },
-  { title: "Affordable Luxury", desc: "Premium styling at approachable price points.", icon: Sparkles },
-  { title: "24/7 Support", desc: "Our concierge team is always standing by.", icon: HelpCircle },
-  { title: "Safe Settings", desc: "Stones locked in durable, precision settings.", icon: CheckCircle }
 ];
 
 // Motion Video Card
@@ -927,27 +921,37 @@ export default function HomeClient({
               <div className="w-12 h-px bg-[#C9A227] mx-auto" />
             </motion.div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {whyChooseReasons.map((item, index) => {
                 const IconComponent = item.icon;
                 return (
                   <motion.div
                     key={item.title}
-                    initial={{ opacity: 0, y: 25 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.7, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                    className="group bg-[#FAFAF7] border border-border/30 p-8 text-center hover:border-[#C9A227]/40 hover:shadow-[0_8px_40px_rgba(201,162,39,0.1)] hover:-translate-y-1.5 transition-all duration-500 cursor-default"
+                    transition={{ duration: 0.8, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    className="group relative bg-white border border-border/40 p-10 text-center overflow-hidden transition-all duration-500 cursor-default shadow-sm hover:shadow-[0_20px_60px_rgba(201,162,39,0.12)] hover:border-[#C9A227]/40"
                   >
-                    <div className="w-14 h-14 rounded-full bg-white border border-border/40 flex items-center justify-center mx-auto mb-5 group-hover:border-[#C9A227]/50 group-hover:shadow-[0_0_20px_rgba(201,162,39,0.15)] transition-all duration-500">
-                      <IconComponent className="w-5 h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
+                    {/* Premium hover gradient */}
+                    <div className="absolute inset-0 bg-linear-to-b from-[#C9A227]/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    
+                    {/* Icon container */}
+                    <div className="relative z-10 w-20 h-20 rounded-full bg-[#FAFAF7] border border-[#C9A227]/20 flex items-center justify-center mx-auto mb-8 group-hover:bg-[#C9A227] group-hover:shadow-[0_0_30px_rgba(201,162,39,0.3)] transition-all duration-500">
+                      <IconComponent className="w-8 h-8 text-primary group-hover:text-white group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    <h4 className="font-playfair text-sm font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
+                    
+                    <h4 className="relative z-10 font-playfair text-xl font-bold text-foreground mb-4 group-hover:text-[#C9A227] transition-colors duration-300">
                       {item.title}
                     </h4>
-                    <p className="text-[10px] text-muted-foreground leading-relaxed font-light">
+                    
+                    <p className="relative z-10 text-xs text-muted-foreground leading-relaxed font-light">
                       {item.desc}
                     </p>
+
+                    {/* Animated bottom gold line */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-[#C9A227]/80 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center" />
                   </motion.div>
                 );
               })}
