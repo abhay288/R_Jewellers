@@ -101,9 +101,9 @@ const lookbookLooks = {
 
 // Gift Finder
 const giftResults = [
-  { name: "Royal Solitaire Ring", price: 1499, budget: "₹999–₹1999", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=500" },
-  { name: "Kundan Droplet Earrings", price: 899, budget: "₹499–₹999", occasion: "Festival", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=500" },
-  { name: "Grand Bridal Choker", price: 3499, budget: "₹2999–₹4999", occasion: "Wedding", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=500" },
+  { name: "Royal Solitaire Ring", price: 1499, budget: "₹999–₹1999", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1615197419962-90f21da0956d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { name: "Kundan Droplet Earrings", price: 899, budget: "₹499–₹999", occasion: "Festival", image: "https://images.unsplash.com/photo-1512163143273-bde0e3cc7407?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { name: "Grand Bridal Choker", price: 3499, budget: "₹2999–₹4999", occasion: "Wedding", image: "https://images.unsplash.com/photo-1758995115785-d13726ac93f0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   { name: "CZ Tear-drop Earrings", price: 1299, budget: "₹999–₹1999", occasion: "Birthday", image: "https://images.unsplash.com/photo-1617255146685-6184587a8fb4?auto=format&fit=crop&q=80&w=500" },
   { name: "Elegance Diamond Kada", price: 2199, budget: "₹1999–₹2999", occasion: "Engagement", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
   { name: "Bespoke Emerald Set", price: 5499, budget: "₹4999+", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1599643477874-c4a45a3038b3?auto=format&fit=crop&q=80&w=500" },
