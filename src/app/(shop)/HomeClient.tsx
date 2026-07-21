@@ -789,57 +789,49 @@ export default function HomeClient({
               <div className="w-12 h-px bg-[#C9A227] mx-auto" />
             </motion.div>
 
-            {/* Timeline */}
-            <div className="relative">
-              {/* Animated connector */}
-              <div className="absolute top-10 left-0 right-0 h-px bg-border/30 hidden lg:block overflow-hidden">
+            {/* Premium 4-Step Animated Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 max-w-6xl mx-auto">
+              {[
+                { title: "Inspiration & Design", desc: "From hand-drawn sketches to digital micrometric CAD models, your piece's journey begins with absolute precision.", step: "01", icon: Sparkles },
+                { title: "Master Handcrafting", desc: "Veteran artisans melt, mold, and hand-finish the finest gold alloys into breathtaking structural forms.", step: "02", icon: Hammer },
+                { title: "Precision Setting", desc: "Every diamond and gemstone is microscopically placed into secure, durable settings for maximum light return.", step: "03", icon: Star },
+                { title: "Quality & Delivery", desc: "After strict assessments, the jewellery is placed in velvet-lined signature cases and securely delivered.", step: "04", icon: Package }
+              ].map((item, index) => (
                 <motion.div
-                  className="h-full bg-linear-to-r from-[#C9A227] via-[#E6C280] to-[#C9A227]"
-                  initial={{ scaleX: 0, originX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-                />
-              </div>
+                  key={item.title}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -8 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.8, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative bg-white border border-border/40 p-10 flex flex-col items-center text-center group overflow-hidden cursor-default shadow-sm hover:shadow-2xl hover:shadow-[#C9A227]/10 transition-shadow duration-500"
+                >
+                  {/* Animated background glow on hover */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(201,162,39,0.03),transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                  
+                  {/* Top Gold Bar */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#C9A227] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left ease-[0.22,1,0.36,1]" />
+                  
+                  {/* Step Number Background */}
+                  <span className="absolute -top-4 -right-4 text-[120px] font-playfair font-bold text-black/5 group-hover:text-[#C9A227]/5 transition-colors duration-700 pointer-events-none select-none z-0">
+                    {item.step}
+                  </span>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6 relative z-10">
-                {[
-                  { title: "Inspiration", desc: "A creative vision takes root.", step: "01" },
-                  { title: "Sketch", desc: "Designers sketch by hand.", step: "02" },
-                  { title: "CAD Design", desc: "Digital micrometric models.", step: "03" },
-                  { title: "Handcrafting", desc: "Master artisans mold alloys.", step: "04" },
-                  { title: "Stone Setting", desc: "Precision gem placement.", step: "05" },
-                  { title: "Quality Check", desc: "Microscopic assessment.", step: "06" },
-                  { title: "Packaging", desc: "Velvet-lined signature cases.", step: "07" },
-                  { title: "Delivered", desc: "To your doorstep securely.", step: "08" }
-                ].map((item, index) => (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.7, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex flex-col items-center text-center group cursor-default"
-                  >
-                    {/* Step circle */}
-                    <motion.div
-                      whileHover={{ scale: 1.1, y: -4 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className="w-20 h-20 rounded-full bg-white border border-border/50 flex items-center justify-center relative z-10 mb-5 shadow-sm group-hover:border-[#C9A227] group-hover:shadow-[0_0_25px_rgba(201,162,39,0.2)] transition-all duration-500"
-                    >
-                      <span className="font-playfair text-lg font-bold text-muted-foreground group-hover:text-[#C9A227] transition-colors duration-400">
-                        {item.step}
-                      </span>
-                    </motion.div>
-                    <h4 className="font-playfair text-sm font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
-                      {item.title}
-                    </h4>
-                    <p className="text-[10px] text-muted-foreground leading-relaxed max-w-30 mx-auto font-light">
-                      {item.desc}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
+                  {/* Icon Container */}
+                  <div className="relative z-10 w-16 h-16 bg-[#1a1a18] rounded-full flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform duration-700">
+                    <div className="absolute inset-0 border border-[#C9A227]/30 rounded-full scale-110 group-hover:scale-125 opacity-0 group-hover:opacity-100 transition-all duration-700" />
+                    <item.icon className="w-6 h-6 text-[#C9A227]" />
+                  </div>
+
+                  <h4 className="relative z-10 font-playfair text-xl font-bold text-foreground mb-4 group-hover:text-[#C9A227] transition-colors duration-500">
+                    {item.title}
+                  </h4>
+                  
+                  <p className="relative z-10 text-xs text-muted-foreground leading-relaxed font-light">
+                    {item.desc}
+                  </p>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
