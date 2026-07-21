@@ -935,7 +935,7 @@ export default function HomeClient({
                     className="group relative bg-white border border-border/40 p-10 text-center overflow-hidden transition-all duration-500 cursor-default shadow-sm hover:shadow-[0_20px_60px_rgba(201,162,39,0.12)] hover:border-[#C9A227]/40"
                   >
                     {/* Premium hover gradient */}
-                    <div className="absolute inset-0 bg-linear-to-b from-[#C9A227]/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-b from-[#C9A227]/4 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
                     
                     {/* Icon container */}
                     <div className="relative z-10 w-20 h-20 rounded-full bg-[#FAFAF7] border border-[#C9A227]/20 flex items-center justify-center mx-auto mb-8 group-hover:bg-[#C9A227] group-hover:shadow-[0_0_30px_rgba(201,162,39,0.3)] transition-all duration-500">
