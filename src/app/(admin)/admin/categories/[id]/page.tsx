@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import connectDB from "@/shared/lib/mongodb";
 import Category from "@/backend/models/Category";
 import { CategoryForm } from "./CategoryForm";

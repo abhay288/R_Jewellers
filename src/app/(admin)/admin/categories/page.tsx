@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { DataTable } from "@/frontend/components/ui/data-table";
 import { columns, CategoryColumn } from "./columns";
 import connectDB from "@/shared/lib/mongodb";
