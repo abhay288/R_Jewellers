@@ -77,10 +77,24 @@ export const {
       },
     }),
   ],
+  events: {
+    async signIn(message) {
+      console.log(`[Auth.js Event] User signed in successfully: ${message.user.email} via ${message.account?.provider}`);
+    },
+    async createUser(message) {
+      console.log(`[Auth.js Event] New user created in DB: ${message.user.email}`);
+    },
+    async linkAccount(message) {
+      console.log(`[Auth.js Event] Google account linked to user: ${message.user.email}`);
+    },
+  },
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
+        if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+          console.error("[Auth.js Error] GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing in process.env");
+        }
         try {
           await connectDB();
           const emailLower = user.email.toLowerCase().trim();
@@ -115,9 +129,8 @@ export const {
             (user as any).id = updatedUser._id.toString();
             (user as any).role = updatedUser.role;
           }
-        } catch (error) {
-          console.error("Error in Google signIn callback:", error);
-          // Return true so user sign in doesn't break if custom profile sync has a non-fatal db warning
+        } catch (error: any) {
+          console.error("[Auth.js Google OAuth MongoDB Sync Error]:", error?.message || error);
         }
       }
       return true;
