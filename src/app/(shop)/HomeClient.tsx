@@ -375,7 +375,7 @@ export default function HomeClient({
     }
   ];
 
-  const filteredGifts = giftResults.slice(0, 6);
+  const filteredGifts = giftResults.slice(0, 3);
 
   const changeTestimonial = (dir: number) => {
     setTestimonialDir(dir);
@@ -890,14 +890,7 @@ export default function HomeClient({
                           <h4 className="font-playfair text-lg font-bold text-foreground mb-1 truncate group-hover:text-primary transition-colors duration-300">
                             {gift.name}
                           </h4>
-                          <p className="text-sm font-semibold text-[#C9A227] mb-6">₹{gift.price.toLocaleString('en-IN')}</p>
-                          <Link
-                            href="/shop"
-                            className="group/btn inline-flex items-center gap-2"
-                          >
-                            <span className="label-luxury text-foreground group-hover/btn:text-primary transition-colors text-[9px]">View Detail</span>
-                            <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover/btn:text-primary group-hover/btn:translate-x-1 transition-all duration-300" />
-                          </Link>
+                          <p className="text-sm font-semibold text-[#C9A227] tracking-widest uppercase">xxx</p>
                         </div>
                       </motion.div>
                     ))}
