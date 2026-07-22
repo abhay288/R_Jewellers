@@ -5,6 +5,7 @@ import DiamondCursor from "@/frontend/components/layout/DiamondCursor";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import AuthProvider from "@/frontend/components/providers/AuthProvider";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -74,22 +75,43 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
   const orgJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Radhika Jewellers",
-    "url": process.env.NEXTAUTH_URL || 'http://localhost:3000',
-    "logo": `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/icon.png`,
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+91-9876543210",
-      "contactType": "customer service",
-      "availableLanguage": ["English", "Hindi"]
-    },
-    "sameAs": [
-      "https://www.facebook.com/radhikajewellers",
-      "https://www.instagram.com/radhikajewellers",
-      "https://twitter.com/radhikajewellers"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${baseUrl}/#organization`,
+        "name": "Radhika Jewellers",
+        "url": baseUrl,
+        "logo": `${baseUrl}/icon.png`,
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+91-9876543210",
+          "contactType": "customer service",
+          "availableLanguage": ["English", "Hindi"]
+        },
+        "sameAs": [
+          "https://www.facebook.com/radhikajewellers",
+          "https://www.instagram.com/radhikajewellers",
+          "https://twitter.com/radhikajewellers"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${baseUrl}/#website`,
+        "url": baseUrl,
+        "name": "Radhika Jewellers",
+        "publisher": {
+          "@id": `${baseUrl}/#organization`
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${baseUrl}/shop?search={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      }
     ]
   };
 
@@ -131,10 +153,12 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="flex flex-col font-sans bg-background text-foreground min-h-screen">
-        <DiamondCursor />
-        <SmoothScroll>
-          {children}
-        </SmoothScroll>
+        <AuthProvider>
+          <DiamondCursor />
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
+        </AuthProvider>
         <Analytics />
         <SpeedInsights />
       </body>

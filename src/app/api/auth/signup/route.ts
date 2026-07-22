@@ -10,6 +10,7 @@ const signupSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(50),
   lastName: z.string().trim().max(50).default(''),
   email: z.string().trim().toLowerCase().email('Invalid email address'),
+  phone: z.string().trim().min(10, 'Contact number must be at least 10 digits').max(20, 'Contact number is too long'),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters long')
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
     const user = await User.create({
       name,
       email: validated.email,
+      phone: validated.phone,
       password: hashedPassword,
       role: 'user',
       providers: ['credentials'],

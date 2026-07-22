@@ -10,7 +10,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     '',
     '/shop',
-    '/collections',
     '/login',
     '/signup',
     '/about',
@@ -36,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch categories
     const categories = await Category.find({ isActive: true, isDeleted: false }).select('slug updatedAt');
     const categoryRoutes = categories.map((cat) => ({
-      url: `${baseUrl}/collections/${cat.slug || cat._id.toString()}`,
+      url: `${baseUrl}/shop?category=${cat.slug || cat._id.toString()}`,
       lastModified: cat.updatedAt || new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.6,

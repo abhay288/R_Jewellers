@@ -10,9 +10,11 @@ export const authConfig = {
       if (user) {
         token.id = user.id || (user as any)._id?.toString() || token.sub;
         token.role = (user as any).role || "user";
+        token.phone = (user as any).phone || "";
       }
-      if (trigger === "update" && session?.name) {
-        token.name = session.name;
+      if (trigger === "update") {
+        if (session?.name !== undefined) token.name = session.name;
+        if (session?.phone !== undefined) token.phone = session.phone;
       }
       return token;
     },
@@ -20,6 +22,7 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.id as string;
         (session.user as any).role = token.role as string;
+        (session.user as any).phone = (token.phone as string) || "";
       }
       return session;
     },

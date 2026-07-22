@@ -136,11 +136,25 @@ export class ProductService {
       }
     }
 
+    if (filters.collection && filters.collection !== 'All') {
+      const collectionRegex = new RegExp(filters.collection, 'i');
+      query.$or = [
+        { tags: collectionRegex },
+        { occasion: collectionRegex },
+        { name: collectionRegex },
+        { description: collectionRegex },
+      ];
+    }
+
     if (filters.search) {
       query.$or = [
         { name: { $regex: filters.search, $options: 'i' } },
         { tags: { $regex: filters.search, $options: 'i' } }
       ];
+    }
+
+    if (filters.inStock === 'true') {
+      query.stock = { $gt: 0 };
     }
 
     if (filters.minPrice || filters.maxPrice) {

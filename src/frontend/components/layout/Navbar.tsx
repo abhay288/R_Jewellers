@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,12 +10,17 @@ import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/frontend/store/useCartStore";
 import { useRecentlyViewedStore } from "@/frontend/store/useRecentlyViewedStore";
 import VisualSearchModal from "../shop/VisualSearchModal";
+import SearchModal from "../shop/SearchModal";
 
 export default function Navbar() {
+  const { data: session } = useSession();
+  const needsPhone = !!(session?.user && !(session.user as any).phone);
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRecentlyViewedOpen, setIsRecentlyViewedOpen] = useState(false);
   const [isVisualSearchOpen, setIsVisualSearchOpen] = useState(false);
+  const [isTextSearchOpen, setIsTextSearchOpen] = useState(false);
   const { items, toggleCart } = useCartStore();
   const { items: recentlyViewedItems } = useRecentlyViewedStore();
 
@@ -36,7 +42,6 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
-    { name: "Collections", href: "/collections" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
@@ -54,12 +59,12 @@ export default function Navbar() {
       >
         {/* Scroll Progress Bar */}
         <motion.div 
-          className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary origin-left z-50"
+          className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary origin-left z-50"
           style={{ scaleX }}
         />
 
-        {/* Main Navbar: h-[90px] */}
-        <div className="container mx-auto px-6 flex items-center justify-between h-[90px]">
+        {/* Main Navbar: h-22.5 */}
+        <div className="container mx-auto px-6 flex items-center justify-between h-22.5">
           {/* Mobile Menu Toggle */}
           <button
             className="md:hidden text-foreground hover:text-primary transition-colors"
@@ -100,11 +105,17 @@ export default function Navbar() {
             <button className="hover:text-primary transition-colors" onClick={() => setIsVisualSearchOpen(true)} aria-label="Search by image">
               <Camera size={20} strokeWidth={1.5} />
             </button>
-            <button className="hover:text-primary transition-colors" aria-label="Search products">
+            <button className="hover:text-primary transition-colors" onClick={() => setIsTextSearchOpen(true)} aria-label="Search products">
               <Search size={20} strokeWidth={1.5} />
             </button>
-            <Link href="/account" className="hidden md:block hover:text-primary transition-colors" aria-label="Go to account details">
+            <Link href="/account" className="hidden md:block relative hover:text-primary transition-colors" aria-label="Go to account details">
               <User size={20} strokeWidth={1.5} />
+              {needsPhone && (
+                <span 
+                  className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse border-2 border-background" 
+                  title="Add contact number to complete your profile"
+                />
+              )}
             </Link>
             <button className="hover:text-primary transition-colors" onClick={() => setIsRecentlyViewedOpen(true)} aria-label="Recently viewed items">
               <History size={20} strokeWidth={1.5} />
@@ -123,19 +134,19 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Secondary Category Navigation (desktop only, 50px height) */}
-        <div className="hidden md:block h-[50px] border-t border-border/10 bg-background/95 backdrop-blur-md">
+        {/* Secondary Category Navigation (desktop only, h-12.5) */}
+        <div className="hidden md:block h-12.5 border-t border-border/10 bg-background/95 backdrop-blur-md">
           <div className="container mx-auto px-6 h-full flex items-center justify-center space-x-10 text-[11px] tracking-[0.25em] uppercase font-bold text-foreground/80">
             {[
               { name: "New Arrivals", href: "/shop?sort=newest" },
-              { name: "Bridal", href: "/collections/bridal-sets" },
-              { name: "Necklaces", href: "/collections/necklaces" },
-              { name: "Earrings", href: "/collections/earrings" },
-              { name: "Rings", href: "/collections/rings" },
-              { name: "Bracelets", href: "/collections/bracelets" },
-              { name: "Anklets", href: "/collections/anklets" },
-              { name: "Gift Collection", href: "/collections/gift-collection" },
-              { name: "Festival Collection", href: "/collections/festival-collection" },
+              { name: "Bridal", href: "/shop?collection=bridal" },
+              { name: "Necklaces", href: "/shop?category=necklaces" },
+              { name: "Earrings", href: "/shop?category=earrings" },
+              { name: "Rings", href: "/shop?category=rings" },
+              { name: "Bracelets", href: "/shop?category=bracelets" },
+              { name: "Anklets", href: "/shop?category=anklets" },
+              { name: "Gift Collection", href: "/shop?category=gift-collection" },
+              { name: "Festival Collection", href: "/shop?collection=festival" },
               { name: "Offers", href: "/shop" }
             ].map((cat) => (
               <Link
@@ -192,8 +203,13 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="pt-8 flex items-center space-x-6">
-                <Link href="/login" className="text-sm tracking-wide uppercase hover:text-primary" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
-                <Link href="/wishlist" className="text-sm tracking-wide uppercase hover:text-primary" onClick={() => setIsMobileMenuOpen(false)}>Wishlist</Link>
+                <Link href={session ? "/account" : "/login"} className="relative text-sm tracking-wide uppercase hover:text-primary flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
+                  <span>{session ? "My Account" : "Sign In"}</span>
+                  {session && needsPhone && (
+                    <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse ml-1.5" title="Add contact number to complete profile" />
+                  )}
+                </Link>
+                <Link href="/account/wishlist" className="text-sm tracking-wide uppercase hover:text-primary" onClick={() => setIsMobileMenuOpen(false)}>Wishlist</Link>
               </div>
             </nav>
           </motion.div>
@@ -270,6 +286,9 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Text Search Modal */}
+      <SearchModal isOpen={isTextSearchOpen} onClose={() => setIsTextSearchOpen(false)} />
 
       {/* Visual Search Modal */}
       <VisualSearchModal isOpen={isVisualSearchOpen} onClose={() => setIsVisualSearchOpen(false)} />

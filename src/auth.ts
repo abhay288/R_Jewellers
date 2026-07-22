@@ -73,6 +73,7 @@ export const {
           email: user.email,
           name: user.name,
           role: user.role,
+          phone: user.phone || "",
         };
       },
     }),
@@ -128,6 +129,7 @@ export const {
           if (updatedUser) {
             (user as any).id = updatedUser._id.toString();
             (user as any).role = updatedUser.role;
+            (user as any).phone = updatedUser.phone || "";
           }
         } catch (error: any) {
           console.error("[Auth.js Google OAuth MongoDB Sync Error]:", error?.message || error);

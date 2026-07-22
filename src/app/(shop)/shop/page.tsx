@@ -20,15 +20,17 @@ export default async function ShopPage({
 
   // Extract params
   const category = typeof resolvedSearchParams.category === 'string' ? resolvedSearchParams.category : 'All';
+  const collection = typeof resolvedSearchParams.collection === 'string' ? resolvedSearchParams.collection : 'All';
   const sort = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : 'newest';
   const minPrice = typeof resolvedSearchParams.minPrice === 'string' ? resolvedSearchParams.minPrice : undefined;
   const maxPrice = typeof resolvedSearchParams.maxPrice === 'string' ? resolvedSearchParams.maxPrice : undefined;
+  const inStock = typeof resolvedSearchParams.inStock === 'string' ? resolvedSearchParams.inStock : undefined;
   const search = typeof resolvedSearchParams.search === 'string' ? resolvedSearchParams.search : undefined;
   const page = typeof resolvedSearchParams.page === 'string' ? parseInt(resolvedSearchParams.page, 10) : 1;
 
   // Fetch initial data
   const [productsData, categoriesData] = await Promise.all([
-    productService.getStorefrontProducts({ category, minPrice, maxPrice, search }, sort, page, 12),
+    productService.getStorefrontProducts({ category, collection, minPrice, maxPrice, inStock, search }, sort, page, 12),
     categoryService.getCategories()
   ]);
 
@@ -40,7 +42,13 @@ export default async function ShopPage({
       initialProducts={serializedProducts}
       categories={serializedCategories}
       initialCategory={category}
+      initialCollection={collection}
       initialSort={sort}
+      initialMinPrice={minPrice}
+      initialMaxPrice={maxPrice}
+      initialInStock={inStock}
+      initialSearch={search}
+      currentPage={page}
     />
   );
 }

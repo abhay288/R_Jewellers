@@ -13,6 +13,7 @@ export default function SignupPage() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
     password: "",
   });
   const [error, setError] = useState<string | null>(null);
@@ -32,8 +33,13 @@ export default function SignupPage() {
     setError(null);
     setSuccess(false);
 
-    if (!formData.firstName || !formData.email || !formData.password) {
+    if (!formData.firstName || !formData.email || !formData.phone || !formData.password) {
       setError("Please fill in all required fields.");
+      return;
+    }
+
+    if (formData.phone.trim().length < 10) {
+      setError("Contact number must be at least 10 digits.");
       return;
     }
 
@@ -122,6 +128,18 @@ export default function SignupPage() {
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className="w-full bg-transparent border-b-2 border-border/50 px-0 py-3 focus:outline-none focus:border-primary transition-colors text-foreground text-sm" 
             placeholder="radhika@example.com"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Contact Number *</label>
+          <input 
+            type="tel" 
+            required
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className="w-full bg-transparent border-b-2 border-border/50 px-0 py-3 focus:outline-none focus:border-primary transition-colors text-foreground text-sm" 
+            placeholder="+91 98765 43210"
           />
         </div>
         
