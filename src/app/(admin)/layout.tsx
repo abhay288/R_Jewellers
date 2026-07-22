@@ -108,6 +108,18 @@ export default function AdminLayout({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [currentTime, setCurrentTime] = useState("");
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }));
+    };
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-secondary/30 flex">
       
@@ -203,6 +215,11 @@ export default function AdminLayout({
           </div>
 
           <div className="flex items-center space-x-4">
+            {currentTime && (
+              <span className="hidden sm:inline-block text-xs font-semibold text-muted-foreground bg-secondary/60 px-3.5 py-1.5 rounded-full border border-border/30">
+                {currentTime}
+              </span>
+            )}
             
             {/* Dynamic Notifications Button */}
             <div className="relative" ref={dropdownRef}>

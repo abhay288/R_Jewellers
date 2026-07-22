@@ -84,6 +84,35 @@ export const {
   events: {
     async signIn(message) {
       console.log(`[Auth.js Event] User signed in successfully: ${message.user.email} via ${message.account?.provider}`);
+      const email = message.user.email?.toLowerCase().trim();
+      const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
+      if (email === ADMIN_EMAIL || message.user.role === "admin") {
+        try {
+          const { EmailService } = require("@/backend/services/EmailService");
+          const emailService = new EmailService();
+          await emailService.sendEmail(
+            email,
+            "Security Alert: Admin Login Detected",
+            `
+              <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
+                <h2 style="color: #8c765c; border-bottom: 2px solid #8c765c; padding-bottom: 10px; font-family: serif;">Admin Login Detected</h2>
+                <p>Hello,</p>
+                <p>A new login session was established for your admin account: <strong>${email}</strong>.</p>
+                <div style="background: #faf8f6; padding: 15px; border: 1px solid #e5dfd9; margin: 20px 0; border-radius: 6px;">
+                  <strong>Login Details:</strong><br/>
+                  • Time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST<br/>
+                  • Provider: ${message.account?.provider || 'credentials'}<br/>
+                  • Status: Successful
+                </div>
+                <p>If this was not you, please secure your credentials immediately.</p>
+                <p>With Warm Regards,<br/>Radhika Jewellers Security</p>
+              </div>
+            `
+          );
+        } catch (error) {
+          console.error("[Email Alert Error] Failed to send admin login email alert:", error);
+        }
+      }
     },
     async createUser(message) {
       console.log(`[Auth.js Event] New user created in DB: ${message.user.email}`);
