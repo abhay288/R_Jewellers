@@ -25,7 +25,7 @@ export default function AccountLayout({
   const userEmail = session?.user?.email || "";
 
   return (
-    <div className="min-h-screen bg-background pt-28 pb-20">
+    <div className="min-h-screen bg-background pt-4 md:pt-6 pb-16 md:pb-20">
       <div className="container mx-auto px-4 md:px-6">
         
         {/* Luxury Account Header Banner */}

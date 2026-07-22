@@ -59,7 +59,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pt-28 pb-24">
+    <div className="min-h-screen bg-background pt-6 md:pt-8 pb-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(storeSchema) }}

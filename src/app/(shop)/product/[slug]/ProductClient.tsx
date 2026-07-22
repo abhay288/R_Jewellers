@@ -200,7 +200,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-24">
+    <div className="min-h-screen bg-background pt-6 md:pt-8 pb-20">
       
       {/* Toast Notification */}
       <AnimatePresence>
