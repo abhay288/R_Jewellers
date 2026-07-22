@@ -57,32 +57,26 @@ export default function AdminLayout({
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: "1",
-      title: "New Order Received",
-      message: "Order #ORD-8291 has been placed.",
-      time: "2 mins ago",
-      type: "order",
-      isRead: false,
-    },
-    {
-      id: "2",
-      title: "Low Stock Alert",
-      message: "Kundan Gold Earrings is below 5 units.",
-      time: "1 hour ago",
-      type: "stock",
-      isRead: false,
-    },
-    {
-      id: "3",
-      title: "New Customer Inquiry",
-      message: "Inquiry from Amit K. regarding delivery.",
-      time: "3 hours ago",
-      type: "message",
-      isRead: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchNotifications() {
+      try {
+        const res = await fetch("/api/admin/notifications");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.notifications) {
+            setNotifications(data.notifications);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch admin notifications:", err);
+      }
+    }
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: session } = useSession();
   const adminName = session?.user?.name || "Admin User";
