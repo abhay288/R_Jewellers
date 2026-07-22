@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
-import { Search, ShoppingBag, Heart, User, Menu, X, History } from "lucide-react";
+import { Search, ShoppingBag, Heart, User, Menu, X, History, ShieldCheck } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/frontend/store/useCartStore";
 import { useRecentlyViewedStore } from "@/frontend/store/useRecentlyViewedStore";
@@ -14,6 +14,7 @@ import SearchModal from "../shop/SearchModal";
 export default function Navbar() {
   const { data: session } = useSession();
   const needsPhone = !!(session?.user && !(session.user as any).phone);
+  const isAdmin = !!(session?.user && (session.user as any).role === "admin");
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -100,6 +101,12 @@ export default function Navbar() {
 
           {/* Icons */}
           <div className="flex items-center space-x-4 md:space-x-6 text-foreground">
+            {isAdmin && (
+              <Link href="/admin" className="hidden md:flex items-center space-x-1 text-xs uppercase tracking-wider font-bold text-red-500 hover:text-red-400 transition-colors" title="Admin Dashboard">
+                <ShieldCheck size={16} />
+                <span>Admin</span>
+              </Link>
+            )}
             <button className="hover:text-primary transition-colors" onClick={() => setIsTextSearchOpen(true)} aria-label="Search products">
               <Search size={20} strokeWidth={1.5} />
             </button>
