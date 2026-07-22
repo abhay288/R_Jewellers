@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -24,7 +24,9 @@ import {
   Image as ImageIcon,
   LineChart,
   UserCircle,
-  Mail
+  Mail,
+  Check,
+  AlertTriangle
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
@@ -52,11 +54,65 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { data: session } = useSession();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [notifications, setNotifications] = useState([
+    {
+      id: "1",
+      title: "New Order Received",
+      message: "Order #ORD-8291 has been placed.",
+      time: "2 mins ago",
+      type: "order",
+      isRead: false,
+    },
+    {
+      id: "2",
+      title: "Low Stock Alert",
+      message: "Kundan Gold Earrings is below 5 units.",
+      time: "1 hour ago",
+      type: "stock",
+      isRead: false,
+    },
+    {
+      id: "3",
+      title: "New Customer Inquiry",
+      message: "Inquiry from Amit K. regarding delivery.",
+      time: "3 hours ago",
+      type: "message",
+      isRead: true,
+    },
+  ]);
+
+  const { data: session } = useSession();
   const adminName = session?.user?.name || "Admin User";
   const adminEmail = session?.user?.email || "admin@radhika.com";
   const initials = adminName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "AD";
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const handleMarkAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  };
+
+  const handleMarkAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+  };
+
+  const handleClearAll = () => {
+    setNotifications([]);
+  };
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="min-h-screen bg-secondary/30 flex">
@@ -153,10 +209,101 @@ export default function AdminLayout({
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-secondary">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
-            </button>
+            
+            {/* Dynamic Notifications Button */}
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-secondary cursor-pointer"
+                aria-label="View notifications"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-primary rounded-full animate-pulse border border-card"></span>
+                )}
+              </button>
+
+              {/* Notifications Dropdown Panel */}
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-card border border-border/60 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-3 duration-200">
+                  <div className="p-4 border-b border-border/50 flex items-center justify-between bg-secondary/20">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-playfair font-bold text-sm text-foreground">Recent Alerts</span>
+                      {unreadCount > 0 && (
+                        <span className="bg-primary/25 text-primary text-xs font-bold px-2 py-0.5 rounded-full">
+                          {unreadCount} new
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex space-x-3 text-xs">
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={handleMarkAllAsRead}
+                          className="text-primary hover:underline cursor-pointer"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                      {notifications.length > 0 && (
+                        <button 
+                          onClick={handleClearAll}
+                          className="text-muted-foreground hover:text-destructive cursor-pointer"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-border/50 max-h-96 overflow-y-auto custom-scrollbar">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-muted-foreground text-xs">
+                        No new notifications.
+                      </div>
+                    ) : (
+                      notifications.map((item) => (
+                        <div 
+                          key={item.id} 
+                          onClick={() => handleMarkAsRead(item.id)}
+                          className={cn(
+                            "p-4 transition-colors cursor-pointer hover:bg-secondary/40 flex items-start space-x-3",
+                            !item.isRead ? "bg-primary/5" : ""
+                          )}
+                        >
+                          <div className="mt-0.5">
+                            {item.type === "stock" ? (
+                              <div className="p-1 rounded-lg bg-amber-500/10 text-amber-500">
+                                <AlertTriangle className="w-4 h-4" />
+                              </div>
+                            ) : item.type === "order" ? (
+                              <div className="p-1 rounded-lg bg-green-500/10 text-green-500">
+                                <ShoppingCart className="w-4 h-4" />
+                              </div>
+                            ) : (
+                              <div className="p-1 rounded-lg bg-blue-500/10 text-blue-500">
+                                <Mail className="w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className={cn("text-xs truncate", !item.isRead ? "font-bold text-foreground" : "text-muted-foreground")}>
+                                {item.title}
+                              </p>
+                              <span className="text-[10px] text-muted-foreground shrink-0">{item.time}</span>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                              {item.message}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs md:hidden">
               {initials}
             </div>
