@@ -1,5 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
+const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
+
 export const authConfig = {
   providers: [], // We configure providers in auth.ts because credentials require Node.js APIs (bcrypt, mongodb)
   pages: {
@@ -8,11 +10,22 @@ export const authConfig = {
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
+      // 1. Ensure token.id is set
       if (user) {
         token.id = user.id || (user as any)._id?.toString() || token.sub;
-        token.role = (user as any).role || token.role || "user";
         token.phone = (user as any).phone || token.phone || "";
       }
+
+      // 2. Determine role: ALWAYS check if email matches ADMIN_EMAIL or explicitly assigned role
+      const emailLower = (user?.email || token?.email || "").toLowerCase().trim();
+      if (emailLower === ADMIN_EMAIL) {
+        token.role = "admin";
+      } else if (user && (user as any).role) {
+        token.role = (user as any).role;
+      } else if (!token.role) {
+        token.role = "user";
+      }
+
       if (trigger === "update") {
         if (session?.name !== undefined) token.name = session.name;
         if (session?.phone !== undefined) token.phone = session.phone;
@@ -28,7 +41,7 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // 1. Allow relative callback URLs (e.g. "/", "/checkout", "/account")
+      // 1. Allow relative callback URLs (e.g. "/admin", "/checkout", "/account")
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       
       // 2. Allow same-origin URLs or recognized domain targets

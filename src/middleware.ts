@@ -91,10 +91,13 @@ export default auth(async function middleware(request) {
   // 3. Protected Routes Logic using req.auth provided by Auth.js wrapper
   const session = (request as any).auth;
 
-  // If authenticated user visits /login or /signup, redirect to home page or callbackUrl
+  // If authenticated user visits /login or /signup, redirect to /admin if admin, else callbackUrl or '/'
   if (session && (pathname === '/login' || pathname === '/signup')) {
-    const callbackUrl = request.nextUrl.searchParams.get('callbackUrl') || '/';
-    return NextResponse.redirect(new URL(callbackUrl, request.url));
+    const userRole = (session.user as any)?.role;
+    const defaultTarget = userRole === 'admin' ? '/admin' : '/';
+    const rawCallbackUrl = request.nextUrl.searchParams.get('callbackUrl');
+    const target = rawCallbackUrl && rawCallbackUrl !== '/' ? rawCallbackUrl : defaultTarget;
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   // Protect admin routes
