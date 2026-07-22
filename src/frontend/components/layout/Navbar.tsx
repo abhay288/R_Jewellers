@@ -103,6 +103,14 @@ export default function Navbar() {
             <button className="hover:text-primary transition-colors" onClick={() => setIsTextSearchOpen(true)} aria-label="Search products">
               <Search size={20} strokeWidth={1.5} />
             </button>
+            {session?.user && (session.user as any).role === "admin" && (
+              <Link 
+                href="/admin" 
+                className="hidden md:flex items-center space-x-1 text-xs font-bold uppercase tracking-wider text-amber-500 bg-amber-500/10 border border-amber-500/30 px-3.5 py-1.5 rounded-full hover:bg-amber-500 hover:text-black transition-all shadow-sm"
+              >
+                <span>Admin Panel</span>
+              </Link>
+            )}
             <Link href="/account" className="hidden md:block relative hover:text-primary transition-colors" aria-label="Go to account details">
               <User size={20} strokeWidth={1.5} />
               {needsPhone && (
@@ -196,6 +204,15 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              {session?.user && (session.user as any).role === "admin" && (
+                <Link 
+                  href="/admin" 
+                  className="font-playfair text-3xl text-amber-500 hover:text-amber-400 transition-colors uppercase font-bold"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Admin Panel
+                </Link>
+              )}
               <div className="pt-8 flex items-center space-x-6">
                 <Link href={session ? "/account" : "/login"} className="relative text-sm tracking-wide uppercase hover:text-primary flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
                   <span>{session ? "My Account" : "Sign In"}</span>
