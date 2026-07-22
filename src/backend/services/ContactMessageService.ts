@@ -33,36 +33,44 @@ export class ContactMessageService {
         const emailService = new EmailService();
 
         for (const admin of admins) {
-          await this.notificationService.createNotification(
-            admin._id.toString(),
-            adminTitle,
-            adminBody,
-            'system',
-            link
-          );
+          try {
+            await this.notificationService.createNotification(
+              admin._id.toString(),
+              adminTitle,
+              adminBody,
+              'system',
+              link
+            );
+          } catch (notifErr) {
+            console.error(`Failed to create system notification for ${admin.email}:`, notifErr);
+          }
 
-          await emailService.sendEmail(
-            admin.email,
-            `New Contact Inquiry: ${data.subject}`,
-            `
-              <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
-                <h2 style="color: #8c765c; border-bottom: 2px solid #8c765c; padding-bottom: 10px; font-family: serif;">New Contact Inquiry Received</h2>
-                <p>Hello Admin,</p>
-                <p>You have received a new customer inquiry on the Radhika Jewellers website.</p>
-                <div style="background: #faf8f6; padding: 15px; border: 1px solid #e5dfd9; margin: 20px 0; border-radius: 6px;">
-                  <strong>Inquiry Details:</strong><br/>
-                  • Name: ${data.firstName} ${data.lastName}<br/>
-                  • Email: ${data.email}<br/>
-                  • Subject: ${data.subject}<br/>
-                  • Message:<br/>
-                  <p style="background: #ffffff; padding: 10px; border: 1px solid #eee; border-radius: 4px; margin-top: 5px;">
-                    ${data.message}
-                  </p>
+          try {
+            await emailService.sendEmail(
+              admin.email,
+              `New Contact Inquiry: ${data.subject}`,
+              `
+                <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
+                  <h2 style="color: #8c765c; border-bottom: 2px solid #8c765c; padding-bottom: 10px; font-family: serif;">New Contact Inquiry Received</h2>
+                  <p>Hello Admin,</p>
+                  <p>You have received a new customer inquiry on the Radhika Jewellers website.</p>
+                  <div style="background: #faf8f6; padding: 15px; border: 1px solid #e5dfd9; margin: 20px 0; border-radius: 6px;">
+                    <strong>Inquiry Details:</strong><br/>
+                    • Name: ${data.firstName} ${data.lastName}<br/>
+                    • Email: ${data.email}<br/>
+                    • Subject: ${data.subject}<br/>
+                    • Message:<br/>
+                    <p style="background: #ffffff; padding: 10px; border: 1px solid #eee; border-radius: 4px; margin-top: 5px;">
+                      ${data.message}
+                    </p>
+                  </div>
+                  <p>With Warm Regards,<br/>Radhika Jewellers Concierge System</p>
                 </div>
-                <p>With Warm Regards,<br/>Radhika Jewellers Concierge System</p>
-              </div>
-            `
-          );
+              `
+            );
+          } catch (emailErr) {
+            console.error(`Failed to send contact inquiry email alert to ${admin.email}:`, emailErr);
+          }
         }
       } catch (error) {
         console.error('Failed to notify admins of new contact message:', error);
