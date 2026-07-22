@@ -884,7 +884,7 @@ export default function HomeClient({
                           <h4 className="font-playfair text-lg font-bold text-foreground mb-1 truncate group-hover:text-primary transition-colors duration-300">
                             {gift.name}
                           </h4>
-                          <p className="text-sm font-semibold text-[#C9A227] tracking-widest uppercase">xxx</p>
+                          <p className="text-sm font-semibold text-[#C9A227] tracking-widest uppercase">₹ xxx.xx</p>
                         </div>
                       </motion.div>
                     ))}

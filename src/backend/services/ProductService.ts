@@ -176,8 +176,13 @@ export class ProductService {
     return this.repository.paginate(query, page, limit, sortQuery);
   }
 
-  async getProductBySlug(slug: string) {
-    return this.repository.findOne({ slug, isActive: true });
+  async getProductBySlug(slugOrId: string) {
+    if (!slugOrId) return null;
+    let product = await this.repository.findOne({ slug: slugOrId.toLowerCase(), isActive: true });
+    if (!product && mongoose.Types.ObjectId.isValid(slugOrId)) {
+      product = await this.repository.findById(slugOrId);
+    }
+    return product;
   }
 
   async getProductById(id: string) {

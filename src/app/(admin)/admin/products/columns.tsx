@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash, Copy } from "lucide-react";
+import { Pencil, Trash, Copy } from "lucide-react";
 import Link from "next/link";
 import { deleteProduct, toggleProductStatus } from "@/backend/actions/product.actions";
 import { SortableHeader } from "@/frontend/components/ui/data-table";
@@ -54,7 +54,7 @@ export const columns: ColumnDef<ProductColumn>[] = [
   {
     accessorKey: "price",
     header: ({ column }) => <SortableHeader column={column} title="Price" />,
-    cell: ({ row }) => <div className="font-medium">₹${(row.getValue("price") as number).toFixed(2)}</div>,
+    cell: ({ row }) => <div className="font-medium">₹{(row.getValue("price") as number).toLocaleString('en-IN')}</div>,
   },
   {
     accessorKey: "stock",

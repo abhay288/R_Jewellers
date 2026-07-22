@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import { deleteCategory } from "@/backend/actions/category.actions";
 import { SortableHeader } from "@/frontend/components/ui/data-table";

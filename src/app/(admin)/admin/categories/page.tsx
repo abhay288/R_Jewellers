@@ -25,11 +25,6 @@ export default async function CategoriesPage() {
     createdAt: new Date(cat.createdAt).toLocaleDateString(),
   }));
 
-  // Simple hierarchical sorting for display purposes
-  const sortedCategories = formattedCategories.sort((a, b) => {
-      // Logic for sorting trees visually can be complex, for now we rely on DB sort + level padding
-      return 0;
-  });
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

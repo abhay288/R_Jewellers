@@ -62,6 +62,12 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
+  // Redirect to SEO slug URL if accessing via ID
+  if (product.slug && product.slug !== resolvedParams.id) {
+    const { redirect } = await import('next/navigation');
+    redirect(`/product/${product.slug}`);
+  }
+
   // Fetch related products
   const relatedProducts = await productService.getRelatedProducts(
     product._id.toString(),

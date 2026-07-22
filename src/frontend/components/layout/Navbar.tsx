@@ -5,11 +5,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
-import { Search, ShoppingBag, Heart, User, Menu, X, History, Camera } from "lucide-react";
+import { Search, ShoppingBag, Heart, User, Menu, X, History } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/frontend/store/useCartStore";
 import { useRecentlyViewedStore } from "@/frontend/store/useRecentlyViewedStore";
-import VisualSearchModal from "../shop/VisualSearchModal";
 import SearchModal from "../shop/SearchModal";
 
 export default function Navbar() {
@@ -19,7 +18,6 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRecentlyViewedOpen, setIsRecentlyViewedOpen] = useState(false);
-  const [isVisualSearchOpen, setIsVisualSearchOpen] = useState(false);
   const [isTextSearchOpen, setIsTextSearchOpen] = useState(false);
   const { items, toggleCart } = useCartStore();
   const { items: recentlyViewedItems } = useRecentlyViewedStore();
@@ -102,9 +100,6 @@ export default function Navbar() {
 
           {/* Icons */}
           <div className="flex items-center space-x-4 md:space-x-6 text-foreground">
-            <button className="hover:text-primary transition-colors" onClick={() => setIsVisualSearchOpen(true)} aria-label="Search by image">
-              <Camera size={20} strokeWidth={1.5} />
-            </button>
             <button className="hover:text-primary transition-colors" onClick={() => setIsTextSearchOpen(true)} aria-label="Search products">
               <Search size={20} strokeWidth={1.5} />
             </button>
@@ -146,8 +141,7 @@ export default function Navbar() {
               { name: "Bracelets", href: "/shop?category=bracelets" },
               { name: "Anklets", href: "/shop?category=anklets" },
               { name: "Gift Collection", href: "/shop?category=gift-collection" },
-              { name: "Festival Collection", href: "/shop?collection=festival" },
-              { name: "Offers", href: "/shop" }
+              { name: "Festival Collection", href: "/shop?collection=festival" }
             ].map((cat) => (
               <Link
                 key={cat.name}
@@ -289,9 +283,6 @@ export default function Navbar() {
 
       {/* Text Search Modal */}
       <SearchModal isOpen={isTextSearchOpen} onClose={() => setIsTextSearchOpen(false)} />
-
-      {/* Visual Search Modal */}
-      <VisualSearchModal isOpen={isVisualSearchOpen} onClose={() => setIsVisualSearchOpen(false)} />
     </>
   );
 }
