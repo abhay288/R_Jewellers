@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { 
   LayoutDashboard, 
   PackageSearch, 
@@ -51,6 +52,11 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const adminName = session?.user?.name || "Admin User";
+  const adminEmail = session?.user?.email || "admin@radhika.com";
+  const initials = adminName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "AD";
 
   return (
     <div className="min-h-screen bg-secondary/30 flex">
@@ -110,14 +116,17 @@ export default function AdminLayout({
         <div className="p-4 border-t border-border/50">
           <div className="flex items-center space-x-3 px-4 py-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-              AD
+              {initials}
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">Admin User</span>
-              <span className="text-xs text-muted-foreground">admin@radhika.com</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium truncate">{adminName}</span>
+              <span className="text-xs text-muted-foreground truncate">{adminEmail}</span>
             </div>
           </div>
-          <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-colors">
+          <button 
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-colors"
+          >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </button>
@@ -149,7 +158,7 @@ export default function AdminLayout({
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
             </button>
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs md:hidden">
-              AD
+              {initials}
             </div>
           </div>
         </header>
