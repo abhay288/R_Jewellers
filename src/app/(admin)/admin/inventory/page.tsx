@@ -1,5 +1,5 @@
 import { getInventoryDashboardStats } from "@/backend/actions/inventory.actions";
-import { Package, AlertTriangle, XCircle, DollarSign, Activity } from "lucide-react";
+import { Package, AlertTriangle, XCircle, IndianRupee, Activity } from "lucide-react";
 import Link from "next/link";
 
 export default async function InventoryDashboard() {
@@ -85,11 +85,11 @@ export default async function InventoryDashboard() {
             <div>
               <p className="text-sm font-medium text-muted-foreground">Est. Inventory Value</p>
               <h3 className="text-3xl font-bold mt-2">
-                ${stats?.inventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ₹{stats?.inventoryValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </h3>
             </div>
             <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <IndianRupee className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </div>

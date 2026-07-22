@@ -10,19 +10,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  { name: "Jan", revenue: 4000, orders: 240 },
-  { name: "Feb", revenue: 3000, orders: 139 },
-  { name: "Mar", revenue: 2000, orders: 980 },
-  { name: "Apr", revenue: 2780, orders: 390 },
-  { name: "May", revenue: 1890, orders: 480 },
-  { name: "Jun", revenue: 2390, orders: 380 },
-  { name: "Jul", revenue: 3490, orders: 430 },
-];
-
-export function DashboardCharts() {
+export function DashboardCharts({ data }: { data: { name: string; revenue: number; orders: number }[] }) {
   return (
-    <div className="w-full h-full min-h-[300px]">
+    <div className="w-full h-full min-h-75">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}

@@ -4,7 +4,7 @@ import {
   TrendingUp, 
   Users, 
   Package, 
-  DollarSign, 
+  IndianRupee, 
   ArrowUpRight, 
   ArrowDownRight,
   MoreHorizontal,
@@ -31,6 +31,8 @@ export default async function AdminDashboard() {
   // Return & Refund Analytics
   const mongoose = require('mongoose');
   const Return = mongoose.models.Return || require('@/backend/models/Return').default;
+  const Order = mongoose.models.Order || require('@/backend/models/Order').default;
+  
   const pendingReturns = await Return.countDocuments({ status: { $in: ['Return Requested', 'Under Review', 'Quality Check'] } });
   
   const refundStats = await Return.aggregate([
@@ -39,13 +41,50 @@ export default async function AdminDashboard() {
   ]);
   const totalRefundedAmount = refundStats[0]?.totalRefunded || 0;
 
+  // Real Lifetime Revenue from Order Model
+  const revenueStats = await Order.aggregate([
+    { $match: { status: { $ne: 'Cancelled' } } },
+    { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' } } }
+  ]);
+  const totalRevenueAmount = revenueStats[0]?.totalRevenue || 0;
+
+  // Real Monthly Revenue Chart Data
+  const monthlyRevenue = await Order.aggregate([
+    { $match: { status: { $ne: 'Cancelled' } } },
+    {
+      $group: {
+        _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
+        revenue: { $sum: "$totalAmount" },
+        orders: { $sum: 1 }
+      }
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } }
+  ]);
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const chartData = monthlyRevenue.map((item: any) => ({
+    name: monthNames[item._id.month - 1] || "Month",
+    revenue: item.revenue,
+    orders: item.orders
+  }));
+
+  const finalChartData = chartData.length > 0 ? chartData : [
+    { name: "Jan", revenue: 0, orders: 0 },
+    { name: "Feb", revenue: 0, orders: 0 },
+    { name: "Mar", revenue: 0, orders: 0 },
+    { name: "Apr", revenue: 0, orders: 0 },
+    { name: "May", revenue: 0, orders: 0 },
+    { name: "Jun", revenue: 0, orders: 0 },
+    { name: "Jul", revenue: 0, orders: 0 },
+  ];
+
   const stats = [
     {
       title: "Total Revenue",
-      value: "₹0.00",
-      change: "Placeholder",
+      value: `₹${totalRevenueAmount.toLocaleString('en-IN')}`,
+      change: "Lifetime sales",
       isPositive: true,
-      icon: DollarSign,
+      icon: IndianRupee,
     },
     {
       title: "Total Products",
@@ -128,7 +167,7 @@ export default async function AdminDashboard() {
           </div>
           
           <div className="flex-1 w-full relative">
-            <DashboardCharts />
+            <DashboardCharts data={finalChartData} />
           </div>
         </div>
 
