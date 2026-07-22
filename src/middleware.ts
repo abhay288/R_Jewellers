@@ -5,13 +5,13 @@ import { authConfig } from "@/auth.config";
 
 const { auth } = NextAuth(authConfig);
 
-// Memory-based IP cache for rate limiting (ephemeral on serverless but highly effective locally)
+// Memory-based IP cache for rate limiting
 const ipCache = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 
 const LIMITS = {
-  auth: 5,        // login, register, reset password
-  checkout: 10,   // checkout, contact message, returns
+  auth: 10,       // login, register, reset password
+  checkout: 15,   // checkout, contact message, returns
   api: 60,        // other shop and catalog APIs
   page: 120,      // standard pages
 };
@@ -19,14 +19,15 @@ const LIMITS = {
 export default auth(async function middleware(request) {
   const { pathname } = request.nextUrl;
   
-  // 1. IP Rate Limiting
+  // 1. IP Rate Limiting (Exempt NextAuth internal routes /api/auth/ to prevent 429 on OAuth callbacks)
+  const isAuthApiRoute = pathname.startsWith('/api/auth/');
   const ip = (request as any).ip || request.headers.get('x-forwarded-for') || 'unknown';
-  if (ip !== 'unknown') {
+
+  if (ip !== 'unknown' && !isAuthApiRoute) {
     let limit = LIMITS.page;
     if (pathname.startsWith('/api/')) {
       if (
         pathname.startsWith('/api/auth/signup') || 
-        pathname.startsWith('/api/auth/signin') || 
         pathname.includes('forgot-password')
       ) {
         limit = LIMITS.auth;
@@ -73,16 +74,28 @@ export default auth(async function middleware(request) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+
+  // Allow cross-origin resource policy for auth callback routes so browsers accept Set-Cookie on OAuth redirects
+  if (isAuthApiRoute) {
+    response.headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  } else {
+    response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+  }
   
-  // Custom CSP allowing fonts, scripts, and media resources securely
+  // Custom CSP allowing fonts, scripts, Google OAuth, and media resources securely
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://cdn.jsdelivr.net https://checkout.razorpay.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https:; media-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://* https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://*;"
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://cdn.jsdelivr.net https://checkout.razorpay.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; img-src 'self' blob: data: https:; media-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://* https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://accounts.google.com https://api.razorpay.com https://checkout.razorpay.com https://*;"
   );
 
   // 3. Protected Routes Logic using req.auth provided by Auth.js wrapper
   const session = (request as any).auth;
+
+  // If authenticated user visits /login or /signup, redirect to home page or callbackUrl
+  if (session && (pathname === '/login' || pathname === '/signup')) {
+    const callbackUrl = request.nextUrl.searchParams.get('callbackUrl') || '/';
+    return NextResponse.redirect(new URL(callbackUrl, request.url));
+  }
 
   // Protect admin routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
@@ -101,19 +114,19 @@ export default auth(async function middleware(request) {
     }
   }
 
-  // Protect user dashboard/profile
+  // Protect user dashboard/profile/checkout
   if (
     pathname.startsWith('/profile') || 
     pathname.startsWith('/account') || 
     pathname.startsWith('/checkout') || 
     pathname.startsWith('/dashboard') || 
-    (pathname.startsWith('/api/shop/') && !pathname.startsWith('/api/shop/products'))
+    (pathname.startsWith('/api/shop/') && !pathname.startsWith('/api/shop/products') && !pathname.startsWith('/api/shop/search'))
   ) {
     if (!session) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-      return NextResponse.redirect(new URL(`/login?callbackUrl=${pathname}`, request.url));
+      return NextResponse.redirect(new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, request.url));
     }
   }
 
@@ -123,7 +136,7 @@ export default auth(async function middleware(request) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except for:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, icon.png (favicons)

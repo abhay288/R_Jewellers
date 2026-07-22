@@ -8,6 +8,9 @@ import connectDB from "@/shared/lib/mongodb";
 import User from "@/backend/models/User";
 import { authConfig } from "./auth.config";
 
+const googleClientId = (process.env.GOOGLE_CLIENT_ID || "").trim();
+const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET || "").trim();
+
 export const {
   handlers: { GET, POST },
   auth,
@@ -18,8 +21,8 @@ export const {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID?.trim(),
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim(),
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
       allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
@@ -93,7 +96,7 @@ export const {
     ...authConfig.callbacks,
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
-        if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+        if (!googleClientId || !googleClientSecret) {
           console.error("[Auth.js Error] GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing in process.env");
         }
         try {
