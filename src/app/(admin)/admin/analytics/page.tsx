@@ -8,7 +8,7 @@ export default function AnalyticsPage() {
         <p className="text-muted-foreground mt-1">Deep-dive customer behavior reports, search patterns, and sales trends.</p>
       </div>
 
-      <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-sm flex flex-col items-center justify-center min-h-[300px]">
+      <div className="bg-card border border-border/50 rounded-2xl p-8 shadow-sm flex flex-col items-center justify-center min-h-75">
         <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
           <LineChart className="w-8 h-8 text-primary" />
         </div>
