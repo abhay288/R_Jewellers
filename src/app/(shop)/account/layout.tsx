@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { User, Package, Heart, LogOut, Settings, Sparkles, ShieldCheck } from "lucide-react";
+import { User, Package, Heart, LogOut, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
 const navigation = [
@@ -23,7 +23,6 @@ export default function AccountLayout({
 
   const userName = session?.user?.name || "Valued Customer";
   const userEmail = session?.user?.email || "";
-  const isAdmin = (session?.user as any)?.role === "admin";
 
   return (
     <div className="min-h-screen bg-background pt-4 md:pt-6 pb-16 md:pb-20">
@@ -34,9 +33,7 @@ export default function AccountLayout({
           <div className="relative z-10">
             <div className="flex items-center space-x-2 text-amber-500 mb-1">
               <Sparkles className="w-4 h-4" />
-              <span className="text-xs font-bold uppercase tracking-[0.25em] font-playfair">
-                {isAdmin ? "Royal System Administrator" : "Royal Privileges Member"}
-              </span>
+              <span className="text-xs font-bold uppercase tracking-[0.25em] font-playfair">Royal Privileges Member</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-playfair font-bold text-foreground">
               Welcome back, {userName}
@@ -45,15 +42,6 @@ export default function AccountLayout({
           </div>
 
           <div className="relative z-10 flex items-center space-x-3">
-            {isAdmin && (
-              <Link
-                href="/admin"
-                className="px-5 py-2.5 bg-red-600 text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-red-500 transition-all shadow-md shadow-red-600/20 flex items-center gap-1.5"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                Go To Admin Panel
-              </Link>
-            )}
             <Link
               href="/shop"
               className="px-5 py-2.5 bg-amber-500 text-black text-xs font-bold uppercase tracking-wider rounded-full hover:bg-amber-400 transition-all shadow-md shadow-amber-500/20"
@@ -93,16 +81,6 @@ export default function AccountLayout({
                   </Link>
                 );
               })}
-
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all whitespace-nowrap text-xs font-semibold uppercase tracking-wider relative cursor-pointer text-red-600 hover:bg-red-500/10"
-                >
-                  <ShieldCheck className="w-4 h-4 shrink-0" />
-                  <span>Admin Panel</span>
-                </Link>
-              )}
               
               <div className="hidden lg:block my-2 border-t border-border/40" />
               

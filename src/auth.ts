@@ -134,6 +134,9 @@ export const {
             (user as any).role = updatedUser.role;
             (user as any).phone = updatedUser.phone || "";
           }
+          if (isAdmin) {
+            return "/admin";
+          }
         } catch (error: any) {
           console.error("[Auth.js Google OAuth MongoDB Sync Error]:", error?.message || error);
         }
