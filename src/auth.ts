@@ -41,6 +41,12 @@ export const {
 
         if (!user) return null;
 
+        // Ensure radhikajewellers699@gmail.com is always admin in the database
+        if (emailLower === "radhikajewellers699@gmail.com" && user.role !== "admin") {
+          user.role = "admin";
+          await user.save();
+        }
+
         // Check if account is locked
         if (user.lockUntil && user.lockUntil > new Date()) {
           throw new Error('Account is temporarily locked. Please try again after 15 minutes.');
