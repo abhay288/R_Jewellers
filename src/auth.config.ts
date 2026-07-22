@@ -14,13 +14,16 @@ export const authConfig = {
       if (user) {
         token.id = user.id || (user as any)._id?.toString() || token.sub;
         token.phone = (user as any).phone || token.phone || "";
-        token.role = (user as any).role || token.role || "user";
       }
 
       // 2. Determine role: ALWAYS check if email matches ADMIN_EMAIL or explicitly assigned role
       const emailLower = (user?.email || token?.email || "").toLowerCase().trim();
       if (emailLower === ADMIN_EMAIL) {
         token.role = "admin";
+      } else if (user && (user as any).role) {
+        token.role = (user as any).role;
+      } else if (!token.role) {
+        token.role = "user";
       }
 
       if (trigger === "update") {
