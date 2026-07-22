@@ -32,11 +32,17 @@ export const authConfig = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token, user }) {
+      const u = user || token;
       if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).role = (token.role as string) || "user";
-        (session.user as any).phone = (token.phone as string) || "";
+        if (u) {
+          session.user.id = (u.id || (u as any)._id?.toString() || (u as any).sub) as string;
+          (session.user as any).role = ((u as any).role as string) || "user";
+          (session.user as any).phone = ((u as any).phone as string) || "";
+        }
+        if (session.user.email?.toLowerCase().trim() === ADMIN_EMAIL) {
+          (session.user as any).role = "admin";
+        }
       }
       return session;
     },
