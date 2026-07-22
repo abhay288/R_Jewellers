@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient } from 'mongodb';
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
@@ -11,17 +11,15 @@ const options = {
   socketTimeoutMS: 45000,
 };
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
-
 const globalWithMongo = global as typeof globalThis & {
   _mongoClientPromise?: Promise<MongoClient>;
 };
 
 if (!globalWithMongo._mongoClientPromise) {
-  client = new MongoClient(uri, options);
+  const client = new MongoClient(uri, options);
   globalWithMongo._mongoClientPromise = client.connect();
 }
-clientPromise = globalWithMongo._mongoClientPromise;
+
+const clientPromise: Promise<MongoClient> = globalWithMongo._mongoClientPromise;
 
 export default clientPromise;

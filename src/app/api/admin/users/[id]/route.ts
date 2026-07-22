@@ -47,7 +47,7 @@ export async function PATCH(
       );
     }
 
-    let updateFields: any = {};
+    const updateFields: any = {};
 
     if (validated.action === 'update_role') {
       if (!validated.role) {
