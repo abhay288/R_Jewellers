@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, User, Lock, Phone, Mail, ShieldCheck } from "lucide-react";
 
 export default function ProfilePage() {
   const { update: updateSession } = useSession();
@@ -72,7 +72,7 @@ export default function ProfilePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update profile.");
 
-      setProfileSuccess("Profile updated successfully!");
+      setProfileSuccess("Profile details saved successfully!");
       if (data.user) {
         await updateSession({ name: data.user.name, phone: data.user.phone || "" });
       }
@@ -124,38 +124,52 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-500 mb-3" />
+        <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Loading Profile Details...</p>
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in duration-500">
-      <h2 className="text-2xl font-playfair font-bold mb-6">My Profile</h2>
+    <div className="space-y-8 animate-in fade-in duration-500">
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Section Title */}
+      <div className="border-b border-border/40 pb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-playfair font-bold text-foreground">My Profile Settings</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Manage your personal details and account security</p>
+        </div>
+        <span className="text-xs font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full uppercase tracking-wider hidden sm:inline-block">
+          Verified Account
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* Personal Info Form */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium border-b border-border/50 pb-2">Personal Information</h3>
-          
+        {/* Personal Information Card */}
+        <div className="bg-secondary/20 border border-border/40 rounded-3xl p-6 space-y-6">
+          <div className="flex items-center space-x-2 text-foreground font-playfair font-bold text-lg border-b border-border/40 pb-3">
+            <User className="w-5 h-5 text-amber-500" />
+            <span>Personal Information</span>
+          </div>
+
           {!phone.trim() && !profileSuccess && (
-            <div className="flex items-center space-x-2 bg-amber-500/15 text-amber-600 dark:text-amber-400 p-3.5 rounded-xl text-sm border border-amber-500/30 animate-pulse">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>Please add your contact number to complete your profile.</span>
+            <div className="flex items-start space-x-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 p-3.5 rounded-2xl text-xs border border-amber-500/30">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>Please add your contact number for order tracking updates.</span>
             </div>
           )}
 
           {profileError && (
-            <div className="flex items-center space-x-2 bg-destructive/15 text-destructive p-3.5 rounded-xl text-sm border border-destructive/30">
+            <div className="flex items-center space-x-2 bg-destructive/15 text-destructive p-3.5 rounded-2xl text-xs border border-destructive/30">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{profileError}</span>
             </div>
           )}
 
           {profileSuccess && (
-            <div className="flex items-center space-x-2 bg-green-500/15 text-green-600 dark:text-green-400 p-3.5 rounded-xl text-sm border border-green-500/30">
+            <div className="flex items-center space-x-2 bg-green-500/15 text-green-600 dark:text-green-400 p-3.5 rounded-2xl text-xs border border-green-500/30">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{profileSuccess}</span>
             </div>
@@ -163,138 +177,157 @@ export default function ProfilePage() {
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">First Name *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase text-muted-foreground">First Name *</label>
                 <input 
                   type="text" 
                   required
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="First Name" 
-                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary text-sm text-foreground" 
+                  className="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500" 
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Last Name</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase text-muted-foreground">Last Name</label>
                 <input 
                   type="text" 
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Last Name" 
-                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary text-sm text-foreground" 
+                  className="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500" 
                 />
               </div>
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-              <input 
-                type="email" 
-                value={email}
-                disabled 
-                className="w-full bg-secondary/50 border border-transparent rounded-xl px-4 py-2.5 text-muted-foreground cursor-not-allowed text-sm" 
-              />
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase text-muted-foreground flex items-center justify-between">
+                <span>Email Address</span>
+                <span className="text-[10px] text-muted-foreground italic">(Cannot be changed)</span>
+              </label>
+              <div className="relative">
+                <input 
+                  type="email" 
+                  value={email}
+                  disabled 
+                  className="w-full bg-secondary/50 border border-transparent rounded-xl px-4 py-2.5 text-xs text-muted-foreground cursor-not-allowed pr-10" 
+                />
+                <Mail className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 opacity-60" />
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Contact Number</label>
-              <input 
-                type="tel" 
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 98765 43210" 
-                className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary text-sm text-foreground" 
-              />
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase text-muted-foreground">Contact Number *</label>
+              <div className="relative">
+                <input 
+                  type="tel" 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 98765 43210" 
+                  className="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500 pr-10" 
+                />
+                <Phone className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 opacity-60" />
+              </div>
             </div>
 
-            <button 
-              type="submit"
-              disabled={isSaving}
-              className="bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-medium uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </button>
+            <div className="pt-2">
+              <button 
+                type="submit"
+                disabled={isSaving}
+                className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 flex items-center justify-center cursor-pointer"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Profile Changes"
+                )}
+              </button>
+            </div>
           </form>
         </div>
 
-        {/* Change Password Form */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium border-b border-border/50 pb-2">Change Password</h3>
-          
+        {/* Change Password Card */}
+        <div className="bg-secondary/20 border border-border/40 rounded-3xl p-6 space-y-6">
+          <div className="flex items-center space-x-2 text-foreground font-playfair font-bold text-lg border-b border-border/40 pb-3">
+            <Lock className="w-5 h-5 text-amber-500" />
+            <span>Account Security</span>
+          </div>
+
           {pwdError && (
-            <div className="flex items-center space-x-2 bg-destructive/15 text-destructive p-3.5 rounded-xl text-sm border border-destructive/30">
+            <div className="flex items-center space-x-2 bg-destructive/15 text-destructive p-3.5 rounded-2xl text-xs border border-destructive/30">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{pwdError}</span>
             </div>
           )}
 
           {pwdSuccess && (
-            <div className="flex items-center space-x-2 bg-green-500/15 text-green-600 dark:text-green-400 p-3.5 rounded-xl text-sm border border-green-500/30">
+            <div className="flex items-center space-x-2 bg-green-500/15 text-green-600 dark:text-green-400 p-3.5 rounded-2xl text-xs border border-green-500/30">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{pwdSuccess}</span>
             </div>
           )}
 
           <form onSubmit={handleUpdatePwd} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Current Password</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase text-muted-foreground">Current Password</label>
               <input 
                 type="password" 
                 required
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="••••••••" 
-                className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary text-sm text-foreground" 
+                className="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500" 
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">New Password</label>
+            
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase text-muted-foreground">New Password</label>
               <input 
                 type="password" 
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••" 
-                className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary text-sm text-foreground" 
+                className="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500" 
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Confirm New Password</label>
+            
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase text-muted-foreground">Confirm New Password</label>
               <input 
                 type="password" 
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••" 
-                className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary text-sm text-foreground" 
+                className="w-full bg-background border border-border/60 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500" 
               />
             </div>
 
-            <button 
-              type="submit"
-              disabled={isUpdatingPwd}
-              className="border border-primary text-primary px-6 py-3 rounded-full text-sm font-medium uppercase tracking-wider hover:bg-primary hover:text-primary-foreground transition-colors disabled:opacity-50 flex items-center justify-center"
-            >
-              {isUpdatingPwd ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Update Password"
-              )}
-            </button>
+            <div className="pt-2">
+              <button 
+                type="submit"
+                disabled={isUpdatingPwd}
+                className="w-full sm:w-auto bg-secondary border border-border/60 hover:border-amber-500 text-foreground hover:text-amber-500 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center cursor-pointer"
+              >
+                {isUpdatingPwd ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Password"
+                )}
+              </button>
+            </div>
           </form>
         </div>
 
       </div>
+
     </div>
   );
 }
