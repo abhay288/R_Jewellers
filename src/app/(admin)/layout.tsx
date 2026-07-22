@@ -156,6 +156,17 @@ export default function AdminLayout({
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
           {navigation.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+            
+            const hasUnreadStock = notifications.some(n => !n.isRead && n.type === "stock");
+            const hasUnreadMessages = notifications.some(n => !n.isRead && n.type === "message");
+            const hasUnreadReturns = notifications.some(n => !n.isRead && n.id.startsWith("return"));
+            const hasUnreadOrders = notifications.some(n => !n.isRead && n.id.startsWith("order"));
+
+            const showDot = (item.name === "Messages" && hasUnreadMessages) ||
+                            (item.name === "Inventory" && hasUnreadStock) ||
+                            (item.name === "Returns" && hasUnreadReturns) ||
+                            (item.name === "Orders" && hasUnreadOrders);
+
             return (
               <Link
                 key={item.name}
@@ -168,7 +179,13 @@ export default function AdminLayout({
                 )}
               >
                 <item.icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-                <span>{item.name}</span>
+                <span className="flex-1">{item.name}</span>
+                {showDot && (
+                  <span className={cn(
+                    "w-2 h-2 rounded-full animate-pulse",
+                    isActive ? "bg-primary-foreground" : "bg-primary"
+                  )} />
+                )}
               </Link>
             );
           })}
