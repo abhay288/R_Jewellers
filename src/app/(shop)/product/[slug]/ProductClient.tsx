@@ -248,7 +248,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-6 right-6 z-60 bg-amber-500 text-neutral-950 px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center space-x-2 border border-amber-300"
           >
-            <Check className="w-4 h-4 stroke-[3]" />
+            <Check className="w-4 h-4 stroke-3" />
             <span>Product Link copied to clipboard!</span>
           </motion.div>
         )}
@@ -272,7 +272,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
           <div className="lg:col-span-5 flex flex-col-reverse md:flex-row gap-3">
             
             {/* Thumbnail Carousel Slider */}
-            <div className="flex md:flex-col gap-2 md:w-16 overflow-x-auto md:overflow-y-auto max-h-[380px] hide-scrollbar pb-1 md:pb-0 shrink-0">
+            <div className="flex md:flex-col gap-2 md:w-16 overflow-x-auto md:overflow-y-auto max-h-95 hide-scrollbar pb-1 md:pb-0 shrink-0">
               {images.map((img: string, idx: number) => (
                 <button
                   key={idx}
@@ -288,7 +288,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
             </div>
 
             {/* Main Stage View Display (Compact Max-Height 380px) */}
-            <div className="flex-1 relative aspect-square max-h-[380px] max-w-[380px] mx-auto md:mx-0 w-full bg-secondary/30 rounded-3xl border border-border/40 overflow-hidden group shadow-md">
+            <div className="flex-1 relative aspect-square max-h-95 max-w-95 mx-auto md:mx-0 w-full bg-secondary/30 rounded-3xl border border-border/40 overflow-hidden group shadow-md">
               <Image
                 src={images[activeImage] || fallbackImage}
                 alt={product.name}
