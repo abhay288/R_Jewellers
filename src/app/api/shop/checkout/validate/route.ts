@@ -10,11 +10,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { couponCode } = await req.json();
+    const { couponCode, items } = await req.json();
     await dbConnect();
     
     const orderService = new OrderService();
-    const totals = await orderService.calculateTotals(session.user.id, couponCode);
+    const totals = await orderService.calculateTotals(session.user.id, couponCode, items);
     
     return NextResponse.json(totals);
   } catch (error: any) {

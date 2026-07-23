@@ -40,9 +40,23 @@ export class OrderService {
   /**
    * Calculate totals (re-validated on server)
    */
-  async calculateTotals(userId: string, couponCode?: string) {
-    const cart = await Cart.findOne({ user: userId }).populate('items.product');
-    if (!cart || cart.items.length === 0) {
+  async calculateTotals(userId: string, couponCode?: string, clientItems?: Array<{ id: string; quantity: number }>) {
+    let cart = await Cart.findOne({ user: userId }).populate('items.product');
+
+    // If DB cart is empty or missing, but client provided items, sync client items into DB Cart
+    if ((!cart || !cart.items || cart.items.length === 0) && clientItems && clientItems.length > 0) {
+      const formattedItems = clientItems.map(item => ({
+        product: item.id,
+        quantity: item.quantity
+      }));
+      cart = await Cart.findOneAndUpdate(
+        { user: userId },
+        { $set: { items: formattedItems } },
+        { upsert: true, new: true }
+      ).populate('items.product');
+    }
+
+    if (!cart || !cart.items || cart.items.length === 0) {
       throw new Error("Cart is empty");
     }
 
@@ -108,7 +122,7 @@ export class OrderService {
   /**
    * Places an order using MongoDB transactions
    */
-  async placeOrder(userId: string, addressId: string, couponCode?: string, paymentMethod: string = 'COD') {
+  async placeOrder(userId: string, addressId: string, couponCode?: string, paymentMethod: string = 'COD', clientItems?: Array<{ id: string; quantity: number }>) {
     const session = await mongoose.startSession();
     session.startTransaction();
     
@@ -118,7 +132,7 @@ export class OrderService {
       if (!address) throw new Error("Invalid address");
 
       // 2. Calculate Totals and Validate Products/Coupon
-      const totals = await this.calculateTotals(userId, couponCode);
+      const totals = await this.calculateTotals(userId, couponCode, clientItems);
 
       // 3. Validate Inventory and Deduct Stock
       for (const item of totals.products) {

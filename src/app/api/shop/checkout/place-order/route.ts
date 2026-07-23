@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { addressId, couponCode, paymentMethod } = await req.json();
+    const { addressId, couponCode, paymentMethod, items } = await req.json();
     
     if (!addressId) {
       return NextResponse.json({ error: 'Address is required' }, { status: 400 });
@@ -23,7 +23,8 @@ export async function POST(req: Request) {
       session.user.id, 
       addressId, 
       couponCode, 
-      paymentMethod
+      paymentMethod,
+      items
     );
     
     return NextResponse.json({ success: true, orderId: order.orderId }, { status: 201 });

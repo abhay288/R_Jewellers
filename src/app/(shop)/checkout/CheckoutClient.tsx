@@ -133,7 +133,10 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
       const res = await fetch('/api/shop/checkout/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ couponCode })
+        body: JSON.stringify({ 
+          couponCode,
+          items: items.map(i => ({ id: i.id, quantity: i.quantity }))
+        })
       });
       if (res.ok) {
         const data = await res.json();
@@ -176,6 +179,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
   };
 
   const handlePlaceOrder = async () => {
+    if (items.length === 0) return alert('Your cart is empty. Please add products to checkout.');
     if (!selectedAddressId) return alert('Please select a delivery address.');
     const selectedAddr = addresses.find((a: any) => a._id === selectedAddressId);
     if (!selectedAddr?.phone) {
@@ -187,7 +191,12 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
       const res = await fetch('/api/shop/checkout/place-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ addressId: selectedAddressId, couponCode, paymentMethod })
+        body: JSON.stringify({ 
+          addressId: selectedAddressId, 
+          couponCode, 
+          paymentMethod,
+          items: items.map(i => ({ id: i.id, quantity: i.quantity }))
+        })
       });
 
       if (!res.ok) {
