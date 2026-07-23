@@ -174,7 +174,7 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
 
           <button
             onClick={() => openAddModal()}
-            className="inline-flex items-center gap-2 bg-gradient-gold text-black font-extrabold px-6 py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-md shadow-amber-500/20 hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-neutral-950 font-black px-6 py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 cursor-pointer border border-amber-300/60 shrink-0"
           >
             <Plus className="w-4 h-4 stroke-3" />
             + Add Root Category
@@ -237,21 +237,21 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => openAddModal(root.id)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-muted hover:bg-muted/80 text-foreground rounded-lg text-xs font-semibold border border-border transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-muted hover:bg-muted/80 text-foreground rounded-lg text-xs font-semibold border border-border transition-colors cursor-pointer"
                     >
                       <FolderPlus className="w-3.5 h-3.5 text-primary" />
                       Add Child Subcategory
                     </button>
                     <button
                       onClick={() => openEditModal(root)}
-                      className="p-2 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-colors"
+                      className="p-2 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-colors cursor-pointer"
                       title="Edit Category"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteCategory(root.id, root.name)}
-                      className="p-2 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg transition-colors"
+                      className="p-2 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg transition-colors cursor-pointer"
                       title="Delete Category"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -274,13 +274,13 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={() => openEditModal(child)}
-                            className="p-1.5 text-muted-foreground hover:text-foreground rounded"
+                            className="p-1.5 text-muted-foreground hover:text-foreground rounded cursor-pointer"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(child.id, child.name)}
-                            className="p-1.5 text-muted-foreground hover:text-destructive rounded"
+                            className="p-1.5 text-muted-foreground hover:text-destructive rounded cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -303,18 +303,18 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
 
       {/* ADD / EDIT CATEGORY MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 my-8 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-border pb-4">
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col max-h-[90vh] my-auto animate-in zoom-in-95 overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border/60 p-6 shrink-0 bg-secondary/30">
               <h3 className="text-xl font-bold text-foreground">
                 {editingCategory ? `Edit Category: ${editingCategory.name}` : 'Create New Category'}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setShowModal(false)} className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase text-muted-foreground block mb-1">Category Name *</label>
@@ -428,17 +428,17 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <div className="flex justify-end gap-3 p-5 border-t border-border/60 shrink-0 bg-secondary/20">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
+                className="px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveCategory}
                 disabled={isSubmitting}
-                className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl text-sm transition-all shadow-md shadow-primary/20 disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2.5 bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-neutral-950 font-black rounded-xl text-sm transition-all shadow-lg shadow-amber-500/25 disabled:opacity-50 flex items-center gap-2 cursor-pointer border border-amber-300/60"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {editingCategory ? 'Save Category Changes' : 'Create Category'}
