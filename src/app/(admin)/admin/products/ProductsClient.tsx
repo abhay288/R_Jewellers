@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import ImportWizard from '@/frontend/components/admin/products/ImportWizard';
+import AddProductModal from '@/frontend/components/admin/products/AddProductModal';
 
 interface ProductsClientProps {
   products: ProductColumn[];
@@ -28,6 +29,7 @@ interface ProductsClientProps {
 }
 
 export default function ProductsClient({ products, categories }: ProductsClientProps) {
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showImportWizard, setShowImportWizard] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
@@ -149,13 +151,14 @@ export default function ProductsClient({ products, categories }: ProductsClientP
             Export Catalog
           </button>
 
-          <Link
-            href="/admin/products/new"
-            className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md shadow-primary/20"
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md shadow-primary/20 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Add Product
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -461,6 +464,13 @@ export default function ProductsClient({ products, categories }: ProductsClientP
           </div>
         </div>
       )}
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        categories={categories}
+      />
     </div>
   );
 }
