@@ -97,30 +97,6 @@ export default async function ProductSlugPage({ params }: PageProps) {
     'material': product.material || 'Brass Alloy & Kundan',
     'weight': product.weight || undefined,
     'category': product.category?.toString() || 'Jewellery',
-  };
-
-  if (realReviewCount > 0) {
-    productJsonLd['aggregateRating'] = {
-      '@type': 'AggregateRating',
-      'ratingValue': Number(realAverageRating.toFixed(1)),
-      'reviewCount': realReviewCount,
-      'bestRating': '5',
-      'worstRating': '1',
-    };
-    productJsonLd['review'] = dbReviews.map((r: any) => ({
-      '@type': 'Review',
-      'author': {
-        '@type': 'Person',
-        'name': r.userName || 'Verified Customer',
-      },
-      'datePublished': new Date(r.createdAt).toISOString().split('T')[0],
-      'reviewBody': r.comment || '',
-      'reviewRating': {
-        '@type': 'Rating',
-        'ratingValue': r.rating,
-      },
-    }));
-  }
     'offers': {
       '@type': 'Offer',
       'url': `${baseUrl}/product/${product.slug || resolvedParams.slug}`,
@@ -170,6 +146,29 @@ export default async function ProductSlugPage({ params }: PageProps) {
       }
     },
   };
+
+  if (realReviewCount > 0) {
+    productJsonLd['aggregateRating'] = {
+      '@type': 'AggregateRating',
+      'ratingValue': Number(realAverageRating.toFixed(1)),
+      'reviewCount': realReviewCount,
+      'bestRating': '5',
+      'worstRating': '1',
+    };
+    productJsonLd['review'] = dbReviews.map((r: any) => ({
+      '@type': 'Review',
+      'author': {
+        '@type': 'Person',
+        'name': r.userName || 'Verified Customer',
+      },
+      'datePublished': new Date(r.createdAt).toISOString().split('T')[0],
+      'reviewBody': r.comment || '',
+      'reviewRating': {
+        '@type': 'Rating',
+        'ratingValue': r.rating,
+      },
+    }));
+  }
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
