@@ -90,8 +90,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
         const res = await createProduct(data);
         if (res && !res.success) throw new Error(res.error || "Failed to create product");
       }
-      router.push("/admin/products");
-      router.refresh();
+      window.location.href = "/admin/products";
     } catch (error: any) {
       console.error("Failed to save product", error);
       alert(error.message || "Failed to save product");

@@ -158,14 +158,13 @@ export default function ProductsClient({ products, categories }: ProductsClientP
               Export
             </button>
 
-            <button
-              type="button"
-              onClick={() => setShowAddModal(true)}
+            <a
+              href="/admin/products/new"
               className="inline-flex items-center gap-2 bg-gradient-gold text-black font-extrabold px-6 py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-md shadow-amber-500/20 hover:scale-105 active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-3" />
               + Add Product
-            </button>
+            </a>
           </div>
         </div>
       </div>

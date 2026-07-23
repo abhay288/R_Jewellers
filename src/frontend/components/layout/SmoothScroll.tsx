@@ -12,8 +12,19 @@ export default function SmoothScroll({
   const pathname = usePathname();
   const lenisRef = useRef<Lenis | null>(null);
 
+  const isAdmin = pathname?.startsWith("/admin");
+
   useEffect(() => {
-    // Initialize Lenis with ultra-smooth momentum settings for luxury feel
+    // Skip Lenis on Admin routes to preserve native click and scroll performance in fixed overflow panels
+    if (isAdmin) {
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
+      return;
+    }
+
+    // Initialize Lenis with ultra-smooth momentum settings for storefront luxury feel
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -41,14 +52,14 @@ export default function SmoothScroll({
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, []);
+  }, [isAdmin]);
 
   // Reset scroll to top instantly on page route navigation
   useEffect(() => {
-    if (lenisRef.current) {
+    if (lenisRef.current && !isAdmin) {
       lenisRef.current.scrollTo(0, { immediate: true });
     }
-  }, [pathname]);
+  }, [pathname, isAdmin]);
 
   return <>{children}</>;
 }
