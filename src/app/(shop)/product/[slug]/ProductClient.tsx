@@ -265,49 +265,49 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
           <span className="text-foreground truncate max-w-xs">{product.name}</span>
         </nav>
 
-        {/* Main Product Layout (Balanced 50/50 Grid for Luxury E-commerce) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start max-w-7xl mx-auto">
+        {/* Main Product Layout (Ultra-Compact 1-Screen View E-Commerce Layout) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start max-w-7xl mx-auto">
 
-          {/* Left Column: Image & Media Gallery */}
-          <div className="lg:col-span-6 flex flex-col-reverse md:flex-row gap-4 md:gap-5">
+          {/* Left Column: Compact Hero Image & Media Gallery */}
+          <div className="lg:col-span-5 flex flex-col-reverse md:flex-row gap-3">
             
             {/* Thumbnail Carousel Slider */}
-            <div className="flex md:flex-col gap-2.5 md:w-20 overflow-x-auto md:overflow-y-auto max-h-[500px] hide-scrollbar pb-2 md:pb-0 shrink-0">
+            <div className="flex md:flex-col gap-2 md:w-16 overflow-x-auto md:overflow-y-auto max-h-[380px] hide-scrollbar pb-1 md:pb-0 shrink-0">
               {images.map((img: string, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
                   className={cn(
-                    "relative w-16 h-20 md:w-20 md:h-24 rounded-2xl overflow-hidden shrink-0 border-2 transition-all duration-300 shadow-xs cursor-pointer",
+                    "relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all duration-300 shadow-xs cursor-pointer",
                     activeImage === idx ? "border-amber-500 ring-2 ring-amber-500/20" : "border-border/40 opacity-70 hover:opacity-100"
                   )}
                 >
-                  <Image src={img} alt={`${product.name} View ${idx + 1}`} fill sizes="80px" className="object-cover" />
+                  <Image src={img} alt={`${product.name} View ${idx + 1}`} fill sizes="60px" className="object-cover" />
                 </button>
               ))}
             </div>
 
-            {/* Main Stage View Display (Refined Luxury Max-Height) */}
-            <div className="flex-1 relative aspect-4/5 max-h-[500px] w-full bg-secondary/30 rounded-3xl border border-border/40 overflow-hidden group shadow-md">
+            {/* Main Stage View Display (Compact Max-Height 380px) */}
+            <div className="flex-1 relative aspect-square max-h-[380px] max-w-[380px] mx-auto md:mx-0 w-full bg-secondary/30 rounded-3xl border border-border/40 overflow-hidden group shadow-md">
               <Image
                 src={images[activeImage] || fallbackImage}
                 alt={product.name}
                 fill
                 priority
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 768px) 100vw, 40vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-700 cursor-zoom-in"
                 onClick={() => setIsFullscreen(true)}
               />
 
               {/* Badges on Gallery Stage */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
+              <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
                 {discountPercent > 0 && (
-                  <span className="bg-amber-500 text-neutral-950 font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                  <span className="bg-amber-500 text-neutral-950 font-black text-[9px] uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-md">
                     {discountPercent}% OFF
                   </span>
                 )}
                 {product.isNewArrival && (
-                  <span className="bg-black/80 backdrop-blur-md text-amber-400 border border-amber-500/30 font-semibold text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                  <span className="bg-black/80 backdrop-blur-md text-amber-400 border border-amber-500/30 font-semibold text-[9px] uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-md">
                     NEW ARRIVAL
                   </span>
                 )}
@@ -316,151 +316,139 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               {/* Expand / Fullscreen Button */}
               <button
                 onClick={() => setIsFullscreen(true)}
-                className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white p-2.5 rounded-full hover:bg-amber-500 hover:text-black transition-colors shadow-md z-10 cursor-pointer"
+                className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white p-2 rounded-full hover:bg-amber-500 hover:text-black transition-colors shadow-md z-10 cursor-pointer"
                 aria-label="View Fullscreen"
               >
-                <Maximize2 className="w-4 h-4" />
+                <Maximize2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
-          {/* Right Column: Information & Buying Actions */}
-          <div className="lg:col-span-6 flex flex-col justify-between">
+          {/* Right Column: Information & Compact Buying Actions */}
+          <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
             <div>
               
-              {/* Brand & Collection Badge */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-[0.25em] text-amber-500 font-playfair">
+              {/* Brand & SKU Header Row */}
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-amber-500 font-playfair">
                   {product.brand || "Radhika Jewellers"}
                 </span>
-                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
                   SKU: {product.sku || product._id?.toString().substring(0, 8)}
                 </span>
               </div>
 
               {/* Product Title */}
-              <h1 className="text-2xl sm:text-3xl font-playfair font-bold text-foreground leading-tight mb-3">
+              <h1 className="text-xl sm:text-2xl font-playfair font-bold text-foreground leading-tight mb-2">
                 {product.name}
               </h1>
 
-              {/* Authentic Ratings Summary Bar (NO FAKE RATINGS) */}
-              <div className="flex items-center space-x-3 mb-5">
-                <div className="flex items-center bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg">
-                  <span className="text-xs font-bold text-amber-500 mr-1.5">{reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : "0.0"}</span>
-                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              {/* Ratings Summary Bar */}
+              <div className="flex items-center space-x-2.5 mb-3">
+                <div className="flex items-center bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg">
+                  <span className="text-xs font-bold text-amber-500 mr-1">{reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : "0.0"}</span>
+                  <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-[11px] font-medium text-muted-foreground">
                   {reviewStats.totalReviews > 0 ? `(${reviewStats.totalReviews} Verified Customer Ratings)` : "(No Customer Ratings Yet)"}
                 </span>
               </div>
 
-              {/* Price & Savings Container */}
-              <div className="bg-secondary/40 border border-border/50 rounded-2xl p-4 sm:p-5 mb-6 shadow-xs">
-                <div className="flex items-baseline space-x-3">
-                  <span className="text-3xl font-bold text-amber-500 font-playfair">
+              {/* Price & Savings Inline Container */}
+              <div className="bg-secondary/40 border border-border/50 rounded-2xl p-3 sm:p-4 mb-3 shadow-xs space-y-1">
+                <div className="flex items-baseline space-x-2.5 flex-wrap gap-y-1">
+                  <span className="text-2xl sm:text-3xl font-bold text-amber-500 font-playfair">
                     ₹{finalPrice.toLocaleString('en-IN')}
                   </span>
                   {mrp > finalPrice && (
-                    <span className="text-lg text-muted-foreground line-through font-normal">
+                    <span className="text-base text-muted-foreground line-through font-normal">
                       ₹{mrp.toLocaleString('en-IN')}
                     </span>
                   )}
                   {discountPercent > 0 && (
-                    <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
                       {discountPercent}% OFF
+                    </span>
+                  )}
+                  {savings > 0 && (
+                    <span className="text-[11px] text-emerald-500 font-medium ml-auto">
+                      Save ₹{savings.toLocaleString('en-IN')}
                     </span>
                   )}
                 </div>
 
-                {savings > 0 && (
-                  <p className="text-xs text-emerald-500 font-medium mt-1">
-                    You save ₹{savings.toLocaleString('en-IN')} on this purchase
-                  </p>
-                )}
-
-                <p className="text-[11px] text-muted-foreground mt-2 border-t border-border/30 pt-2 flex items-center justify-between">
+                <div className="text-[10px] text-muted-foreground border-t border-border/30 pt-1.5 flex items-center justify-between">
                   <span>Inclusive of all taxes & GST.</span>
-                  <strong className="text-emerald-500 font-bold uppercase tracking-wider">Free Shipping</strong>
-                </p>
-              </div>
-
-              {/* Offer Banner */}
-              <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 mb-6 space-y-2">
-                <div className="flex items-center space-x-2 text-xs font-bold text-amber-500 uppercase tracking-wider">
-                  <Sparkles className="w-4 h-4" />
-                  <span>Available Store Offers</span>
+                  <strong className="text-emerald-500 font-bold uppercase tracking-wider">Free Insured Pan-India Shipping</strong>
                 </div>
-                <ul className="text-xs text-muted-foreground space-y-1.5 list-disc list-inside leading-relaxed">
-                  <li>Extra 10% instant discount on UPI / Prepaid online checkout.</li>
-                  <li>Complimentary luxury velvet jewellery box included with this purchase.</li>
-                </ul>
               </div>
 
-              {/* PIN Code Delivery Estimator */}
-              <div className="bg-card border border-border/60 rounded-2xl p-4 mb-6 shadow-xs">
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center">
-                  <MapPin className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
-                  Pincode Delivery Estimator
-                </label>
-                <form onSubmit={handlePincodeCheck} className="flex gap-2">
-                  <input
-                    type="text"
-                    maxLength={6}
-                    placeholder="Enter 6-digit Pincode (e.g. 110001)"
-                    value={pincode}
-                    onChange={(e) => setPincode(e.target.value)}
-                    className="flex-1 bg-secondary/50 border border-border/60 rounded-xl px-4 py-2 text-xs text-foreground focus:outline-none focus:border-amber-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isCheckingPincode}
-                    className="bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold px-5 py-2 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {isCheckingPincode ? "Checking..." : "Check"}
-                  </button>
-                </form>
+              {/* Store Offer & Pincode Single Row Bar */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3">
+                
+                {/* Store Offer Pill */}
+                <div className="sm:col-span-6 bg-amber-500/5 border border-amber-500/20 rounded-xl p-2.5 flex items-center space-x-2 text-xs">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="text-[11px] text-muted-foreground leading-tight">
+                    <strong className="text-amber-500 font-bold">10% Instant Discount</strong> on UPI + Free Luxury Velvet Box!
+                  </span>
+                </div>
 
-                {deliveryInfo && (
-                  <div className="mt-3 pt-3 border-t border-border/40 space-y-1.5">
-                    {deliveryInfo.error ? (
-                      <p className="text-xs font-medium text-red-500">{deliveryInfo.error}</p>
-                    ) : (
-                      <>
-                        <div className="flex items-center text-xs font-semibold text-emerald-500">
-                          <Truck className="w-4 h-4 mr-1.5 text-amber-500" />
-                          <span>Estimated Delivery: {deliveryInfo.dateRange}</span>
-                        </div>
-                        {deliveryInfo.isCodAvailable && (
-                          <div className="flex items-center text-[11px] text-muted-foreground font-medium pl-5">
-                            <Check className="w-3.5 h-3.5 text-emerald-500 mr-1" />
-                            <span>Cash on Delivery (COD) Available</span>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
+                {/* Pincode Quick Estimator */}
+                <div className="sm:col-span-6 bg-card border border-border/60 rounded-xl p-2 flex items-center">
+                  <MapPin className="w-3.5 h-3.5 text-amber-500 ml-1 mr-1.5 shrink-0" />
+                  <form onSubmit={handlePincodeCheck} className="flex-1 flex gap-1">
+                    <input
+                      type="text"
+                      maxLength={6}
+                      placeholder="Enter 6-digit Pincode"
+                      value={pincode}
+                      onChange={(e) => setPincode(e.target.value)}
+                      className="w-full bg-transparent text-[11px] text-foreground focus:outline-none placeholder:text-muted-foreground/60"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isCheckingPincode}
+                      className="bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold px-3 py-1 rounded-lg text-[10px] uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shrink-0"
+                    >
+                      {isCheckingPincode ? "..." : "Check"}
+                    </button>
+                  </form>
+                </div>
               </div>
 
-              {/* Quantity Selector & Stock Status */}
-              <div className="flex items-center space-x-6 mb-8">
-                <div className="flex items-center space-x-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Qty:</span>
-                  <div className="flex items-center border border-border/60 rounded-xl bg-secondary/30 overflow-hidden">
+              {deliveryInfo && (
+                <div className="mb-3 text-[11px] px-1">
+                  {deliveryInfo.error ? (
+                    <span className="text-red-500 font-medium">{deliveryInfo.error}</span>
+                  ) : (
+                    <span className="text-emerald-500 font-semibold flex items-center">
+                      <Truck className="w-3.5 h-3.5 mr-1 text-amber-500" />
+                      Estimated Delivery: {deliveryInfo.dateRange} (COD Available)
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Quantity Selector & Stock Status Row */}
+              <div className="flex items-center justify-between mb-4 bg-secondary/20 p-2 rounded-xl border border-border/40">
+                <div className="flex items-center space-x-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Qty:</span>
+                  <div className="flex items-center border border-border/60 rounded-lg bg-secondary/40 overflow-hidden">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      className="p-1.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                       aria-label="Decrease quantity"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-3 h-3" />
                     </button>
-                    <span className="px-4 text-xs font-bold text-foreground">{quantity}</span>
+                    <span className="px-3 text-xs font-bold text-foreground">{quantity}</span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="p-2.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      className="p-1.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                       aria-label="Increase quantity"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
@@ -468,18 +456,18 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                 {/* Stock Status Indicator */}
                 <div>
                   {product.stock > 5 ? (
-                    <span className="text-xs font-semibold text-emerald-500 flex items-center">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+                    <span className="text-[11px] font-semibold text-emerald-500 flex items-center">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
                       In Stock (Ready to Ship)
                     </span>
                   ) : product.stock > 0 ? (
-                    <span className="text-xs font-semibold text-amber-500 flex items-center">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
-                      Low Stock (Only {product.stock} left!)
+                    <span className="text-[11px] font-semibold text-amber-500 flex items-center">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse" />
+                      Low Stock ({product.stock} left!)
                     </span>
                   ) : (
-                    <span className="text-xs font-semibold text-red-500 flex items-center">
-                      <span className="w-2 h-2 rounded-full bg-red-500 mr-1.5" />
+                    <span className="text-[11px] font-semibold text-red-500 flex items-center">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5" />
                       Out of Stock
                     </span>
                   )}
@@ -487,12 +475,12 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               </div>
 
               {/* Primary Action Buttons (Add to Cart & Buy Now) */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <div className="flex gap-2.5 mb-4">
                 <button
                   onClick={handleAddToCart}
                   disabled={product.stock <= 0}
                   className={cn(
-                    "flex-1 h-13 rounded-full font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center space-x-2 shadow-md cursor-pointer",
+                    "flex-1 h-11 rounded-full font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center space-x-2 shadow-md cursor-pointer",
                     product.stock > 0
                       ? "bg-secondary text-foreground border border-border/80 hover:border-amber-500 hover:text-amber-500"
                       : "bg-muted text-muted-foreground cursor-not-allowed"
@@ -506,7 +494,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                   onClick={handleBuyNow}
                   disabled={product.stock <= 0}
                   className={cn(
-                    "flex-1 h-13 rounded-full font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center space-x-2 shadow-lg cursor-pointer",
+                    "flex-1 h-11 rounded-full font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center space-x-2 shadow-lg cursor-pointer",
                     product.stock > 0
                       ? "bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 hover:brightness-110 shadow-amber-500/20"
                       : "bg-muted text-muted-foreground cursor-not-allowed"
@@ -520,44 +508,44 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                 <button
                   onClick={() => toggleWishlist(product._id)}
                   className={cn(
-                    "w-13 h-13 rounded-full border border-border/80 flex items-center justify-center transition-colors shrink-0 cursor-pointer",
+                    "w-11 h-11 rounded-full border border-border/80 flex items-center justify-center transition-colors shrink-0 cursor-pointer",
                     wishlistItems.includes(product._id)
                       ? "text-red-500 border-red-500/50 bg-red-500/10"
                       : "text-foreground hover:border-amber-500 hover:text-amber-500"
                   )}
                   aria-label="Wishlist"
                 >
-                  <Heart className={cn("w-5 h-5", wishlistItems.includes(product._id) && "fill-current")} />
+                  <Heart className={cn("w-4 h-4", wishlistItems.includes(product._id) && "fill-current")} />
                 </button>
 
                 {/* Share Button */}
                 <button
                   onClick={() => setIsShareModalOpen(true)}
-                  className="w-13 h-13 rounded-full border border-border/80 flex items-center justify-center text-foreground hover:border-amber-500 hover:text-amber-500 transition-colors shrink-0 cursor-pointer"
+                  className="w-11 h-11 rounded-full border border-border/80 flex items-center justify-center text-foreground hover:border-amber-500 hover:text-amber-500 transition-colors shrink-0 cursor-pointer"
                   aria-label="Share product"
                 >
-                  <Share2 className="w-5 h-5" />
+                  <Share2 className="w-4 h-4" />
                 </button>
               </div>
 
             </div>
 
             {/* Trust Assurance Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 border-t border-border/40">
-              <div className="flex items-center space-x-2 text-[11px] text-muted-foreground">
-                <Award className="w-4 h-4 text-amber-500 shrink-0" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-border/40 text-[10px] text-muted-foreground">
+              <div className="flex items-center space-x-1.5">
+                <Award className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span>100% Certified</span>
               </div>
-              <div className="flex items-center space-x-2 text-[11px] text-muted-foreground">
-                <Truck className="w-4 h-4 text-amber-500 shrink-0" />
+              <div className="flex items-center space-x-1.5">
+                <Truck className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span>Free Express Shipping</span>
               </div>
-              <div className="flex items-center space-x-2 text-[11px] text-muted-foreground">
-                <ShieldCheck className="w-4 h-4 text-amber-500 shrink-0" />
+              <div className="flex items-center space-x-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span>Gold Plating Warranty</span>
               </div>
-              <div className="flex items-center space-x-2 text-[11px] text-muted-foreground">
-                <RotateCcw className="w-4 h-4 text-amber-500 shrink-0" />
+              <div className="flex items-center space-x-1.5">
+                <RotateCcw className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                 <span>48h Easy Returns</span>
               </div>
             </div>
