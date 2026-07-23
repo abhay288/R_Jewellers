@@ -24,6 +24,7 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [dataFile, setDataFile] = useState<File | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [autoCreateCategory, setAutoCreateCategory] = useState<boolean>(true);
 
   // Validation state
@@ -111,6 +112,9 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
       const formData = new FormData();
       formData.append('file', dataFile);
       if (zipFile) formData.append('zip', zipFile);
+      if (imageFiles.length > 0) {
+        imageFiles.forEach(file => formData.append('images', file));
+      }
       formData.append('action', 'execute');
       formData.append('autoCreateCategory', autoCreateCategory.toString());
 
@@ -179,7 +183,7 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
         </div>
         <div className={`p-3 rounded-xl border text-center transition-all ${step === 2 ? 'border-primary bg-primary/10 text-primary font-semibold' : 'border-border text-muted-foreground'}`}>
           <span className="text-xs uppercase tracking-wider block">Step 2</span>
-          <span className="text-sm font-medium">Upload Media (ZIP)</span>
+          <span className="text-sm font-medium">Upload Media (JPG / ZIP)</span>
         </div>
         <div className={`p-3 rounded-xl border text-center transition-all ${step === 3 ? 'border-primary bg-primary/10 text-primary font-semibold' : 'border-border text-muted-foreground'}`}>
           <span className="text-xs uppercase tracking-wider block">Step 3</span>
@@ -206,45 +210,27 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
             />
             <FileSpreadsheet className="w-12 h-12 text-primary mx-auto mb-3" />
             <h3 className="text-base font-semibold text-foreground">
-              {dataFile ? dataFile.name : 'Select or Drag & Drop Product File (.CSV, .XLSX)'}
+              {dataFile ? dataFile.name : 'Drag & Drop CSV or Excel file here'}
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Supports up to 10,000 product rows in a single import file.
+              Supports <code className="text-primary font-mono">.csv</code>, <code className="text-primary font-mono">.xlsx</code>, <code className="text-primary font-mono">.xls</code> formatted catalog files.
             </p>
-            {dataFile && (
-              <span className="inline-block mt-3 px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-semibold">
-                {(dataFile.size / 1024).toFixed(1)} KB Loaded
-              </span>
-            )}
           </div>
 
-          <div className="flex justify-between items-center pt-4">
-            <div className="text-xs text-muted-foreground flex items-center gap-2">
-              <Info className="w-4 h-4 text-primary" />
-              Column mapping is automatic based on standardized headers.
-            </div>
+          <div className="flex justify-end">
             <button
               onClick={handleRunValidation}
               disabled={!dataFile || isValidating}
               className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md shadow-primary/20 disabled:opacity-50"
             >
-              {isValidating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Validating CSV...
-                </>
-              ) : (
-                <>
-                  Next: Validate & Media
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
+              {isValidating && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isValidating ? 'Validating Format...' : 'Proceed to Step 2 →'}
             </button>
           </div>
         </div>
       )}
 
-      {/* STEP 2: ZIP MEDIA UPLOAD & CONFIG */}
+      {/* STEP 2: MEDIA UPLOAD (JPG/PNG OR ZIP) */}
       {step === 2 && (
         <div className="space-y-6">
           {/* Validation Status summary */}
@@ -268,23 +254,61 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
             </div>
           )}
 
-          {/* ZIP File uploader */}
-          <div className="border-2 border-dashed border-border hover:border-primary/50 transition-colors rounded-2xl p-8 text-center bg-muted/20 relative">
+          {/* Option A: Direct JPG / JPEG / PNG Image Files Upload */}
+          <div className="border-2 border-dashed border-amber-500/40 hover:border-amber-500 transition-colors rounded-2xl p-6 text-center bg-amber-500/5 relative">
+            <input
+              type="file"
+              multiple
+              accept="image/jpeg, image/jpg, image/png, image/webp"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setImageFiles(Array.from(e.target.files));
+                }
+              }}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+            <Upload className="w-10 h-10 text-amber-500 mx-auto mb-2" />
+            <h3 className="text-base font-semibold text-foreground">
+              {imageFiles.length > 0 ? `${imageFiles.length} Image Files Selected` : 'Option A: Upload JPG / JPEG / PNG Images Directly'}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 max-w-lg mx-auto">
+              Select single or multiple <code className="text-amber-500 font-mono">.jpg</code>, <code className="text-amber-500 font-mono">.jpeg</code>, <code className="text-amber-500 font-mono">.png</code> image files directly. The system automatically matches each image filename with SKU or Product Name.
+            </p>
+            {imageFiles.length > 0 && (
+              <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-h-24 overflow-y-auto">
+                {imageFiles.slice(0, 8).map((f, i) => (
+                  <span key={i} className="px-2 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded text-[11px] font-mono">
+                    {f.name}
+                  </span>
+                ))}
+                {imageFiles.length > 8 && (
+                  <span className="px-2 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded text-[11px] font-mono">
+                    +{imageFiles.length - 8} more
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="text-center text-xs text-muted-foreground font-semibold uppercase tracking-wider">— OR —</div>
+
+          {/* Option B: ZIP Archive uploader */}
+          <div className="border-2 border-dashed border-border hover:border-primary/50 transition-colors rounded-2xl p-6 text-center bg-muted/20 relative">
             <input
               type="file"
               accept=".zip"
               onChange={(e) => setZipFile(e.target.files?.[0] || null)}
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
             />
-            <FileArchive className="w-12 h-12 text-primary mx-auto mb-3" />
+            <FileArchive className="w-10 h-10 text-primary mx-auto mb-2" />
             <h3 className="text-base font-semibold text-foreground">
-              {zipFile ? zipFile.name : 'Upload Media ZIP Archive (Optional)'}
+              {zipFile ? zipFile.name : 'Option B: Upload Bulk Media ZIP Archive (Optional)'}
             </h3>
             <p className="text-xs text-muted-foreground mt-1 max-w-lg mx-auto">
-              ZIP folder example: <code className="text-primary font-mono">/images/RJ001-1.jpg</code>, <code className="text-primary font-mono">/videos/RJ001.mp4</code>. Images will automatically be matched by SKU and uploaded to Cloudinary.
+              ZIP folder containing bulk images/videos (e.g. <code className="text-primary font-mono">/RJ-KUN-001/front.jpg</code>).
             </p>
             {zipFile && (
-              <span className="inline-block mt-3 px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-semibold">
+              <span className="inline-block mt-2 px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-semibold">
                 {(zipFile.size / (1024 * 1024)).toFixed(2)} MB Archive Loaded
               </span>
             )}

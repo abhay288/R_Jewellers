@@ -38,10 +38,27 @@ export async function POST(req: Request) {
     }
 
     // Parse ZIP file if provided
-    let mediaFiles = undefined;
+    let mediaFiles: { images: Map<string, { buffer: Buffer; name: string }>; videos: Map<string, { buffer: Buffer; name: string }> } | undefined = undefined;
     if (zipFile) {
       const zipBuffer = Buffer.from(await zipFile.arrayBuffer());
       mediaFiles = await ImportService.parseZipFile(zipBuffer);
+    }
+
+    // Parse direct JPG/JPEG/PNG/WEBP image files if provided
+    const directImageFiles = formData.getAll('images') as File[];
+    if (directImageFiles && directImageFiles.length > 0) {
+      if (!mediaFiles) {
+        mediaFiles = { images: new Map(), videos: new Map() };
+      }
+      for (const imgFile of directImageFiles) {
+        if (imgFile && typeof imgFile === 'object' && imgFile.size > 0) {
+          const imgBuf = Buffer.from(await imgFile.arrayBuffer());
+          mediaFiles.images.set(imgFile.name.toLowerCase(), {
+            buffer: imgBuf,
+            name: imgFile.name
+          });
+        }
+      }
     }
 
     // Step 2: Execute Import Pipeline
