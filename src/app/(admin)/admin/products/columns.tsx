@@ -1,11 +1,63 @@
 "use client";
 
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Trash, Copy, Star, Flame, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Pencil, Trash, Copy, Star, Flame, Sparkles, Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { deleteProduct, toggleProductStatus } from "@/backend/actions/product.actions";
 import { SortableHeader } from "@/frontend/components/ui/data-table";
 import Image from "next/image";
+import { cn } from "@/shared/lib/utils";
+
+function StatusToggleCell({ productId, initialIsActive }: { productId: string; initialIsActive: boolean }) {
+  const [isActive, setIsActive] = useState(initialIsActive);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const nextState = !isActive;
+    setIsActive(nextState); // Instant 0ms optimistic UI update!
+    setIsUpdating(true);
+
+    try {
+      const res = await toggleProductStatus(productId, nextState);
+      if (!res?.success) {
+        setIsActive(!nextState); // Revert on failure
+        alert(res?.error || "Failed to update status");
+      }
+    } catch (err) {
+      setIsActive(!nextState); // Revert on error
+      console.error("Failed to toggle product status:", err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleToggle}
+      disabled={isUpdating}
+      className={cn(
+        "px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer select-none border",
+        isActive 
+          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25" 
+          : "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30 hover:bg-red-500/25"
+      )}
+      title="Click to toggle status instantly"
+    >
+      {isUpdating ? (
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+      ) : isActive ? (
+        <Eye className="w-3.5 h-3.5" />
+      ) : (
+        <EyeOff className="w-3.5 h-3.5" />
+      )}
+      <span>{isActive ? "Published" : "Inactive"}</span>
+    </button>
+  );
+}
 
 export type ProductColumn = {
   id: string;
@@ -140,21 +192,9 @@ export const columns: ColumnDef<ProductColumn>[] = [
   {
     accessorKey: "isActive",
     header: "Status",
-    cell: ({ row }) => {
-      const product = row.original;
-      return (
-        <button 
-          onClick={async () => {
-            await toggleProductStatus(product.id, !product.isActive);
-          }}
-          className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 transition-colors ${product.isActive ? 'bg-emerald-500/10 text-emerald-600 hover:bg-red-500/10 hover:text-red-600' : 'bg-red-500/10 text-red-600 hover:bg-emerald-500/10 hover:text-emerald-600'}`}
-          title="Click to toggle status"
-        >
-          {product.isActive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-          {product.isActive ? "Published" : "Inactive"}
-        </button>
-      );
-    },
+    cell: ({ row }) => (
+      <StatusToggleCell productId={row.original.id} initialIsActive={row.original.isActive} />
+    ),
   },
   {
     id: "actions",

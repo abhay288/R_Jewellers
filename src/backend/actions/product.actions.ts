@@ -295,7 +295,8 @@ export async function toggleProductStatus(id: string, isActive: boolean) {
     const session = await requireAdmin();
     await connectDB();
     
-    const product = await Product.findByIdAndUpdate(id, { isActive }, { new: true });
+    const status = isActive ? 'Published' : 'Draft';
+    const product = await Product.findByIdAndUpdate(id, { isActive, status }, { new: true });
     if (!product) throw new Error("Product not found");
     
     if (!session?.user?.id) throw new Error("Unauthorized");
@@ -305,10 +306,15 @@ export async function toggleProductStatus(id: string, isActive: boolean) {
       "Product",
       product._id,
       session.user.id,
-      { productName: product.name, isActive }
+      { productName: product.name, isActive, status }
     );
     
     revalidatePath("/admin/products");
+    revalidatePath("/shop");
+    revalidatePath("/");
+    if (product.slug) {
+      revalidatePath(`/product/${product.slug}`);
+    }
     return { success: true, data: JSON.parse(JSON.stringify(product)) };
   } catch (error: any) {
     return { success: false, error: error.message };
