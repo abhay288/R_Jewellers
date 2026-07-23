@@ -490,3 +490,26 @@
                 0 0 0 1px rgba(201, 162, 39, 0.15);
   }
 }
+
+/* ============================================================
+   LENIS SMOOTH SCROLLING SPECIFIC STYLES
+   ============================================================ */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
