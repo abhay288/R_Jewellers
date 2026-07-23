@@ -70,7 +70,7 @@ export default function TrendingSlider({ products }: { products: any[] }) {
                 className="w-full md:w-1/3 shrink-0 group px-2"
               >
                 {/* Image Container with Luxury Borders and Zoom */}
-                <div className="relative h-[480px] bg-card border border-border/30 rounded-3xl overflow-hidden mb-6 shadow-xs group-hover:shadow-lg transition-all duration-700">
+                <div className="relative h-120 bg-card border border-border/30 rounded-3xl overflow-hidden mb-6 shadow-xs group-hover:shadow-lg transition-all duration-700">
                   {/* Luxury badge */}
                   <div className="absolute top-4 left-4 z-20 pointer-events-none">
                     <span className="text-[8px] uppercase tracking-widest font-bold bg-primary/10 border border-primary/20 text-primary px-3 py-1 rounded-full backdrop-blur-xs">
