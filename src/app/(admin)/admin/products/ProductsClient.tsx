@@ -189,10 +189,10 @@ export default function ProductsClient({ products, categories }: ProductsClientP
             </button>
             <button
               onClick={() => setSelectedProductIds([])}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-primary/20 rounded-xl transition-colors cursor-pointer"
               title="Clear selection"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -204,6 +204,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
         data={products}
         searchKey="name"
         searchPlaceholder="Search products by Name, SKU, ID..."
+        selectedRowIds={selectedProductIds}
         onRowSelectionChange={(rows) => {
           setSelectedProductIds(rows.map((r) => r.id));
         }}

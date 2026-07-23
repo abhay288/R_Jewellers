@@ -21,6 +21,7 @@ interface DataTableProps<TData, TValue> {
   searchKey?: string;
   searchPlaceholder?: string;
   onRowSelectionChange?: (selectedRows: TData[]) => void;
+  selectedRowIds?: string[];
 }
 
 export function DataTable<TData, TValue>({
@@ -29,6 +30,7 @@ export function DataTable<TData, TValue>({
   searchKey,
   searchPlaceholder = "Search...",
   onRowSelectionChange,
+  selectedRowIds,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -50,6 +52,12 @@ export function DataTable<TData, TValue>({
       rowSelection,
     },
   });
+
+  useEffect(() => {
+    if (selectedRowIds !== undefined && selectedRowIds.length === 0 && Object.keys(rowSelection).length > 0) {
+      setRowSelection({});
+    }
+  }, [selectedRowIds, rowSelection]);
 
   useEffect(() => {
     if (onRowSelectionChange) {
