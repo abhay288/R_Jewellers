@@ -178,58 +178,74 @@ export class ProductService {
 
   async getProductBySlug(slugOrId: string) {
     if (!slugOrId) return null;
-    let product = await this.repository.findOne({ slug: slugOrId.toLowerCase(), isActive: true });
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+    let product = await ProductModel.findOne({ slug: slugOrId.toLowerCase(), isActive: true }).lean().exec();
     if (!product && mongoose.Types.ObjectId.isValid(slugOrId)) {
-      product = await this.repository.findById(slugOrId);
+      product = await ProductModel.findById(slugOrId).lean().exec();
     }
     return product;
   }
 
   async getProductById(id: string) {
-    return this.repository.findById(id);
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+    return ProductModel.findById(id).lean().exec();
   }
 
   async getRelatedProducts(productId: string, limit: number = 4) {
-    try {
-      const settingService = new SettingService();
-      const enableAi = await settingService.getSettingByKey('enableAiRecommendations', 'true');
-      
-      if (enableAi === 'true' || enableAi === true) {
-        const aiService = new AIService();
-        const recommendations = await aiService.getRecommendations(productId, limit);
-        if (recommendations && recommendations.length > 0) {
-          return recommendations;
-        }
-      }
-    } catch (error) {
-      console.error('AI Recommendations failed, falling back to category matching:', error);
-    }
-
-    const product = await this.repository.findById(productId);
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+    const product = await ProductModel.findById(productId).select('category').lean().exec();
     if (!product) return [];
     
-    // Simple heuristic: same category, active, not the same product
-    return this.repository.findAll({
+    return ProductModel.find({
       _id: { $ne: product._id },
       category: product.category,
       isActive: true
-    }, { limit, sort: { viewCount: -1 } });
+    })
+    .select('name slug price mrp discount finalPrice images category stock brand isNewArrival isFeatured averageRating reviewCount')
+    .limit(limit)
+    .sort({ createdAt: -1 })
+    .lean()
+    .exec();
   }
 
   async getFeaturedProducts(limit: number = 8) {
-    return this.repository.findAll({ isActive: true, isFeatured: true }, { limit, sort: { createdAt: -1 } });
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+    return ProductModel.find({ isActive: true, isFeatured: true })
+      .select('name slug price mrp discount finalPrice images category stock brand isNewArrival isFeatured averageRating reviewCount')
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
   }
 
   async getTrendingProducts(limit: number = 8) {
-    return this.repository.findAll({ isActive: true, isTrending: true }, { limit, sort: { createdAt: -1 } });
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+    return ProductModel.find({ isActive: true, isTrending: true })
+      .select('name slug price mrp discount finalPrice images category stock brand isNewArrival isFeatured averageRating reviewCount')
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
   }
 
   async getBestSellers(limit: number = 8) {
-    return this.repository.findAll({ isActive: true, isBestSeller: true }, { limit, sort: { createdAt: -1 } });
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+    return ProductModel.find({ isActive: true, isBestSeller: true })
+      .select('name slug price mrp discount finalPrice images category stock brand isNewArrival isFeatured averageRating reviewCount')
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
   }
 
   async getNewArrivals(limit: number = 8) {
-    return this.repository.findAll({ isActive: true }, { limit, sort: { createdAt: -1 } });
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+    return ProductModel.find({ isActive: true })
+      .select('name slug price mrp discount finalPrice images category stock brand isNewArrival isFeatured averageRating reviewCount')
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
   }
 }
 

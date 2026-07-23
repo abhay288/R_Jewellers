@@ -29,7 +29,7 @@ export class BaseRepository<T extends Document> {
   }
 
   async findAll(filter: Record<string, any> = {}, options?: Record<string, any>): Promise<T[]> {
-    return this.model.find(filter, null, options).exec();
+    return this.model.find(filter, null, options).lean().exec() as any;
   }
 
   async update(id: string, data: Record<string, any>): Promise<T | null> {
@@ -47,19 +47,19 @@ export class BaseRepository<T extends Document> {
         [field]: { $regex: query, $options: 'i' }
       }))
     };
-    return this.model.find(filter).exec();
+    return this.model.find(filter).lean().exec() as any;
   }
 
   async paginate(filter: Record<string, any> = {}, page: number = 1, limit: number = 10, sort: Record<string, 1 | -1> = { createdAt: -1 }): Promise<PaginationResult<T>> {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.model.find(filter).sort(sort).skip(skip).limit(limit).exec(),
+      this.model.find(filter).sort(sort).skip(skip).limit(limit).lean().exec(),
       this.model.countDocuments(filter).exec()
     ]);
 
     return {
-      data,
+      data: data as any,
       total,
       page,
       limit,
