@@ -28,7 +28,7 @@ export const userSchema = z.object({
 export const productSchema = z.object({
   name: z.string().min(2, 'Product name is required'),
   slug: z.string().optional().or(z.literal('')),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().min(1, 'Description is required'),
   shortDescription: z.string().optional().or(z.literal('')),
   category: z.string().min(1, 'Category is required'),
   subcategory: z.string().optional().or(z.literal('')),
@@ -54,7 +54,7 @@ export const productSchema = z.object({
   gender: z.enum(['Women', 'Men', 'Unisex']).optional(),
   occasion: z.string().optional().or(z.literal('')),
   style: z.string().optional().or(z.literal('')),
-  images: z.array(z.string().url('Invalid image URL')).min(1, 'At least one image is required'),
+  images: z.array(z.string()).optional().default([]),
   image360: z.string().url('Invalid URL').optional().or(z.literal('')),
   videoUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
   isActive: z.boolean().default(true),

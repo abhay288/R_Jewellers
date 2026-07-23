@@ -64,39 +64,47 @@ export async function createProduct(data: any) {
       console.error("Failed to generate embedding during product creation:", err);
     }
 
+    if (!data.images || !Array.isArray(data.images) || data.images.length === 0) {
+      data.images = ["https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800"];
+    }
+
     if (data.sku) {
       const existingSku = await Product.findOne({ sku: data.sku });
       if (existingSku) throw new Error("Product with this SKU already exists.");
     }
     
     const product = await Product.create(data);
+    const userId = (session?.user as any)?.id || (session?.user as any)?._id || session?.user?.email || 'admin';
     
-    if (product.stock > 0 && session?.user?.id) {
-      await InventoryHistory.create({
-        product: product._id,
-        previousStock: 0,
-        newStock: product.stock,
-        changeQuantity: product.stock,
-        reason: 'Added',
-        user: session.user.id,
-        notes: 'Initial stock on creation',
-      });
+    try {
+      if (product.stock > 0 && userId) {
+        await InventoryHistory.create({
+          product: product._id,
+          previousStock: 0,
+          newStock: product.stock,
+          changeQuantity: product.stock,
+          reason: 'Added',
+          user: userId,
+          notes: 'Initial stock on creation',
+        });
+      }
+      
+      await activityLogService.logAction(
+        "Product Created",
+        "Product",
+        product._id,
+        userId,
+        { productName: product.name }
+      );
+    } catch (logErr) {
+      console.warn("Secondary logging warning:", logErr);
     }
-    
-    if (!session?.user?.id) throw new Error("Unauthorized");
-    
-    await activityLogService.logAction(
-      "Product Created",
-      "Product",
-      product._id,
-      session.user.id,
-      { productName: product.name }
-    );
     
     revalidatePath("/admin/products");
     revalidatePath("/admin");
     return { success: true, data: JSON.parse(JSON.stringify(product)) };
   } catch (error: any) {
+    console.error("createProduct error:", error);
     return { success: false, error: error.message };
   }
 }

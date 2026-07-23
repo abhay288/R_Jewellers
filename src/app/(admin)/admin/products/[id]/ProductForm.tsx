@@ -85,10 +85,10 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
 
       if (initialData?.id) {
         const res = await updateProduct(initialData.id, data);
-        if (res.error) throw new Error(res.error);
+        if (res && !res.success) throw new Error(res.error || "Failed to update product");
       } else {
         const res = await createProduct(data);
-        if (res.error) throw new Error(res.error);
+        if (res && !res.success) throw new Error(res.error || "Failed to create product");
       }
       router.push("/admin/products");
       router.refresh();
@@ -97,6 +97,17 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
       alert(error.message || "Failed to save product");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onError = (errors: any) => {
+    console.error("Form Validation Errors:", errors);
+    const firstErrorKey = Object.keys(errors)[0];
+    const firstError = errors[firstErrorKey];
+    if (firstError?.message) {
+      alert(`Validation Error [${firstErrorKey}]: ${firstError.message}`);
+    } else {
+      alert("Please fill in all required fields before creating the product.");
     }
   };
 
@@ -124,7 +135,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 w-full pb-16">
+    <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-10 w-full pb-16">
       
       {/* 1. Basic Information */}
       <div className="space-y-6">

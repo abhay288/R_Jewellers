@@ -23,12 +23,15 @@ export default async function ProductEditPage({
   let product = null;
 
   await connectDB();
-  const categories = await Category.find({ isActive: true }).select('name _id');
+  const mongoose = (await import("mongoose")).default;
+  const categories = await Category.find({ isDeleted: { $ne: true } }).select('name _id').sort({ name: 1 });
 
   if (!isNew) {
-    product = await Product.findById(resolvedParams.id);
+    if (mongoose.Types.ObjectId.isValid(resolvedParams.id)) {
+      product = await Product.findById(resolvedParams.id);
+    }
     if (!product) notFound();
-  } else if (duplicateId) {
+  } else if (duplicateId && mongoose.Types.ObjectId.isValid(duplicateId)) {
     product = await Product.findById(duplicateId);
     if (product) {
       // Clear specific fields for duplication
