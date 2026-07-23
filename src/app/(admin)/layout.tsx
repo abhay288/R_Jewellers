@@ -121,39 +121,41 @@ export default function AdminLayout({
   }, []);
 
   return (
-    <div className="min-h-screen bg-secondary/30 flex">
+    <div className="min-h-screen bg-neutral-900/5 dark:bg-neutral-950 flex font-sans antialiased text-foreground">
       
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 lg:hidden transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border/50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:w-72 flex flex-col",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-card/95 backdrop-blur-xl border-r border-border/60 shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:w-72 flex flex-col",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        {/* Logo */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-border/50">
-          <Link href="/admin" className="flex flex-col -ml-4">
-            <Image 
-              src="/assets/logo.png" 
-              alt="Radhika Jewellers" 
-              width={240} 
-              height={100} 
-              className="object-contain h-auto w-auto max-h-20 mix-blend-multiply"
-            />
+        {/* Logo Header */}
+        <div className="h-20 flex items-center justify-between px-6 border-b border-border/50 bg-secondary/30">
+          <Link href="/admin" className="flex items-center space-x-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-gold p-0.5 shadow-md group-hover:scale-105 transition-transform duration-300">
+              <div className="w-full h-full bg-card rounded-[10px] flex items-center justify-center font-playfair font-bold text-amber-500 text-lg">
+                RJ
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-playfair font-bold text-base tracking-wide text-foreground group-hover:text-primary transition-colors">Radhika</span>
+              <span className="text-[10px] tracking-[0.2em] uppercase font-semibold text-amber-600 dark:text-amber-400">Jewellers Admin</span>
+            </div>
           </Link>
-          <button className="lg:hidden text-muted-foreground hover:text-foreground" onClick={() => setSidebarOpen(false)}>
+          <button className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors" onClick={() => setSidebarOpen(false)}>
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Nav Links */}
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+        {/* Navigation Links */}
+        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
           {navigation.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
             
@@ -172,18 +174,24 @@ export default function AdminLayout({
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200",
+                  "group relative flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200",
                   isActive 
-                    ? "bg-primary text-primary-foreground font-medium shadow-md shadow-primary/20" 
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30 shadow-xs" 
+                    : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground hover:translate-x-1"
                 )}
               >
-                <item.icon className={cn("w-5 h-5", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-                <span className="flex-1">{item.name}</span>
+                {isActive && (
+                  <span className="absolute left-0 top-2 bottom-2 w-1 bg-amber-500 rounded-r-full shadow-sm" />
+                )}
+                <item.icon className={cn(
+                  "w-4 h-4 transition-transform duration-200 group-hover:scale-110",
+                  isActive ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground group-hover:text-foreground"
+                )} />
+                <span className="flex-1 truncate">{item.name}</span>
                 {showDot && (
                   <span className={cn(
-                    "w-2 h-2 rounded-full animate-pulse",
-                    isActive ? "bg-primary-foreground" : "bg-primary"
+                    "w-2 h-2 rounded-full animate-pulse shadow-sm",
+                    isActive ? "bg-amber-500" : "bg-amber-500/80"
                   )} />
                 )}
               </Link>
@@ -191,42 +199,42 @@ export default function AdminLayout({
           })}
         </nav>
 
-        {/* User / Logout */}
-        <div className="p-4 border-t border-border/50">
-          <div className="flex items-center space-x-3 px-4 py-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+        {/* User Footer */}
+        <div className="p-4 border-t border-border/50 bg-secondary/20">
+          <div className="flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-card border border-border/50 mb-3 shadow-2xs">
+            <div className="w-9 h-9 rounded-full bg-gradient-gold text-black font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
               {initials}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-sm font-medium truncate">{adminName}</span>
-              <span className="text-xs text-muted-foreground truncate">{adminEmail}</span>
+              <span className="text-xs font-bold text-foreground truncate">{adminName}</span>
+              <span className="text-[10px] text-muted-foreground truncate">{adminEmail}</span>
             </div>
           </div>
           <button 
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-colors"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 transition-colors border border-destructive/20 cursor-pointer"
           >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0">
         
-        {/* Top Navbar */}
-        <header className="h-20 bg-card border-b border-border/50 flex items-center justify-between px-6 sticky top-0 z-30">
+        {/* Top Header */}
+        <header className="h-20 bg-card/90 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30 shadow-2xs">
           <div className="flex items-center space-x-4">
-            <button className="lg:hidden text-muted-foreground hover:text-foreground" onClick={() => setSidebarOpen(true)}>
+            <button className="lg:hidden p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors" onClick={() => setSidebarOpen(true)}>
               <Menu className="w-6 h-6" />
             </button>
-            <div className="hidden md:flex items-center bg-secondary/50 rounded-full px-4 py-2 border border-border/50 w-64 lg:w-96 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
-              <Search className="w-4 h-4 text-muted-foreground mr-2" />
+            <div className="hidden md:flex items-center bg-secondary/50 rounded-2xl px-4 py-2 border border-border/60 w-64 lg:w-96 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all shadow-2xs">
+              <Search className="w-4 h-4 text-muted-foreground mr-2 shrink-0" />
               <input 
                 type="text" 
-                placeholder="Search anything..." 
-                className="bg-transparent border-none outline-none text-sm w-full"
+                placeholder="Search products, orders, categories..." 
+                className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-muted-foreground w-full"
               />
             </div>
           </div>

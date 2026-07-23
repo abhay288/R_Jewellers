@@ -124,41 +124,49 @@ export default function ProductsClient({ products, categories }: ProductsClientP
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-300">
       {/* Header Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-card border border-border p-6 rounded-2xl shadow-sm">
-        <div>
-          <h1 className="text-3xl font-playfair font-bold text-foreground">Product Management</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Shopify & Amazon Seller style control for bulk operations, Cloudinary media processing, and catalog indexing.
-          </p>
-        </div>
+      <div className="relative overflow-hidden bg-card border border-border/60 p-6 md:p-8 rounded-3xl shadow-sm transition-all duration-300 hover:shadow-md">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl z-0 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-600 dark:text-amber-400">Enterprise Catalog</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-playfair font-bold text-foreground mt-1">Product Management</h1>
+            <p className="text-muted-foreground mt-1 text-xs lg:text-sm max-w-2xl leading-relaxed">
+              Shopify & Amazon Seller style control for bulk updates, Cloudinary media stream matching, and catalog indexing.
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => setShowImportWizard(true)}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md shadow-emerald-600/20"
-          >
-            <Upload className="w-4 h-4" />
-            Import Products (CSV / ZIP)
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowImportWizard(true)}
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-emerald-600/20 hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Upload className="w-4 h-4" />
+              Import CSV / ZIP
+            </button>
 
-          <button
-            onClick={() => setShowExportModal(true)}
-            className="inline-flex items-center gap-2 bg-muted hover:bg-muted/80 text-foreground border border-border px-4 py-2.5 rounded-xl font-semibold text-sm transition-all"
-          >
-            <Download className="w-4 h-4 text-primary" />
-            Export Catalog
-          </button>
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary/80 text-foreground border border-border/80 px-4 py-2.5 rounded-xl font-bold text-xs tracking-wide uppercase transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Download className="w-4 h-4 text-amber-500" />
+              Export
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md shadow-primary/20 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            Add Product
-          </button>
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 bg-gradient-gold text-black font-extrabold px-6 py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-md shadow-amber-500/20 hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-3" />
+              + Add Product
+            </button>
+          </div>
         </div>
       </div>
 

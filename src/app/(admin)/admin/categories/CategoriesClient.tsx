@@ -155,22 +155,31 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
   const getSubcategories = (parentId: string) => categories.filter(c => c.parentCategory?.id === parentId);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border p-6 rounded-2xl shadow-sm">
-        <div>
-          <h1 className="text-3xl font-playfair font-bold text-foreground">Category Hierarchy Manager</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Organize multi-tier parent & sub-categories, Cloudinary banners, and SEO metadata.
-          </p>
+      <div className="relative overflow-hidden bg-card border border-border/60 p-6 md:p-8 rounded-3xl shadow-sm transition-all duration-300">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl z-0 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-600 dark:text-amber-400">Hierarchy & Taxonomy</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-playfair font-bold text-foreground mt-1">Category Manager</h1>
+            <p className="text-muted-foreground mt-1 text-xs lg:text-sm max-w-2xl leading-relaxed">
+              Organize multi-tier parent & sub-categories, Cloudinary banners, icons, and SEO metadata.
+            </p>
+          </div>
+
+          <button
+            onClick={() => openAddModal()}
+            className="inline-flex items-center gap-2 bg-gradient-gold text-black font-extrabold px-6 py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-md shadow-amber-500/20 hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4 stroke-3" />
+            + Add Root Category
+          </button>
         </div>
-        <button
-          onClick={() => openAddModal()}
-          className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md shadow-primary/20"
-        >
-          <Plus className="w-4 h-4" />
-          Add Root Category
-        </button>
       </div>
 
       {/* Search Bar */}
