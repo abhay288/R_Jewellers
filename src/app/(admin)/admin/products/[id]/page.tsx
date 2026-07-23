@@ -30,9 +30,28 @@ export default async function ProductEditPage({
     if (mongoose.Types.ObjectId.isValid(resolvedParams.id)) {
       product = await Product.findById(resolvedParams.id);
     }
+    if (!product) {
+      product = await Product.findOne({
+        $or: [
+          { productId: resolvedParams.id },
+          { sku: resolvedParams.id },
+          { slug: resolvedParams.id }
+        ]
+      });
+    }
     if (!product) notFound();
-  } else if (duplicateId && mongoose.Types.ObjectId.isValid(duplicateId)) {
-    product = await Product.findById(duplicateId);
+  } else if (duplicateId) {
+    if (mongoose.Types.ObjectId.isValid(duplicateId)) {
+      product = await Product.findById(duplicateId);
+    }
+    if (!product) {
+      product = await Product.findOne({
+        $or: [
+          { productId: duplicateId },
+          { sku: duplicateId }
+        ]
+      });
+    }
     if (product) {
       // Clear specific fields for duplication
       (product as any)._id = undefined;
@@ -42,22 +61,36 @@ export default async function ProductEditPage({
     }
   }
 
+  const categoryIdStr = product?.category
+    ? (typeof product.category === 'object' && product.category !== null
+        ? ((product.category as any)._id ? (product.category as any)._id.toString() : (product.category as any).id ? (product.category as any).id.toString() : String(product.category))
+        : String(product.category))
+    : "";
+
   const initialData = product ? {
     id: product._id ? product._id.toString() : undefined,
     name: product.name,
     slug: product.slug,
-    description: product.description,
-    category: product.category.toString(),
+    shortDescription: product.shortDescription || "",
+    description: product.description || "",
+    category: categoryIdStr,
     subcategory: product.subcategory || "",
+    collectionName: product.collectionName || "",
     brand: product.brand || "",
     price: product.price,
+    mrp: product.mrp || product.price,
     discount: product.discount || 0,
     stock: product.stock,
+    minStock: (product as any).minStock || 2,
     sku: product.sku || "",
     material: product.material || "",
+    stone: product.stone || "",
     weight: product.weight || "",
+    dimensions: product.dimensions || "",
     color: product.color || "",
+    gender: product.gender || "Women",
     occasion: product.occasion || "",
+    style: product.style || "",
     images: product.images || [],
     image360: product.image360 || "",
     videoUrl: product.videoUrl || "",
@@ -65,7 +98,12 @@ export default async function ProductEditPage({
     isFeatured: product.isFeatured || false,
     isBestSeller: product.isBestSeller || false,
     isTrending: product.isTrending || false,
+    isNewArrival: product.isNewArrival || false,
     tags: product.tags || [],
+    careInstructions: product.careInstructions || "",
+    shippingInfo: product.shippingInfo || "",
+    returnPolicy: product.returnPolicy || "",
+    warranty: product.warranty || "",
     seoTitle: product.seoTitle || "",
     seoDescription: product.seoDescription || "",
     metaKeywords: product.metaKeywords || [],

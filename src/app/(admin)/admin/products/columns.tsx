@@ -163,19 +163,32 @@ export const columns: ColumnDef<ProductColumn>[] = [
 
       return (
         <div className="flex items-center space-x-1">
-          <Link href={`/admin/products/${product.id}`} className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors" title="Edit Product">
+          <a
+            href={`/admin/products/${product.id}`}
+            className="p-2 hover:bg-amber-500/10 rounded-lg text-muted-foreground hover:text-amber-500 transition-colors cursor-pointer"
+            title="Edit Product"
+          >
             <Pencil className="w-4 h-4" />
-          </Link>
-          <Link href={`/admin/products/new?duplicate=${product.id}`} className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors" title="Duplicate Product">
+          </a>
+          <a
+            href={`/admin/products/new?duplicate=${product.id}`}
+            className="p-2 hover:bg-blue-500/10 rounded-lg text-muted-foreground hover:text-blue-500 transition-colors cursor-pointer"
+            title="Duplicate Product"
+          >
             <Copy className="w-4 h-4" />
-          </Link>
+          </a>
           <button 
             onClick={async () => {
               if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
-                await deleteProduct(product.id);
+                const res = await deleteProduct(product.id);
+                if (res?.success) {
+                  window.location.reload();
+                } else {
+                  alert(res?.error || "Failed to delete product");
+                }
               }
             }}
-            className="p-2 hover:bg-red-500/10 rounded-lg text-muted-foreground hover:text-red-500 transition-colors"
+            className="p-2 hover:bg-red-500/10 rounded-lg text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
             title="Delete Product"
           >
             <Trash className="w-4 h-4" />
