@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Heart, Share2, Star, Truck, ShieldCheck, Award, RotateCcw, 
   Check, ChevronRight, MapPin, Sparkles, ShoppingBag, Lock, 
-  X, Plus, Minus, Maximize2, Copy, Send
+  X, Plus, Minus, Maximize2, Copy, Send, Loader2, MessageSquare
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useCartStore } from "@/frontend/store/useCartStore";
@@ -39,40 +39,24 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
   const [showShareToast, setShowShareToast] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  // Review Modal State
+  // Authentic Database Review State (NO FAKE RATINGS)
+  const [realReviews, setRealReviews] = useState<any[]>([]);
+  const [reviewStats, setReviewStats] = useState({
+    totalReviews: product.reviewCount || 0,
+    averageRating: product.averageRating || 0,
+    ratingCounts: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } as Record<number, number>
+  });
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  // Review Modal Form State
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewName, setReviewName] = useState("");
+  const [reviewTitle, setReviewTitle] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-
-  // Local reviews array
-  const [localReviews, setLocalReviews] = useState([
-    {
-      id: "r1",
-      author: "Priya Sharma",
-      date: "12 Jun 2026",
-      rating: 5,
-      comment: "Absolutely breathtaking craftsmanship! The gold plating finish and Kundan setting look 100% authentic. Received so many compliments at my sister's wedding.",
-      verified: true
-    },
-    {
-      id: "r2",
-      author: "Anjali Gupta",
-      date: "01 Jul 2026",
-      rating: 5,
-      comment: "Extremely high quality and velvet-lined packaging. Arrived within 3 days. Very heavy and royal feel!",
-      verified: true
-    },
-    {
-      id: "r3",
-      author: "Kavita Verma",
-      date: "15 Jul 2026",
-      rating: 4,
-      comment: "Stunning piece! Exactly like shown in pictures. Skin safe and lightweight to wear all evening.",
-      verified: true
-    }
-  ]);
 
   // Stores
   const { addItem } = useCartStore();
@@ -84,6 +68,32 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
       addRecentlyViewed(product);
     }
   }, [product, addRecentlyViewed]);
+
+  // Fetch Authentic Real Reviews from MongoDB
+  const fetchRealReviews = async () => {
+    if (!product?._id) return;
+    setLoadingReviews(true);
+    try {
+      const res = await fetch(`/api/shop/reviews?productId=${product._id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRealReviews(data.reviews || []);
+        setReviewStats({
+          totalReviews: data.totalReviews || 0,
+          averageRating: data.averageRating || 0,
+          ratingCounts: data.ratingCounts || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch reviews:", err);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRealReviews();
+  }, [product?._id]);
 
   // Calculate pricing & discount
   const price = product.price || 0;
@@ -138,7 +148,6 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
     setTimeout(() => {
       setIsCheckingPincode(false);
       
-      // Calculate realistic delivery date range based on pincode prefix
       const isMetro = ['11', '40', '56', '60', '70', '50'].some(prefix => pincode.startsWith(prefix));
       const daysMin = isMetro ? 2 : 4;
       const daysMax = isMetro ? 3 : 5;
@@ -185,27 +194,46 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
     window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(currentUrl)}&media=${encodeURIComponent(images[0])}&description=${encodeURIComponent(shareTitle)}`, '_blank');
   };
 
-  const handleWriteReviewSubmit = (e: React.FormEvent) => {
+  const handleWriteReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewName || !reviewComment) return;
+    if (!reviewComment || reviewComment.trim().length < 5) {
+      alert("Please write a review comment with at least 5 characters.");
+      return;
+    }
 
-    const newRev = {
-      id: `r-${Date.now()}`,
-      author: reviewName,
-      date: "Just now",
-      rating: reviewRating,
-      comment: reviewComment,
-      verified: true
-    };
+    setSubmittingReview(true);
+    try {
+      const res = await fetch('/api/shop/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: product._id,
+          rating: reviewRating,
+          title: reviewTitle,
+          comment: reviewComment,
+          userName: reviewName || undefined
+        })
+      });
 
-    setLocalReviews([newRev, ...localReviews]);
-    setReviewSubmitted(true);
-    setTimeout(() => {
-      setIsReviewModalOpen(false);
-      setReviewSubmitted(false);
-      setReviewName("");
-      setReviewComment("");
-    }, 2000);
+      if (res.ok) {
+        const data = await res.json();
+        setReviewSubmitted(true);
+        fetchRealReviews();
+        setTimeout(() => {
+          setIsReviewModalOpen(false);
+          setReviewSubmitted(false);
+          setReviewTitle("");
+          setReviewComment("");
+        }, 1500);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to submit review.");
+      }
+    } catch (err) {
+      console.error("Submit review error:", err);
+    } finally {
+      setSubmittingReview(false);
+    }
   };
 
   return (
@@ -218,53 +246,49 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-6 right-6 z-60 bg-amber-500 text-black font-semibold text-xs px-5 py-3 rounded-full shadow-2xl flex items-center space-x-2"
+            className="fixed bottom-6 right-6 z-60 bg-amber-500 text-neutral-950 px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center space-x-2 border border-amber-300"
           >
-            <Check className="w-4 h-4" />
-            <span>Product link copied to clipboard!</span>
+            <Check className="w-4 h-4 stroke-[3]" />
+            <span>Product Link copied to clipboard!</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="container mx-auto px-4 md:px-6">
-
-        {/* Breadcrumb Navigation */}
-        <nav className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-8 overflow-x-auto hide-scrollbar py-1">
+      <div className="container mx-auto px-4 sm:px-6">
+        
+        {/* Breadcrumbs */}
+        <nav className="flex items-center space-x-2 text-xs text-muted-foreground mb-6 overflow-x-auto hide-scrollbar">
           <Link href="/" className="hover:text-amber-500 transition-colors">Home</Link>
           <span>/</span>
           <Link href="/shop" className="hover:text-amber-500 transition-colors">Shop</Link>
           <span>/</span>
-          <Link href={`/shop?category=${encodeURIComponent(product.category?.name || product.category || 'all')}`} className="hover:text-amber-500 transition-colors">
-            {product.category?.name || product.category || 'Jewellery'}
-          </Link>
-          <span>/</span>
           <span className="text-foreground truncate max-w-xs">{product.name}</span>
         </nav>
 
-        {/* Main Product Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+        {/* Main Product Layout (Balanced 50/50 Grid for Luxury E-commerce) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start max-w-7xl mx-auto">
 
           {/* Left Column: Image & Media Gallery */}
-          <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4 md:gap-6">
+          <div className="lg:col-span-6 flex flex-col-reverse md:flex-row gap-4 md:gap-5">
             
             {/* Thumbnail Carousel Slider */}
-            <div className="flex md:flex-col gap-3 md:w-24 overflow-x-auto md:overflow-y-auto max-h-137.5 hide-scrollbar pb-2 md:pb-0">
+            <div className="flex md:flex-col gap-2.5 md:w-20 overflow-x-auto md:overflow-y-auto max-h-[500px] hide-scrollbar pb-2 md:pb-0 shrink-0">
               {images.map((img: string, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
                   className={cn(
-                    "relative w-20 h-24 md:w-full md:h-28 rounded-2xl overflow-hidden shrink-0 border-2 transition-all duration-300 shadow-sm",
+                    "relative w-16 h-20 md:w-20 md:h-24 rounded-2xl overflow-hidden shrink-0 border-2 transition-all duration-300 shadow-xs cursor-pointer",
                     activeImage === idx ? "border-amber-500 ring-2 ring-amber-500/20" : "border-border/40 opacity-70 hover:opacity-100"
                   )}
                 >
-                  <Image src={img} alt={`${product.name} View ${idx + 1}`} fill sizes="96px" className="object-cover" />
+                  <Image src={img} alt={`${product.name} View ${idx + 1}`} fill sizes="80px" className="object-cover" />
                 </button>
               ))}
             </div>
 
-            {/* Main Stage View Display */}
-            <div className="flex-1 relative aspect-4/5 bg-secondary/30 rounded-3xl border border-border/40 overflow-hidden group shadow-lg">
+            {/* Main Stage View Display (Refined Luxury Max-Height) */}
+            <div className="flex-1 relative aspect-4/5 max-h-[500px] w-full bg-secondary/30 rounded-3xl border border-border/40 overflow-hidden group shadow-md">
               <Image
                 src={images[activeImage] || fallbackImage}
                 alt={product.name}
@@ -278,7 +302,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               {/* Badges on Gallery Stage */}
               <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
                 {discountPercent > 0 && (
-                  <span className="bg-amber-500 text-black font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md">
+                  <span className="bg-amber-500 text-neutral-950 font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
                     {discountPercent}% OFF
                   </span>
                 )}
@@ -292,7 +316,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               {/* Expand / Fullscreen Button */}
               <button
                 onClick={() => setIsFullscreen(true)}
-                className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white p-2.5 rounded-full hover:bg-amber-500 hover:text-black transition-colors shadow-md z-10"
+                className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white p-2.5 rounded-full hover:bg-amber-500 hover:text-black transition-colors shadow-md z-10 cursor-pointer"
                 aria-label="View Fullscreen"
               >
                 <Maximize2 className="w-4 h-4" />
@@ -301,7 +325,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
           </div>
 
           {/* Right Column: Information & Buying Actions */}
-          <div className="lg:col-span-5 flex flex-col justify-between">
+          <div className="lg:col-span-6 flex flex-col justify-between">
             <div>
               
               {/* Brand & Collection Badge */}
@@ -319,14 +343,14 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                 {product.name}
               </h1>
 
-              {/* Ratings Summary Bar */}
+              {/* Authentic Ratings Summary Bar (NO FAKE RATINGS) */}
               <div className="flex items-center space-x-3 mb-5">
                 <div className="flex items-center bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg">
-                  <span className="text-xs font-bold text-amber-500 mr-1.5">{product.averageRating || 4.8}</span>
+                  <span className="text-xs font-bold text-amber-500 mr-1.5">{reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : "0.0"}</span>
                   <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 </div>
                 <span className="text-xs font-medium text-muted-foreground">
-                  ({product.reviewCount || localReviews.length} Verified Ratings)
+                  {reviewStats.totalReviews > 0 ? `(${reviewStats.totalReviews} Verified Customer Ratings)` : "(No Customer Ratings Yet)"}
                 </span>
               </div>
 
@@ -342,57 +366,57 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     </span>
                   )}
                   {discountPercent > 0 && (
-                    <span className="text-xs font-bold text-green-600 dark:text-green-400 bg-green-500/10 border border-green-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider">
                       {discountPercent}% OFF
                     </span>
                   )}
                 </div>
 
                 {savings > 0 && (
-                  <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
-                    You save ₹{savings.toLocaleString('en-IN')} on this order
+                  <p className="text-xs text-emerald-500 font-medium mt-1">
+                    You save ₹{savings.toLocaleString('en-IN')} on this purchase
                   </p>
                 )}
 
-                <p className="text-[11px] text-muted-foreground mt-2 border-t border-border/40 pt-2 flex items-center justify-between">
-                  <span>Inclusive of all taxes & GST charges</span>
-                  <span className="font-semibold text-foreground">Free Shipping</span>
+                <p className="text-[11px] text-muted-foreground mt-2 border-t border-border/30 pt-2 flex items-center justify-between">
+                  <span>Inclusive of all taxes & GST.</span>
+                  <strong className="text-emerald-500 font-bold uppercase tracking-wider">Free Shipping</strong>
                 </p>
               </div>
 
-              {/* Special Offers Banner */}
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 mb-6 flex items-start space-x-3">
-                <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <p className="font-bold text-foreground">Available Offers</p>
-                  <p className="text-muted-foreground mt-0.5">
-                    • Extra 10% instant discount on UPI/Cards checkout.<br />
-                    • Complimentary velvet jewellery box with this purchase.
-                  </p>
+              {/* Offer Banner */}
+              <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 mb-6 space-y-2">
+                <div className="flex items-center space-x-2 text-xs font-bold text-amber-500 uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Available Store Offers</span>
                 </div>
+                <ul className="text-xs text-muted-foreground space-y-1.5 list-disc list-inside leading-relaxed">
+                  <li>Extra 10% instant discount on UPI / Prepaid online checkout.</li>
+                  <li>Complimentary luxury velvet jewellery box included with this purchase.</li>
+                </ul>
               </div>
 
-              {/* Delivery Date Estimator based on Pincode */}
-              <div className="mb-6 bg-secondary/20 border border-border/50 rounded-2xl p-4">
-                <label className="text-xs font-bold uppercase tracking-wider text-foreground mb-2 flex items-center">
-                  <MapPin className="w-3.5 h-3.5 mr-1 text-amber-500" />
+              {/* PIN Code Delivery Estimator */}
+              <div className="bg-card border border-border/60 rounded-2xl p-4 mb-6 shadow-xs">
+                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center">
+                  <MapPin className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
                   Pincode Delivery Estimator
                 </label>
-                <form onSubmit={handlePincodeCheck} className="flex gap-2 mb-2">
+                <form onSubmit={handlePincodeCheck} className="flex gap-2">
                   <input
                     type="text"
                     maxLength={6}
+                    placeholder="Enter 6-digit Pincode (e.g. 110001)"
                     value={pincode}
-                    onChange={(e) => setPincode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="Enter 6-digit Pincode (e.g. 711106)"
-                    className="flex-1 bg-background border border-border/50 rounded-xl px-4 py-2 text-xs text-foreground focus:outline-none focus:border-amber-500"
+                    onChange={(e) => setPincode(e.target.value)}
+                    className="flex-1 bg-secondary/50 border border-border/60 rounded-xl px-4 py-2 text-xs text-foreground focus:outline-none focus:border-amber-500"
                   />
                   <button
                     type="submit"
                     disabled={isCheckingPincode}
-                    className="px-5 py-2 bg-amber-500 text-black font-bold text-xs rounded-xl hover:bg-amber-400 transition-all shrink-0 cursor-pointer"
+                    className="bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold px-5 py-2 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    {isCheckingPincode ? 'Checking...' : 'Check'}
+                    {isCheckingPincode ? "Checking..." : "Check"}
                   </button>
                 </form>
 
@@ -402,20 +426,15 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                       <p className="text-xs font-medium text-red-500">{deliveryInfo.error}</p>
                     ) : (
                       <>
-                        <div className="flex items-center text-xs font-semibold text-green-600 dark:text-green-400">
+                        <div className="flex items-center text-xs font-semibold text-emerald-500">
                           <Truck className="w-4 h-4 mr-1.5 text-amber-500" />
                           <span>Estimated Delivery: {deliveryInfo.dateRange}</span>
                         </div>
                         {deliveryInfo.isCodAvailable && (
                           <div className="flex items-center text-[11px] text-muted-foreground font-medium pl-5">
-                            <Check className="w-3.5 h-3.5 text-green-500 mr-1" />
+                            <Check className="w-3.5 h-3.5 text-emerald-500 mr-1" />
                             <span>Cash on Delivery (COD) Available</span>
                           </div>
-                        )}
-                        {deliveryInfo.courier && (
-                          <p className="text-[10px] text-muted-foreground pl-5 italic">
-                            Dispatched via {deliveryInfo.courier} with Transit Insurance.
-                          </p>
                         )}
                       </>
                     )}
@@ -430,7 +449,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                   <div className="flex items-center border border-border/60 rounded-xl bg-secondary/30 overflow-hidden">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2.5 text-muted-foreground hover:text-foreground transition-colors"
+                      className="p-2.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                       aria-label="Decrease quantity"
                     >
                       <Minus className="w-3.5 h-3.5" />
@@ -438,7 +457,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     <span className="px-4 text-xs font-bold text-foreground">{quantity}</span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="p-2.5 text-muted-foreground hover:text-foreground transition-colors"
+                      className="p-2.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -449,8 +468,8 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                 {/* Stock Status Indicator */}
                 <div>
                   {product.stock > 5 ? (
-                    <span className="text-xs font-semibold text-green-600 dark:text-green-400 flex items-center">
-                      <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse" />
+                    <span className="text-xs font-semibold text-emerald-500 flex items-center">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
                       In Stock (Ready to Ship)
                     </span>
                   ) : product.stock > 0 ? (
@@ -487,9 +506,9 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                   onClick={handleBuyNow}
                   disabled={product.stock <= 0}
                   className={cn(
-                    "flex-1 h-13 rounded-full font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center space-x-2 shadow-md cursor-pointer",
+                    "flex-1 h-13 rounded-full font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center space-x-2 shadow-lg cursor-pointer",
                     product.stock > 0
-                      ? "bg-amber-500 text-black hover:bg-amber-400"
+                      ? "bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 hover:brightness-110 shadow-amber-500/20"
                       : "bg-muted text-muted-foreground cursor-not-allowed"
                   )}
                 >
@@ -511,7 +530,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                   <Heart className={cn("w-5 h-5", wishlistItems.includes(product._id) && "fill-current")} />
                 </button>
 
-                {/* Share Button (Opens Social Share Modal) */}
+                {/* Share Button */}
                 <button
                   onClick={() => setIsShareModalOpen(true)}
                   className="w-13 h-13 rounded-full border border-border/80 flex items-center justify-center text-foreground hover:border-amber-500 hover:text-amber-500 transition-colors shrink-0 cursor-pointer"
@@ -547,105 +566,73 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
 
         </div>
 
-        {/* Specifications & Care Tabs */}
-        <div className="mt-16 pt-10 border-t border-border/40">
-          <div className="flex border-b border-border/40 overflow-x-auto whitespace-nowrap hide-scrollbar gap-8 mb-8">
-            {[
-              { id: "description", label: "Description" },
-              { id: "specs", label: "Specifications" },
-              { id: "care", label: "Jewellery Care" },
-              { id: "shipping", label: "Shipping & Returns" },
-              { id: "reviews", label: `Customer Reviews (${localReviews.length})` },
-            ].map((tab) => (
+        {/* Specifications, Care & Authentic Customer Reviews Tabs */}
+        <div className="mt-16 pt-10 border-t border-border/40 max-w-7xl mx-auto">
+          
+          {/* Tab Headers */}
+          <div className="flex items-center justify-center space-x-4 sm:space-x-8 border-b border-border/40 pb-4 overflow-x-auto hide-scrollbar">
+            {["description", "specifications", "care", "shipping", "reviews"].map((tab) => (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                key={tab}
+                onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "pb-4 text-xs font-bold uppercase tracking-[0.2em] transition-all border-b-2 font-playfair cursor-pointer",
-                  activeTab === tab.id
-                    ? "border-amber-500 text-amber-500"
+                  "text-xs sm:text-sm font-bold uppercase tracking-widest pb-4 border-b-2 transition-all whitespace-nowrap cursor-pointer",
+                  activeTab === tab
+                    ? "border-amber-500 text-amber-500 font-playfair"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 )}
               >
-                {tab.label}
+                {tab === "description" && "Description"}
+                {tab === "specifications" && "Specifications"}
+                {tab === "care" && "Jewellery Care"}
+                {tab === "shipping" && "Shipping & Returns"}
+                {tab === "reviews" && `Customer Reviews (${reviewStats.totalReviews})`}
               </button>
             ))}
           </div>
 
-          <div className="min-h-62.5">
+          {/* Tab Body */}
+          <div className="py-8">
             {activeTab === "description" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 max-w-3xl">
-                <p className="text-sm text-muted-foreground leading-relaxed font-light">
-                  {product.description || "Handcrafted with perfection, this piece from Radhika Jewellers encapsulates timeless heritage and modern sophistication. Engineered using hypoallergenic skin-safe alloys and coated with high-grade multi-layer gold polish."}
-                </p>
-                {product.shortDescription && (
-                  <p className="text-sm text-foreground font-medium italic border-l-2 border-amber-500 pl-4 py-1">
-                    &quot;{product.shortDescription}&quot;
-                  </p>
-                )}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prose prose-invert max-w-none text-muted-foreground leading-relaxed text-sm">
+                <div dangerouslySetInnerHTML={{ __html: product.description || `<p>${product.name} handcrafted with premium gold plating finish and Kundan setting.</p>` }} />
               </motion.div>
             )}
 
-            {activeTab === "specs" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl">
-                <table className="w-full text-left text-xs border-collapse">
-                  <tbody>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider w-1/3">Material</th>
-                      <td className="py-3 font-medium text-foreground">{product.material || "Brass Alloy with Premium Gold Plating"}</td>
-                    </tr>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider">Stone / Gemstone</th>
-                      <td className="py-3 font-medium text-foreground">{product.stone || "High-Grade Kundan & CZ Diamond"}</td>
-                    </tr>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider">Color</th>
-                      <td className="py-3 font-medium text-foreground">{product.color || "Gold"}</td>
-                    </tr>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider">Weight</th>
-                      <td className="py-3 font-medium text-foreground">{product.weight || "38 grams"}</td>
-                    </tr>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider">Dimensions</th>
-                      <td className="py-3 font-medium text-foreground">{product.dimensions || "Standard Adjustable Fit"}</td>
-                    </tr>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider">Occasion</th>
-                      <td className="py-3 font-medium text-foreground">{product.occasion || "Bridal & Festive Wear"}</td>
-                    </tr>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider">Gender</th>
-                      <td className="py-3 font-medium text-foreground">{product.gender || "Women"}</td>
-                    </tr>
-                    <tr className="border-b border-border/30">
-                      <th className="py-3 font-semibold text-muted-foreground uppercase tracking-wider">Country of Origin</th>
-                      <td className="py-3 font-medium text-foreground">India</td>
-                    </tr>
-                  </tbody>
-                </table>
+            {activeTab === "specifications" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+                <div className="p-4 bg-secondary/20 rounded-2xl border border-border/40 flex justify-between text-xs">
+                  <span className="font-semibold text-muted-foreground">Base Material</span>
+                  <span className="font-bold text-foreground">{product.material || "Brass Alloy with Gold Plating"}</span>
+                </div>
+                <div className="p-4 bg-secondary/20 rounded-2xl border border-border/40 flex justify-between text-xs">
+                  <span className="font-semibold text-muted-foreground">Gemstone Type</span>
+                  <span className="font-bold text-foreground">{product.stone || "Precision-Cut Kundan & CZ"}</span>
+                </div>
+                <div className="p-4 bg-secondary/20 rounded-2xl border border-border/40 flex justify-between text-xs">
+                  <span className="font-semibold text-muted-foreground">Color / Polish</span>
+                  <span className="font-bold text-foreground">{product.color || "Royal Gold"}</span>
+                </div>
+                <div className="p-4 bg-secondary/20 rounded-2xl border border-border/40 flex justify-between text-xs">
+                  <span className="font-semibold text-muted-foreground">Occasion</span>
+                  <span className="font-bold text-foreground">{product.occasion || "Bridal & Wedding Collection"}</span>
+                </div>
               </motion.div>
             )}
 
             {activeTab === "care" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 max-w-3xl">
-                <div className="border-l-2 border-amber-500 pl-4 py-1">
-                  <h4 className="font-playfair font-bold text-amber-500 text-sm">Handling & Maintenance</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                    {product.careInstructions || "Avoid direct contact with perfumes, hairspray, and sanitizers. Wipe clean with a soft dry microfiber cloth after use, and store in our moisture-resistant velvet box."}
-                  </p>
-                </div>
-                <div className="border-l-2 border-amber-500 pl-4 py-1">
-                  <h4 className="font-playfair font-bold text-amber-500 text-sm">Warranty Terms</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                    {product.warranty || "Back by Radhika Jewellers 6-Month Plating & Setting Guarantee."}
-                  </p>
-                </div>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 max-w-3xl text-xs text-muted-foreground leading-relaxed">
+                <p>To preserve the brilliant gold polish and stone settings of your jewellery:</p>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Avoid contact with perfumes, hairsprays, body lotions, and harsh household chemicals.</li>
+                  <li>Always put on your jewellery as the last step when getting dressed and remove first before sleeping.</li>
+                  <li>Store each piece separately in airtight zip-lock bags or velvet-lined boxes.</li>
+                </ul>
               </motion.div>
             )}
 
             {activeTab === "shipping" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 max-w-3xl">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-3xl">
                 <div className="border-l-2 border-amber-500 pl-4 py-1">
                   <h4 className="font-playfair font-bold text-amber-500 text-sm">Shipping Policy</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed mt-1">
@@ -661,57 +648,110 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               </motion.div>
             )}
 
+            {/* AUTHENTIC REVIEWS TAB (NO FAKE REVIEWS) */}
             {activeTab === "reviews" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 max-w-3xl">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-secondary/30 border border-border/40 rounded-3xl">
-                  <div className="flex items-center space-x-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 max-w-4xl">
+                
+                {/* Rating Overview Box */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 sm:p-8 bg-secondary/30 border border-border/40 rounded-3xl">
+                  <div className="flex items-center space-x-6">
                     <div className="text-center">
-                      <p className="text-4xl font-bold font-playfair text-amber-500">{product.averageRating || 4.8}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Out of 5</p>
+                      <p className="text-4xl font-black font-playfair text-amber-500">
+                        {reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : "0.0"}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Out of 5.0</p>
                     </div>
-                    <div>
-                      <div className="flex text-amber-500 mb-1">
+
+                    <div className="space-y-1">
+                      <div className="flex text-amber-500">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-current" />
+                          <Star key={i} className={cn("w-4 h-4", i < Math.round(reviewStats.averageRating) ? "fill-current" : "text-muted/30")} />
                         ))}
                       </div>
-                      <p className="text-xs text-muted-foreground">Based on {localReviews.length} customer ratings</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {reviewStats.totalReviews > 0 ? `Based on ${reviewStats.totalReviews} verified customer reviews` : "No ratings submitted yet"}
+                      </p>
                     </div>
                   </div>
 
+                  {/* Rating Breakdown Bars */}
+                  {reviewStats.totalReviews > 0 && (
+                    <div className="w-full md:w-56 space-y-1.5">
+                      {[5, 4, 3, 2, 1].map((star) => {
+                        const count = reviewStats.ratingCounts[star] || 0;
+                        const pct = reviewStats.totalReviews > 0 ? Math.round((count / reviewStats.totalReviews) * 100) : 0;
+                        return (
+                          <div key={star} className="flex items-center text-[10px] space-x-2">
+                            <span className="w-3 text-muted-foreground font-bold">{star}★</span>
+                            <div className="flex-1 h-1.5 bg-secondary/60 rounded-full overflow-hidden">
+                              <div className="h-full bg-amber-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="w-7 text-right text-muted-foreground">{count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   <button
                     onClick={() => setIsReviewModalOpen(true)}
-                    className="px-6 py-2.5 bg-amber-500 text-black text-xs font-bold rounded-full hover:bg-amber-400 transition-all shadow-md cursor-pointer"
+                    className="px-6 py-3 bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 font-black text-xs uppercase tracking-wider rounded-full hover:brightness-110 shadow-lg shadow-amber-500/20 transition-all cursor-pointer shrink-0"
                   >
-                    Write a Review
+                    + Write a Review
                   </button>
                 </div>
 
-                <div className="space-y-4">
-                  {localReviews.map((rev) => (
-                    <div key={rev.id} className="p-4 border-b border-border/30 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs font-bold text-foreground">{rev.author}</span>
-                          {rev.verified && (
-                            <span className="text-[10px] bg-green-500/10 text-green-500 border border-green-500/30 px-2 py-0.5 rounded-full font-semibold">
-                              Verified Buyer
+                {/* Reviews List */}
+                {loadingReviews ? (
+                  <div className="flex items-center justify-center py-12 text-muted-foreground text-xs space-x-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                    <span>Loading customer reviews...</span>
+                  </div>
+                ) : realReviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {realReviews.map((rev) => (
+                      <div key={rev._id} className="p-6 bg-card border border-border/40 rounded-2xl space-y-2.5 shadow-xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2.5">
+                            <span className="text-xs font-bold text-foreground">{rev.userName || 'Verified Buyer'}</span>
+                            <span className="text-[10px] bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold flex items-center">
+                              <Check className="w-3 h-3 mr-1" /> Verified Purchase
                             </span>
-                          )}
+                          </div>
+                          <span className="text-[11px] text-muted-foreground">
+                            {new Date(rev.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </span>
                         </div>
-                        <span className="text-[11px] text-muted-foreground">{rev.date}</span>
-                      </div>
 
-                      <div className="flex text-amber-500">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={cn("w-3.5 h-3.5", i < rev.rating ? "fill-current" : "text-muted/30")} />
-                        ))}
-                      </div>
+                        {rev.title && (
+                          <h5 className="font-bold text-sm text-foreground">{rev.title}</h5>
+                        )}
 
-                      <p className="text-xs text-muted-foreground leading-relaxed">{rev.comment}</p>
-                    </div>
-                  ))}
-                </div>
+                        <div className="flex text-amber-500">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={cn("w-3.5 h-3.5", i < rev.rating ? "fill-current" : "text-muted/30")} />
+                          ))}
+                        </div>
+
+                        <p className="text-xs text-muted-foreground leading-relaxed">{rev.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-secondary/20 rounded-3xl border border-border/40 space-y-3">
+                    <MessageSquare className="w-10 h-10 text-amber-500 mx-auto opacity-80" />
+                    <h4 className="text-base font-playfair font-bold text-foreground">No Customer Reviews Yet</h4>
+                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                      Be the first to share your honest review & experience with this handcrafted piece!
+                    </p>
+                    <button
+                      onClick={() => setIsReviewModalOpen(true)}
+                      className="px-6 py-2.5 bg-amber-500 text-neutral-950 text-xs font-bold uppercase tracking-wider rounded-full hover:bg-amber-400 transition-all shadow-md cursor-pointer"
+                    >
+                      Submit First Review
+                    </button>
+                  </div>
+                )}
               </motion.div>
             )}
           </div>
@@ -719,7 +759,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
 
         {/* Dynamic Related Products */}
         {relatedProducts && relatedProducts.length > 0 && (
-          <div className="mt-20 pt-10 border-t border-border/40">
+          <div className="mt-20 pt-10 border-t border-border/40 max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <span className="text-xs font-bold uppercase tracking-[0.25em] text-amber-500 font-playfair block mb-1">
@@ -769,7 +809,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
 
       </div>
 
-      {/* Social Share Modal (WhatsApp, Facebook, X, Pinterest, Copy Link) */}
+      {/* Social Share Modal */}
       <AnimatePresence>
         {isShareModalOpen && (
           <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
@@ -799,31 +839,28 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <button
                   onClick={shareWhatsApp}
-                  className="flex items-center space-x-2.5 p-3 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-500 hover:bg-green-500 hover:text-white transition-all text-xs font-bold cursor-pointer"
+                  className="flex items-center space-x-2 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-bold text-xs hover:bg-emerald-500 hover:text-white transition-colors cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
                   <span>WhatsApp</span>
                 </button>
-
                 <button
                   onClick={shareFacebook}
-                  className="flex items-center space-x-2.5 p-3 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-500 hover:bg-blue-500 hover:text-white transition-all text-xs font-bold cursor-pointer"
+                  className="flex items-center space-x-2 p-3 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-500 font-bold text-xs hover:bg-blue-500 hover:text-white transition-colors cursor-pointer"
                 >
                   <Share2 className="w-4 h-4" />
                   <span>Facebook</span>
                 </button>
-
                 <button
                   onClick={shareTwitter}
-                  className="flex items-center space-x-2.5 p-3 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-500 hover:bg-sky-500 hover:text-white transition-all text-xs font-bold cursor-pointer"
+                  className="flex items-center space-x-2 p-3 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-500 font-bold text-xs hover:bg-sky-500 hover:text-white transition-colors cursor-pointer"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span>X (Twitter)</span>
+                  <span>Twitter (X)</span>
                 </button>
-
                 <button
                   onClick={sharePinterest}
-                  className="flex items-center space-x-2.5 p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all text-xs font-bold cursor-pointer"
+                  className="flex items-center space-x-2 p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 font-bold text-xs hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
                 >
                   <Share2 className="w-4 h-4" />
                   <span>Pinterest</span>
@@ -833,7 +870,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               <div className="pt-4 border-t border-border/40">
                 <button
                   onClick={copyToClipboard}
-                  className="w-full flex items-center justify-center space-x-2 py-3 bg-secondary border border-border/60 hover:border-amber-500 rounded-xl text-xs font-bold text-foreground hover:text-amber-500 transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center space-x-2 bg-secondary border border-border/60 p-3 rounded-2xl text-xs font-bold text-foreground hover:bg-amber-500 hover:text-neutral-950 transition-colors cursor-pointer"
                 >
                   <Copy className="w-4 h-4" />
                   <span>Copy Product Link</span>
@@ -844,18 +881,18 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
         )}
       </AnimatePresence>
 
-      {/* Fullscreen Lightbox Modal */}
+      {/* Fullscreen Gallery Lightbox */}
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-70 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4"
+            className="fixed inset-0 z-70 bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
           >
             <button
               onClick={() => setIsFullscreen(false)}
-              className="absolute top-6 right-6 text-white p-3 rounded-full bg-white/10 hover:bg-amber-500 hover:text-black transition-colors cursor-pointer"
+              className="absolute top-6 right-6 text-white p-3 rounded-full hover:bg-white/20 transition-colors z-20 cursor-pointer"
             >
               <X className="w-6 h-6" />
             </button>
@@ -871,7 +908,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
         )}
       </AnimatePresence>
 
-      {/* Write a Review Modal Form */}
+      {/* Write a Real Review Modal Form */}
       <AnimatePresence>
         {isReviewModalOpen && (
           <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
@@ -896,36 +933,38 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
               </button>
 
               <h3 className="text-xl font-playfair font-bold text-foreground mb-1">Write a Customer Review</h3>
-              <p className="text-xs text-muted-foreground mb-6">Share your feedback on {product.name}</p>
+              <p className="text-xs text-muted-foreground mb-6">Share your authentic feedback on {product.name}</p>
 
               {reviewSubmitted ? (
                 <div className="py-8 text-center space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-green-500/20 border border-green-500 text-green-500 flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500 text-emerald-500 flex items-center justify-center mx-auto mb-3">
                     <Check className="w-6 h-6" />
                   </div>
                   <p className="text-sm font-bold text-foreground">Thank you for your review!</p>
-                  <p className="text-xs text-muted-foreground">Your review has been submitted successfully.</p>
+                  <p className="text-xs text-muted-foreground">Your review has been recorded and updated in our store metrics.</p>
                 </div>
               ) : (
                 <form onSubmit={handleWriteReviewSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1">Your Rating</label>
+                    <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1">Select Star Rating *</label>
                     <div className="flex space-x-1 text-amber-500">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           type="button"
                           key={star}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(reviewRating)}
                           onClick={() => setReviewRating(star)}
-                          className="p-1 focus:outline-none cursor-pointer"
+                          className="p-1 focus:outline-none cursor-pointer transition-transform hover:scale-110"
                         >
-                          <Star className={cn("w-6 h-6", star <= reviewRating ? "fill-current text-amber-500" : "text-muted/30")} />
+                          <Star className={cn("w-7 h-7", star <= (hoverRating || reviewRating) ? "fill-current text-amber-500" : "text-muted/30")} />
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1">Your Name</label>
+                    <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1">Your Name *</label>
                     <input
                       type="text"
                       required
@@ -937,22 +976,35 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1">Review Comments</label>
+                    <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1">Headline / Summary</label>
+                    <input
+                      type="text"
+                      value={reviewTitle}
+                      onChange={(e) => setReviewTitle(e.target.value)}
+                      placeholder="e.g. Stunning Kundan setting & royal shine!"
+                      className="w-full bg-secondary/50 border border-border/50 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1">Review Comments *</label>
                     <textarea
                       required
                       rows={4}
                       value={reviewComment}
                       onChange={(e) => setReviewComment(e.target.value)}
-                      placeholder="Share details about quality, shine, finish, and delivery experience..."
+                      placeholder="Share details about craftsmanship, gold finish, packaging, and delivery..."
                       className="w-full bg-secondary/50 border border-border/50 rounded-xl p-4 text-xs text-foreground focus:outline-none focus:border-amber-500"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3 bg-amber-500 text-black text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-amber-400 transition-all shadow-md cursor-pointer"
+                    disabled={submittingReview}
+                    className="w-full bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 font-black py-3 rounded-full text-xs uppercase tracking-wider hover:brightness-110 shadow-lg shadow-amber-500/20 disabled:opacity-50 transition-all flex items-center justify-center cursor-pointer"
                   >
-                    Submit Review
+                    {submittingReview ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    {submittingReview ? "Submitting Review..." : "Submit Authentic Review"}
                   </button>
                 </form>
               )}

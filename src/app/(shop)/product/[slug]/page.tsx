@@ -71,13 +71,17 @@ export default async function ProductSlugPage({ params }: PageProps) {
   // Fetch related products dynamically from MongoDB
   const relatedProducts = await productService.getRelatedProducts(product._id.toString(), 4);
 
-  const serializedProduct = JSON.parse(JSON.stringify(product));
-  const serializedRelated = JSON.parse(JSON.stringify(relatedProducts));
+  // Fetch authentic reviews from MongoDB
+  const ReviewModel = (await import("@/backend/models/Review")).default;
+  const dbReviews = await ReviewModel.find({ product: product._id, isApproved: true }).sort({ createdAt: -1 }).limit(5).lean();
+
+  const realReviewCount = product.reviewCount || dbReviews.length || 0;
+  const realAverageRating = product.averageRating || (dbReviews.length > 0 ? (dbReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / dbReviews.length) : 0);
 
   // Build Full Schema.org JSON-LD Product & Breadcrumb Schema
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
-  const productJsonLd = {
+  const productJsonLd: Record<string, any> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     'name': product.name,
@@ -93,41 +97,30 @@ export default async function ProductSlugPage({ params }: PageProps) {
     'material': product.material || 'Brass Alloy & Kundan',
     'weight': product.weight || undefined,
     'category': product.category?.toString() || 'Jewellery',
-    'aggregateRating': {
+  };
+
+  if (realReviewCount > 0) {
+    productJsonLd['aggregateRating'] = {
       '@type': 'AggregateRating',
-      'ratingValue': product.averageRating || 4.8,
-      'reviewCount': product.reviewCount || 18,
+      'ratingValue': Number(realAverageRating.toFixed(1)),
+      'reviewCount': realReviewCount,
       'bestRating': '5',
       'worstRating': '1',
-    },
-    'review': [
-      {
-        '@type': 'Review',
-        'author': {
-          '@type': 'Person',
-          'name': 'Priya Sharma'
-        },
-        'datePublished': '2026-06-12',
-        'reviewBody': 'Absolutely breathtaking craftsmanship! The gold plating finish and Kundan setting look 100% authentic.',
-        'reviewRating': {
-          '@type': 'Rating',
-          'ratingValue': '5'
-        }
+    };
+    productJsonLd['review'] = dbReviews.map((r: any) => ({
+      '@type': 'Review',
+      'author': {
+        '@type': 'Person',
+        'name': r.userName || 'Verified Customer',
       },
-      {
-        '@type': 'Review',
-        'author': {
-          '@type': 'Person',
-          'name': 'Anjali Gupta'
-        },
-        'datePublished': '2026-07-01',
-        'reviewBody': 'Extremely high quality and velvet-lined packaging. Arrived within 3 days. Very heavy and royal feel!',
-        'reviewRating': {
-          '@type': 'Rating',
-          'ratingValue': '5'
-        }
-      }
-    ],
+      'datePublished': new Date(r.createdAt).toISOString().split('T')[0],
+      'reviewBody': r.comment || '',
+      'reviewRating': {
+        '@type': 'Rating',
+        'ratingValue': r.rating,
+      },
+    }));
+  }
     'offers': {
       '@type': 'Offer',
       'url': `${baseUrl}/product/${product.slug || resolvedParams.slug}`,
@@ -202,6 +195,9 @@ export default async function ProductSlugPage({ params }: PageProps) {
       },
     ],
   };
+
+  const serializedProduct = JSON.parse(JSON.stringify(product));
+  const serializedRelated = JSON.parse(JSON.stringify(relatedProducts));
 
   return (
     <>

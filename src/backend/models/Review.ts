@@ -2,7 +2,9 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IReview extends Document {
   product: mongoose.Types.ObjectId;
-  user: mongoose.Types.ObjectId;
+  user?: mongoose.Types.ObjectId;
+  userName?: string;
+  title?: string;
   rating: number;
   comment?: string;
   isApproved: boolean;
@@ -13,10 +15,12 @@ export interface IReview extends Document {
 const ReviewSchema: Schema<IReview> = new Schema(
   {
     product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    userName: { type: String, trim: true, default: 'Verified Customer' },
+    title: { type: String, trim: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: { type: String, trim: true },
-    isApproved: { type: Boolean, default: false }, // Moderation
+    isApproved: { type: Boolean, default: true },
   },
   {
     timestamps: true,
