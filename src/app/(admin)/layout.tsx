@@ -121,7 +121,7 @@ export default function AdminLayout({
   }, []);
 
   return (
-    <div className="min-h-screen bg-neutral-900/5 dark:bg-neutral-950 flex font-sans antialiased text-foreground">
+    <div className="h-screen w-full bg-neutral-900/5 dark:bg-neutral-950 flex font-sans antialiased text-foreground overflow-hidden">
       
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
@@ -131,13 +131,13 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Fixed 100vh */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-card/95 backdrop-blur-xl border-r border-border/60 shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:w-72 flex flex-col",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-card/95 backdrop-blur-xl border-r border-border/60 shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:w-72 flex flex-col h-screen shrink-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Logo Header */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-border/50 bg-secondary/30">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-border/50 bg-secondary/30 shrink-0">
           <Link href="/admin" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-gold p-0.5 shadow-md group-hover:scale-105 transition-transform duration-300">
               <div className="w-full h-full bg-card rounded-[10px] flex items-center justify-center font-playfair font-bold text-amber-500 text-lg">
@@ -170,11 +170,12 @@ export default function AdminLayout({
                             (item.name === "Orders" && hasUnreadOrders);
 
             return (
-              <Link
+              <a
                 key={item.name}
                 href={item.href}
+                onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  "group relative flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200",
+                  "group relative flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer",
                   isActive 
                     ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30 shadow-xs" 
                     : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground hover:translate-x-1"
@@ -194,13 +195,13 @@ export default function AdminLayout({
                     isActive ? "bg-amber-500" : "bg-amber-500/80"
                   )} />
                 )}
-              </Link>
+              </a>
             );
           })}
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-border/50 bg-secondary/20">
+        <div className="p-4 border-t border-border/50 bg-secondary/20 shrink-0">
           <div className="flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-card border border-border/50 mb-3 shadow-2xs">
             <div className="w-9 h-9 rounded-full bg-gradient-gold text-black font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
               {initials}
@@ -220,8 +221,8 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0">
+      {/* Main Content Area - Dedicated Scroll */}
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
         
         {/* Top Header */}
         <header className="h-20 bg-card/90 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30 shadow-2xs">
