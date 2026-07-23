@@ -22,6 +22,31 @@ export async function createProduct(data: any) {
   try {
     const session = await requireAdmin();
     await connectDB();
+    const Category = (await import("@/backend/models/Category")).default;
+
+    // Resolve or Auto-Create Category if passed as custom name or non-ObjectId
+    if (data.category && typeof data.category === 'string') {
+      const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(data.category);
+      if (!isValidObjectId) {
+        const catName = data.category.trim();
+        const catSlug = catName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        let existingCat = await Category.findOne({
+          $or: [
+            { name: { $regex: new RegExp(`^${catName}$`, 'i') } },
+            { slug: catSlug }
+          ]
+        });
+        if (!existingCat) {
+          existingCat = await Category.create({
+            name: catName,
+            slug: catSlug,
+            description: `${catName} collection at Radhika Jewellers`,
+            isActive: true,
+          });
+        }
+        data.category = existingCat._id.toString();
+      }
+    }
     
     if (!data.slug) {
       data.slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
@@ -80,6 +105,31 @@ export async function updateProduct(id: string, data: any) {
   try {
     const session = await requireAdmin();
     await connectDB();
+    const Category = (await import("@/backend/models/Category")).default;
+
+    // Resolve or Auto-Create Category if passed as custom name or non-ObjectId
+    if (data.category && typeof data.category === 'string') {
+      const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(data.category);
+      if (!isValidObjectId) {
+        const catName = data.category.trim();
+        const catSlug = catName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        let existingCat = await Category.findOne({
+          $or: [
+            { name: { $regex: new RegExp(`^${catName}$`, 'i') } },
+            { slug: catSlug }
+          ]
+        });
+        if (!existingCat) {
+          existingCat = await Category.create({
+            name: catName,
+            slug: catSlug,
+            description: `${catName} collection at Radhika Jewellers`,
+            isActive: true,
+          });
+        }
+        data.category = existingCat._id.toString();
+      }
+    }
     
     if (data.sku) {
       const existingSku = await Product.findOne({ sku: data.sku, _id: { $ne: id } });

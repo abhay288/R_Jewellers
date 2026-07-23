@@ -23,6 +23,10 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [tagInput, setTagInput] = useState("");
 
+  const initialCatIsCustom = initialData?.category ? !categories.some(c => c.id === initialData.category) : false;
+  const [isCustomCategory, setIsCustomCategory] = useState<boolean>(categories.length === 0 || initialCatIsCustom);
+  const [customCategoryInput, setCustomCategoryInput] = useState<string>(initialCatIsCustom ? initialData.category : "");
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
     defaultValues: initialData || {
@@ -69,15 +73,28 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
+
+      if (isCustomCategory) {
+        if (!customCategoryInput.trim()) {
+          form.setError("category", { message: "Please enter a category name" });
+          setLoading(false);
+          return;
+        }
+        data.category = customCategoryInput.trim();
+      }
+
       if (initialData?.id) {
-        await updateProduct(initialData.id, data);
+        const res = await updateProduct(initialData.id, data);
+        if (res.error) throw new Error(res.error);
       } else {
-        await createProduct(data);
+        const res = await createProduct(data);
+        if (res.error) throw new Error(res.error);
       }
       router.push("/admin/products");
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save product", error);
+      alert(error.message || "Failed to save product");
     } finally {
       setLoading(false);
     }
@@ -134,16 +151,49 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Category *</label>
-            <select 
-              {...form.register("category")} 
-              className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <option value="" disabled>Select a category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Category *</label>
+              {categories.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsCustomCategory(!isCustomCategory)}
+                  className="text-xs text-primary hover:underline font-semibold"
+                >
+                  {isCustomCategory ? "← Select from created categories" : "+ Add new category manually"}
+                </button>
+              )}
+            </div>
+
+            {!isCustomCategory && categories.length > 0 ? (
+              <select 
+                {...form.register("category")} 
+                onChange={(e) => {
+                  if (e.target.value === "__custom__") {
+                    setIsCustomCategory(true);
+                  } else {
+                    form.setValue("category", e.target.value, { shouldValidate: true });
+                  }
+                }}
+                className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <option value="" disabled>Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+                <option value="__custom__">+ Type New Custom Category...</option>
+              </select>
+            ) : (
+              <input 
+                type="text"
+                value={customCategoryInput}
+                onChange={(e) => {
+                  setCustomCategoryInput(e.target.value);
+                  form.setValue("category", e.target.value, { shouldValidate: true });
+                }}
+                placeholder="Type category name (e.g. Necklaces, Earrings, Bangles, Rings)..."
+                className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary font-medium"
+              />
+            )}
             {form.formState.errors.category && <p className="text-xs text-red-500">{form.formState.errors.category.message}</p>}
           </div>
 
