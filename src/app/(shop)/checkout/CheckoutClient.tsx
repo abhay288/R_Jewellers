@@ -465,7 +465,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                                 "w-6 h-6 rounded-full border flex items-center justify-center transition-colors shrink-0 mt-0.5",
                                 isSelected ? "border-amber-500 bg-amber-500 text-neutral-950" : "border-border/60"
                               )}>
-                                {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                                {isSelected && <Check className="w-3.5 h-3.5 stroke-3" />}
                               </div>
                             </div>
                           </div>
@@ -826,7 +826,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                         "w-6 h-6 rounded-full border flex items-center justify-center transition-colors shrink-0 mt-0.5",
                         paymentMethod === 'Razorpay' ? "border-amber-500 bg-amber-500 text-neutral-950" : "border-border/60"
                       )}>
-                        {paymentMethod === 'Razorpay' && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        {paymentMethod === 'Razorpay' && <Check className="w-3.5 h-3.5 stroke-3" />}
                       </div>
                     </div>
 
@@ -856,7 +856,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                         "w-6 h-6 rounded-full border flex items-center justify-center transition-colors shrink-0 mt-0.5",
                         paymentMethod === 'COD' ? "border-amber-500 bg-amber-500 text-neutral-950" : "border-border/60"
                       )}>
-                        {paymentMethod === 'COD' && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        {paymentMethod === 'COD' && <Check className="w-3.5 h-3.5 stroke-3" />}
                       </div>
                     </div>
 
@@ -896,7 +896,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
               <div className="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-1">
                 {items.map((item) => (
                   <div key={item.id} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center space-x-2.5 truncate max-w-[200px]">
+                    <div className="flex items-center space-x-2.5 truncate max-w-50">
                       <div className="w-8 h-10 relative rounded bg-secondary overflow-hidden shrink-0">
                         {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
                       </div>
