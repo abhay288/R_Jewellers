@@ -101,6 +101,15 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
 
   const images = product.images && product.images.length > 0 && product.images[0] ? product.images : [fallbackImage];
 
+  // Automatically slide product hero gallery every 3.5 seconds if multiple images exist
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveImage((prev) => (prev + 1) % images.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
   const handleAddToCart = () => {
     addItem({
       id: product._id,

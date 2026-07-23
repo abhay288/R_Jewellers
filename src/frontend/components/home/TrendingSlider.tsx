@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ShoppingBag, Heart } from "lucide-react";
+import ProductCardImageSlider from "@/frontend/components/shop/ProductCardImageSlider";
 
 // Placeholder data for trending products
 export default function TrendingSlider({ products }: { products: any[] }) {
@@ -71,43 +72,25 @@ export default function TrendingSlider({ products }: { products: any[] }) {
                 {/* Image Container with Luxury Borders and Zoom */}
                 <div className="relative h-[480px] bg-card border border-border/30 rounded-3xl overflow-hidden mb-6 shadow-xs group-hover:shadow-lg transition-all duration-700">
                   {/* Luxury badge */}
-                  <div className="absolute top-4 left-4 z-20">
+                  <div className="absolute top-4 left-4 z-20 pointer-events-none">
                     <span className="text-[8px] uppercase tracking-widest font-bold bg-primary/10 border border-primary/20 text-primary px-3 py-1 rounded-full backdrop-blur-xs">
                       {product.tag || "Limited Edition"}
                     </span>
                   </div>
 
-                  <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                    <Image 
-                      src={(product.images && product.images[0]) || (
-                        product.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
-                        product.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" :
-                        product.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
-                        product.name?.toLowerCase().includes('bangle') || product.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
-                        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
-                      )} 
-                      alt={product.name} 
-                      fill 
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw" 
-                      className="object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-108" 
-                    />
-                  </div>
+                  <ProductCardImageSlider
+                    images={product.images || []}
+                    productName={product.name}
+                    href={`/product/${product.slug || product._id}`}
+                    fallbackCategory={product.category?.toString() || product.name}
+                    className="w-full h-full"
+                  />
                   
                   {/* Subtle Gradient Shadow Overlay on Hover */}
                   <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
 
                   {/* Gold Shimmer Border Overlay */}
                   <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/45 rounded-3xl transition-all duration-700 pointer-events-none z-20 border-shimmer-gold" />
-
-                  {/* Quick Action Overlay (Wishlist and Shopping Bag) */}
-                  <div className="absolute inset-x-0 bottom-6 px-6 opacity-0 group-hover:opacity-100 transform translate-y-3 group-hover:translate-y-0 transition-all duration-500 flex justify-center space-x-4 z-20">
-                    <button className="w-11 h-11 bg-white dark:bg-black text-foreground border border-border/80 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-md cursor-pointer">
-                      <ShoppingBag className="w-4.5 h-4.5" />
-                    </button>
-                    <button className="w-11 h-11 bg-white dark:bg-black text-foreground border border-border/80 rounded-full flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-md cursor-pointer">
-                      <Heart className="w-4.5 h-4.5 group-hover:fill-primary/20 transition-colors" />
-                    </button>
-                  </div>
                 </div>
                 
                 <div className="text-center px-4">
