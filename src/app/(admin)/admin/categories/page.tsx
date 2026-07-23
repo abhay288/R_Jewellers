@@ -1,56 +1,48 @@
 export const dynamic = 'force-dynamic';
 
-import { DataTable } from "@/frontend/components/ui/data-table";
-import { columns, CategoryColumn } from "./columns";
 import connectDB from "@/shared/lib/mongodb";
 import Category from "@/backend/models/Category";
-import { Plus } from "lucide-react";
-import Link from "next/link";
-import { CategoryExportButton } from "./CategoryExportButton";
+import Product from "@/backend/models/Product";
+import CategoriesClient from "./CategoriesClient";
 
 export default async function CategoriesPage() {
   await connectDB();
   
-  // Exclude soft-deleted categories and sort by name/level to show hierarchy
   const categories = await Category.find({ isDeleted: { $ne: true } })
+    .populate('parentCategory', 'name')
     .sort({ level: 1, displayOrder: 1, name: 1 });
-  
-  const formattedCategories: CategoryColumn[] = categories.map((cat) => ({
+
+  // Calculate dynamic product count
+  const productCounts = await Product.aggregate([
+    { $match: { isDeleted: { $ne: true } } },
+    { $group: { _id: "$category", count: { $sum: 1 } } }
+  ]);
+
+  const countMap = new Map<string, number>();
+  productCounts.forEach(pc => {
+    if (pc._id) countMap.set(pc._id.toString(), pc.count);
+  });
+
+  const formattedCategories = categories.map((cat) => ({
     id: cat._id.toString(),
     name: cat.name,
     slug: cat.slug,
-    level: cat.level || 0,
+    description: cat.description || '',
+    bannerImage: cat.bannerImage || '',
+    icon: cat.icon || '',
+    color: cat.color || '',
     isActive: cat.isActive,
-    viewCount: cat.viewCount || 0,
-    createdAt: new Date(cat.createdAt).toLocaleDateString(),
+    isFeatured: cat.isFeatured || false,
+    parentCategory: cat.parentCategory ? {
+      id: (cat.parentCategory as any)._id.toString(),
+      name: (cat.parentCategory as any).name
+    } : null,
+    level: cat.level || 0,
+    productCount: countMap.get(cat._id.toString()) || 0,
+    seoTitle: cat.seoTitle || '',
+    seoDescription: cat.seoDescription || '',
+    seoKeywords: cat.seoKeywords || [],
   }));
 
-
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-playfair font-bold text-foreground">Categories</h1>
-          <p className="text-muted-foreground mt-1">Manage your product categories and collections.</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <CategoryExportButton data={formattedCategories} />
-          <Link 
-            href="/admin/categories/new" 
-            className="inline-flex items-center justify-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-md shadow-primary/20"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Category
-          </Link>
-        </div>
-      </div>
-
-      <DataTable 
-        columns={columns} 
-        data={formattedCategories} 
-        searchKey="name" 
-        searchPlaceholder="Search categories..."
-      />
-    </div>
-  );
+  return <CategoriesClient initialCategories={formattedCategories} />;
 }

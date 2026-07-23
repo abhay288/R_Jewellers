@@ -8,6 +8,7 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { createProduct, updateProduct } from "@/backend/actions/product.actions";
 import ImageUpload from "@/frontend/components/admin/ImageUpload";
+import RichTextEditor from "@/frontend/components/admin/RichTextEditor";
 import { Loader2, Plus, X } from "lucide-react";
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -183,11 +184,10 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium">Full Description *</label>
-            <textarea 
-              {...form.register("description")} 
-              className="flex min-h-36 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary custom-scrollbar"
-              placeholder="Detailed description of craftsmanship, stones, style, and design..."
+            <label className="text-sm font-medium block mb-1">Full Description (Rich Text Editor with Tables, Links & Formatting) *</label>
+            <RichTextEditor
+              content={form.watch("description") || ""}
+              onChange={(html) => form.setValue("description", html, { shouldValidate: true })}
             />
             {form.formState.errors.description && <p className="text-xs text-red-500">{form.formState.errors.description.message}</p>}
           </div>
