@@ -207,7 +207,7 @@ export default function ReturnDetailsClient({ returnId }: { returnId: string }) 
             </div>
           </div>
 
-          {/* Details */}
+          {/* Details & Return Pickup Courier Info */}
           <div className="bg-card border border-border rounded-3xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="text-sm font-medium text-muted-foreground mb-1">Reason for Return</h4>
@@ -225,6 +225,27 @@ export default function ReturnDetailsClient({ returnId }: { returnId: string }) 
               <h4 className="text-sm font-medium text-muted-foreground mb-1">UPI ID for Refund</h4>
               <p className="font-medium">{maskUpiId(returnReq.upiDetails)}</p>
             </div>
+
+            {/* Shiprocket Return Pickup Details */}
+            {returnReq.awbNumber && (
+              <div className="md:col-span-2 pt-4 border-t border-primary/20 bg-primary/5 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Shiprocket Reverse Pickup Details</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">
+                    Courier: {returnReq.courierName || 'Shiprocket Partner'}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                    Return AWB: <strong className="text-foreground">{returnReq.awbNumber}</strong>
+                  </p>
+                </div>
+                <Link
+                  href={`/orders/${returnReq.awbNumber}`}
+                  className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase tracking-wider hover:opacity-90 transition-opacity"
+                >
+                  Track Return
+                </Link>
+              </div>
+            )}
           </div>
 
         </div>
