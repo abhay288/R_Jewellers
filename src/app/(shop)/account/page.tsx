@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Loader2, CheckCircle2, AlertCircle, User, Lock, Phone, Mail, ShieldCheck } from "lucide-react";
+import AddressManager from "@/frontend/components/account/AddressManager";
 
 export default function ProfilePage() {
   const { data: session, update: updateSession } = useSession();
@@ -320,6 +321,11 @@ export default function ProfilePage() {
           </form>
         </div>
 
+      </div>
+
+      {/* Saved Delivery Addresses Section */}
+      <div className="pt-6 border-t border-border/40">
+        <AddressManager />
       </div>
 
     </div>

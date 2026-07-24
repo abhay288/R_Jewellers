@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { User, Package, Heart, LogOut, Settings, Sparkles } from "lucide-react";
+import { User, Package, Heart, MapPin, LogOut, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
 const navigation = [
   { name: "My Profile", href: "/account", icon: User },
+  { name: "Saved Addresses", href: "/account/addresses", icon: MapPin },
   { name: "Order History", href: "/account/orders", icon: Package },
   { name: "Wishlist", href: "/account/wishlist", icon: Heart },
   { name: "Settings", href: "/account/settings", icon: Settings },
