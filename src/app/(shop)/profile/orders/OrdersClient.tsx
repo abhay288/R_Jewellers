@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, ChevronRight, Filter, RotateCcw, Star } from 'lucide-react';
+import { Package, ChevronRight, Filter, RotateCcw, Star, Calendar, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CancelOrderModal from './CancelOrderModal';
 import ReturnOrderModal from '../returns/ReturnOrderModal';
@@ -11,10 +11,29 @@ import OrderReviewModal from './OrderReviewModal';
 
 const TWO_DAYS_MS = 48 * 60 * 60 * 1000;
 
+const MONTHS = [
+  { value: "0", label: "January" },
+  { value: "1", label: "February" },
+  { value: "2", label: "March" },
+  { value: "3", label: "April" },
+  { value: "4", label: "May" },
+  { value: "5", label: "June" },
+  { value: "6", label: "July" },
+  { value: "7", label: "August" },
+  { value: "8", label: "September" },
+  { value: "9", label: "October" },
+  { value: "10", label: "November" },
+  { value: "11", label: "December" },
+];
+
 export default function OrdersClient({ initialOrders, totalPages, currentPage, currentStatus }: any) {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>(initialOrders);
   const [statusFilter, setStatusFilter] = useState(currentStatus);
+
+  // Month & Year Filter States
+  const [selectedYear, setSelectedYear] = useState("all");
+  const [selectedMonth, setSelectedMonth] = useState("all");
 
   // Cancel order modal state
   const [cancellingOrder, setCancellingOrder] = useState<any | null>(null);
@@ -53,17 +72,37 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
     }
   };
 
+  // Available years in dataset
+  const availableYears = Array.from(
+    new Set(orders.map((o) => new Date(o.createdAt).getFullYear()))
+  ).sort((a, b) => b - a);
+
+  // Filter orders by year, month
+  const filteredOrders = orders.filter((o) => {
+    const d = new Date(o.createdAt);
+    const matchesYear = selectedYear === "all" || d.getFullYear().toString() === selectedYear;
+    const matchesMonth = selectedMonth === "all" || d.getMonth().toString() === selectedMonth;
+    return matchesYear && matchesMonth;
+  });
+
+  const isFiltered = selectedYear !== "all" || selectedMonth !== "all";
+
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <div className="relative w-full sm:w-auto">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      {/* Filters Toolbar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 bg-secondary/30 p-4 rounded-2xl border border-border/50">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center text-xs font-semibold text-muted-foreground gap-1.5">
+            <Filter className="w-3.5 h-3.5" />
+            <span>Status:</span>
+          </div>
+
           <select 
-            className="w-full sm:w-auto pl-10 pr-8 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none"
+            className="px-3 py-1.5 bg-background border border-border/50 rounded-xl text-xs font-medium focus:outline-none focus:border-primary"
             value={statusFilter}
             onChange={handleFilterChange}
           >
-            <option value="All">All Orders</option>
+            <option value="All">All Statuses</option>
             <option value="Order Placed">Order Placed</option>
             <option value="Confirmed">Confirmed</option>
             <option value="Packed">Packed</option>
@@ -73,20 +112,76 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
             <option value="Cancelled">Cancelled</option>
           </select>
         </div>
+
+        {/* Month & Year Filters */}
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center text-xs font-semibold text-muted-foreground gap-1.5">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Date:</span>
+          </div>
+
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="px-3 py-1.5 bg-background border border-border/50 rounded-xl text-xs font-medium focus:outline-none focus:border-primary"
+          >
+            <option value="all">All Years</option>
+            {availableYears.map((yr) => (
+              <option key={yr} value={yr.toString()}>{yr}</option>
+            ))}
+          </select>
+
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="px-3 py-1.5 bg-background border border-border/50 rounded-xl text-xs font-medium focus:outline-none focus:border-primary"
+          >
+            <option value="all">All Months</option>
+            {MONTHS.map((m) => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+
+          {isFiltered && (
+            <button
+              onClick={() => {
+                setSelectedYear("all");
+                setSelectedMonth("all");
+              }}
+              className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
+            >
+              <X className="w-3.5 h-3.5" /> Reset Date
+            </button>
+          )}
+        </div>
       </div>
 
-      {orders.length === 0 ? (
+      {filteredOrders.length === 0 ? (
         <div className="text-center py-20 bg-secondary/20 rounded-2xl border border-border">
           <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
           <h3 className="text-xl font-medium mb-2">No orders found</h3>
-          <p className="text-muted-foreground mb-6">You haven't placed any orders with this status yet.</p>
-          <Link href="/shop" className="bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
-            Start Shopping
-          </Link>
+          <p className="text-muted-foreground mb-6">
+            {isFiltered ? "No orders match your selected month or year filter." : "You haven't placed any orders with this status yet."}
+          </p>
+          {isFiltered ? (
+            <button
+              onClick={() => {
+                setSelectedYear("all");
+                setSelectedMonth("all");
+              }}
+              className="bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Clear Date Filters
+            </button>
+          ) : (
+            <Link href="/shop" className="bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
+              Start Shopping
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
-          {orders.map((order: any, idx: number) => {
+          {filteredOrders.map((order: any, idx: number) => {
             const isDelivered = order.status === 'Delivered';
             const canCancel = ['Order Placed', 'Confirmed'].includes(order.status);
 
@@ -109,7 +204,7 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
+                transition={{ delay: idx * 0.05 }}
                 key={order._id} 
                 className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow group"
               >

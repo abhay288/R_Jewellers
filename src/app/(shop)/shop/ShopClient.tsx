@@ -476,20 +476,20 @@ export default function ShopClient({
         ) : (
           <motion.div 
             layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 sm:gap-x-6 gap-y-8 lg:gap-y-10"
           >
             <AnimatePresence>
               {products.map((product: any) => (
                 <motion.div
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25 }}
                   key={product._id}
                   className="group cursor-pointer"
                 >
-                  <div className="relative aspect-3/4 rounded-2xl overflow-hidden mb-5 group/card border border-border/50 bg-card shadow-sm hover:shadow-xl hover:border-primary/40 transition-all duration-500">
+                  <div className="relative aspect-4/5 rounded-xl overflow-hidden mb-3 group/card border border-border/40 bg-card shadow-xs hover:shadow-lg hover:border-primary/40 transition-all duration-300">
                     <ProductCardImageSlider
                       images={product.images || []}
                       productName={product.name}
