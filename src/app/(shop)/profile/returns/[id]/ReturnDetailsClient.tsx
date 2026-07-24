@@ -123,7 +123,7 @@ export default function ReturnDetailsClient({ returnId }: { returnId: string }) 
           
           {/* Scrollable container for timeline on mobile */}
           <div className="overflow-x-auto pb-6 -mx-6 px-6 md:mx-0 md:px-0 md:pb-0 hide-scrollbar">
-            <div className="min-w-[800px] relative">
+            <div className="min-w-200 relative">
               {/* Background Line */}
               <div className="absolute top-5 left-[5%] right-[5%] h-1 bg-secondary rounded-full" />
               
