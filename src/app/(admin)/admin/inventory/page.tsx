@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getInventoryDashboardStats } from "@/backend/actions/inventory.actions";
 import { Package, AlertTriangle, XCircle, IndianRupee, Activity } from "lucide-react";
 import Link from "next/link";

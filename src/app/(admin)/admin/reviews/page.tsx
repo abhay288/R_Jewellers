@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import connectDB from "@/shared/lib/mongodb";
 import Product from "@/backend/models/Product";
 import { Star, Trash2 } from "lucide-react";

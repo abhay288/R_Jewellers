@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getInventoryHistory } from "@/backend/actions/inventory.actions";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

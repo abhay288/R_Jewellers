@@ -1,5 +1,7 @@
 import AdminReturnDetailsClient from './AdminReturnDetailsClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Return Details | Admin Dashboard',
 };
