@@ -261,7 +261,7 @@ export default function BannerManagementPage() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-5 flex flex-col justify-end">
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent p-5 flex flex-col justify-end">
                   <div className="flex items-center space-x-2 mb-1">
                     <span className="bg-amber-500 text-neutral-950 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">
                       Position #{banner.position}
