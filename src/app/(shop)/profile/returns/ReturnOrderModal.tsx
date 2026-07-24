@@ -44,8 +44,10 @@ export default function ReturnOrderModal({
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    if (images.length + e.target.files.length > 5) {
-      setError("You can only upload up to 5 images.");
+    const filesArray = Array.from(e.target.files);
+
+    if (images.length + filesArray.length > 5) {
+      setError("You can upload a maximum of 5 product photos.");
       return;
     }
     
@@ -53,43 +55,19 @@ export default function ReturnOrderModal({
     setError('');
 
     try {
-      // 1. Get Signature (Optional if using unsigned preset, but let's try unsigned directly to Cloudinary)
-      // Since we know the cloud name is "demo" from env, we will simulate or use a hardcoded preset if provided.
-      // But we will use the api route just in case.
-      const sigRes = await fetch('/api/upload/cloudinary');
-      const sigData = await sigRes.json();
-      
-      const newImages = [...images];
-      
-      for (let i = 0; i < e.target.files.length; i++) {
-        const file = e.target.files[i];
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // If we have signature, we use signed upload, else we assume we can't upload without preset.
-        // For this demo, if API keys are missing, we will just use a fake URL so the UI works.
-        if (sigData.error) {
-          // Demo mode fallback
-          newImages.push(URL.createObjectURL(file)); 
-          // Note: In real app, this would upload to an unsigned preset.
-        } else {
-          formData.append('api_key', sigData.apiKey);
-          formData.append('timestamp', sigData.timestamp);
-          formData.append('signature', sigData.signature);
-          
-          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, {
-            method: 'POST',
-            body: formData,
-          });
-          const uploadData = await uploadRes.json();
-          if (uploadData.secure_url) {
-            newImages.push(uploadData.secure_url);
-          }
-        }
-      }
-      setImages(newImages);
+      const readAsBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (err) => reject(err);
+          reader.readAsDataURL(file);
+        });
+      };
+
+      const newBase64Images = await Promise.all(filesArray.map(file => readAsBase64(file)));
+      setImages(prev => [...prev, ...newBase64Images]);
     } catch (err: any) {
-      setError("Failed to upload image. " + err.message);
+      setError("Failed to upload product image: " + err.message);
     } finally {
       setIsUploading(false);
     }

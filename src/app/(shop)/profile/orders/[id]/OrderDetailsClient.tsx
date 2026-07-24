@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { generateInvoicePDF } from '@/frontend/lib/InvoiceGenerator';
 
 import ReturnOrderModal from '../../returns/ReturnOrderModal';
+import CancelOrderModal from '../CancelOrderModal';
 
 export default function OrderDetailsClient({ initialOrder }: { initialOrder: any }) {
   const router = useRouter();
@@ -340,66 +341,16 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
       </div>
 
       {/* Cancel Modal */}
-      <AnimatePresence>
-        {isCancelModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl"
-            >
-              <div className="p-6 border-b border-border">
-                <h3 className="text-xl font-bold">Cancel Order</h3>
-              </div>
-              <div className="p-6">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Are you sure you want to cancel this order? This action cannot be undone.
-                </p>
-                {error && <p className="text-sm text-red-600 mb-4 bg-red-50 p-3 rounded-lg border border-red-200">{error}</p>}
-                
-                <div className="space-y-2 mb-6">
-                  <label className="text-sm font-medium">Reason for cancellation</label>
-                  <select 
-                    className="w-full p-3 bg-background border border-border rounded-xl focus:ring-1 focus:ring-primary outline-none text-sm"
-                    value={cancelReason}
-                    onChange={(e) => setCancelReason(e.target.value)}
-                  >
-                    <option value="">Select a reason</option>
-                    <option value="Changed my mind">I changed my mind</option>
-                    <option value="Found a better price elsewhere">Found a better price elsewhere</option>
-                    <option value="Ordered by mistake">Ordered by mistake</option>
-                    <option value="Shipping time is too long">Shipping time is too long</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setIsCancelModalOpen(false)}
-                    disabled={isCancelling}
-                    className="flex-1 py-3 px-4 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50"
-                  >
-                    Keep Order
-                  </button>
-                  <button 
-                    onClick={handleCancelOrder}
-                    disabled={isCancelling}
-                    className="flex-1 py-3 px-4 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
-                  >
-                    {isCancelling ? 'Cancelling...' : 'Cancel Order'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isCancelModalOpen && (
+        <CancelOrderModal
+          order={order}
+          onClose={() => setIsCancelModalOpen(false)}
+          onSuccess={(updatedOrder) => {
+            setOrder(updatedOrder);
+            setIsCancelModalOpen(false);
+          }}
+        />
+      )}
 
       <ReturnOrderModal 
         isOpen={isReturnModalOpen} 

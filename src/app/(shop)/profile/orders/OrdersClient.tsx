@@ -3,19 +3,21 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, ChevronRight, Filter, XCircle, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Package, ChevronRight, Filter, RotateCcw } from 'lucide-react';
+import { motion } from 'framer-motion';
+import CancelOrderModal from './CancelOrderModal';
+import ReturnOrderModal from '../returns/ReturnOrderModal';
 
 export default function OrdersClient({ initialOrders, totalPages, currentPage, currentStatus }: any) {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>(initialOrders);
   const [statusFilter, setStatusFilter] = useState(currentStatus);
 
-  // Cancel order modal states
+  // Cancel order modal state
   const [cancellingOrder, setCancellingOrder] = useState<any | null>(null);
-  const [cancelReason, setCancelReason] = useState('');
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [cancelError, setCancelError] = useState('');
+
+  // Return order modal state
+  const [returnOrder, setReturnOrder] = useState<any | null>(null);
 
   const handleFilterChange = (e: any) => {
     const newStatus = e.target.value;
@@ -23,42 +25,16 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
     router.push(`/profile/orders?status=${newStatus}&page=1`);
   };
 
-  const handleConfirmCancel = async () => {
-    if (!cancellingOrder) return;
-    if (!cancelReason) {
-      setCancelError('Please select a reason for cancellation.');
-      return;
-    }
+  const handleCancelSuccess = (updatedOrder: any) => {
+    setOrders((prev) =>
+      prev.map((o) => (o._id === updatedOrder._id || o.orderId === updatedOrder.orderId ? updatedOrder : o))
+    );
+    setCancellingOrder(null);
+  };
 
-    setIsCancelling(true);
-    setCancelError('');
-
-    try {
-      const res = await fetch(`/api/shop/orders/${cancellingOrder.orderId}/cancel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: cancelReason }),
-      });
-
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || 'Failed to cancel order');
-      }
-
-      setOrders((prev) =>
-        prev.map((o) =>
-          o._id === cancellingOrder._id || o.orderId === cancellingOrder.orderId
-            ? { ...o, status: 'Cancelled' }
-            : o
-        )
-      );
-      setCancellingOrder(null);
-      setCancelReason('');
-    } catch (err: any) {
-      setCancelError(err.message);
-    } finally {
-      setIsCancelling(false);
-    }
+  const handleReturnSuccess = () => {
+    router.refresh();
+    setReturnOrder(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -106,6 +82,7 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
         <div className="space-y-6">
           {orders.map((order: any, idx: number) => {
             const canCancel = ['Order Placed', 'Confirmed'].includes(order.status);
+            const canReturn = order.status === 'Delivered';
 
             return (
               <motion.div 
@@ -174,14 +151,19 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
                   <div className="flex flex-col md:flex-row lg:flex-col items-center lg:items-end justify-center gap-3 lg:border-l lg:border-border lg:pl-6">
                     {canCancel && (
                       <button
-                        onClick={() => {
-                          setCancellingOrder(order);
-                          setCancelReason('');
-                          setCancelError('');
-                        }}
+                        onClick={() => setCancellingOrder(order)}
                         className="w-full lg:w-auto px-5 py-2.5 border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors text-sm font-medium"
                       >
                         Cancel Order
+                      </button>
+                    )}
+                    {canReturn && (
+                      <button
+                        onClick={() => setReturnOrder(order)}
+                        className="w-full lg:w-auto flex items-center justify-center px-5 py-2.5 border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-full transition-colors text-sm font-medium"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                        Request Return
                       </button>
                     )}
                     <Link 
@@ -213,72 +195,24 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
         </div>
       )}
 
-      {/* Cancel Order Confirmation Modal */}
-      <AnimatePresence>
-        {cancellingOrder && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 border border-border"
-            >
-              <div className="flex items-center gap-3 mb-4 text-red-600">
-                <XCircle className="w-6 h-6" />
-                <h3 className="text-xl font-bold">Cancel Order #{cancellingOrder.orderId}</h3>
-              </div>
+      {/* Cancel Order 3-Step Questionnaire Modal */}
+      {cancellingOrder && (
+        <CancelOrderModal
+          order={cancellingOrder}
+          onClose={() => setCancellingOrder(null)}
+          onSuccess={handleCancelSuccess}
+        />
+      )}
 
-              <p className="text-sm text-muted-foreground mb-4">
-                Are you sure you want to cancel this order? Stock will be restored and your request will be processed immediately.
-              </p>
-
-              {cancelError && (
-                <p className="text-sm text-red-600 mb-4 bg-red-50 p-3 rounded-xl border border-red-200">
-                  {cancelError}
-                </p>
-              )}
-
-              <div className="space-y-2 mb-6">
-                <label className="text-sm font-medium">Reason for cancellation</label>
-                <select
-                  className="w-full p-3 bg-background border border-border rounded-xl focus:ring-1 focus:ring-primary outline-none text-sm"
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                >
-                  <option value="">Select a reason</option>
-                  <option value="Changed my mind">I changed my mind</option>
-                  <option value="Found a better price elsewhere">Found a better price elsewhere</option>
-                  <option value="Ordered by mistake">Ordered by mistake</option>
-                  <option value="Shipping time is too long">Shipping time is too long</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setCancellingOrder(null)}
-                  disabled={isCancelling}
-                  className="flex-1 py-3 px-4 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50"
-                >
-                  Keep Order
-                </button>
-                <button
-                  onClick={handleConfirmCancel}
-                  disabled={isCancelling}
-                  className="flex-1 py-3 px-4 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
-                >
-                  {isCancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Cancel"}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Return Delivered Order Modal with Product Images */}
+      {returnOrder && (
+        <ReturnOrderModal
+          isOpen={!!returnOrder}
+          order={returnOrder}
+          onClose={() => setReturnOrder(null)}
+          onSuccess={handleReturnSuccess}
+        />
+      )}
     </div>
   );
 }
