@@ -5,16 +5,22 @@ import { useSession } from "next-auth/react";
 import { Loader2, CheckCircle2, AlertCircle, User, Lock, Phone, Mail, ShieldCheck } from "lucide-react";
 
 export default function ProfilePage() {
-  const { update: updateSession } = useSession();
+  const { data: session, update: updateSession } = useSession();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [firstName, setFirstName] = useState(() => {
+    const fullName = session?.user?.name || "";
+    return fullName.split(" ")[0] || "";
+  });
+  const [lastName, setLastName] = useState(() => {
+    const fullName = session?.user?.name || "";
+    return fullName.split(" ").slice(1).join(" ") || "";
+  });
+  const [email, setEmail] = useState(() => session?.user?.email || "");
+  const [phone, setPhone] = useState(() => (session?.user as any)?.phone || "");
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -28,28 +34,16 @@ export default function ProfilePage() {
   const [pwdSuccess, setPwdSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/user/profile");
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to load profile");
-
-        if (data.user) {
-          setFirstName(data.user.firstName || "");
-          setLastName(data.user.lastName || "");
-          setEmail(data.user.email || "");
-          setPhone(data.user.phone || "");
-        }
-      } catch (err: any) {
-        setProfileError(err.message);
-      } finally {
-        setLoading(false);
+    if (session?.user) {
+      if (!firstName && session.user.name) {
+        const parts = session.user.name.split(" ");
+        setFirstName(parts[0] || "");
+        setLastName(parts.slice(1).join(" ") || "");
       }
-    };
-
-    fetchProfile();
-  }, []);
+      if (!email && session.user.email) setEmail(session.user.email);
+      if (!phone && (session.user as any)?.phone) setPhone((session.user as any).phone);
+    }
+  }, [session]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
