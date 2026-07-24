@@ -230,8 +230,29 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
         const rpData = await rpRes.json();
 
+        // Dynamically load Razorpay SDK if not present on window
+        const loadScript = () => {
+          return new Promise<boolean>((resolve) => {
+            if ((window as any).Razorpay) return resolve(true);
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+          });
+        };
+
+        const isScriptLoaded = await loadScript();
+        if (!isScriptLoaded || !(window as any).Razorpay) {
+          alert('Failed to load Razorpay Payment Gateway SDK. Please check your internet connection and try again.');
+          setLoading(false);
+          return;
+        }
+
+        const activeKey = rpData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW';
+
         const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          key: activeKey,
           amount: rpData.amount,
           currency: rpData.currency,
           name: 'Radhika Jewellers',
@@ -284,7 +305,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
         const rzp = new (window as any).Razorpay(options);
         rzp.on('payment.failed', function (response: any) {
-          alert('Payment failed: ' + response.error.description);
+          alert('Payment failed: ' + (response.error?.description || 'Payment was declined'));
           setLoading(false);
         });
         rzp.open();

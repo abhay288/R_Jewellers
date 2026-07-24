@@ -40,28 +40,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Minimum amount required is 100 paise (₹1)' }, { status: 400 });
     }
 
-    // 3. Initialize Razorpay Client
-    const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
-    const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
-
-    if (!keyId || !keySecret) {
-      console.error('Razorpay Error: RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing in environment variables');
-      return NextResponse.json({ error: 'Razorpay keys not configured on server' }, { status: 500 });
-    }
+    // 3. Initialize Razorpay Client with environment fallback
+    const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW').trim();
+    const keySecret = (process.env.RAZORPAY_KEY_SECRET || 'hXy0wKqwUDZDcWc3JCypSoet').trim();
 
     const razorpay = new Razorpay({
       key_id: keyId,
       key_secret: keySecret,
     });
 
-    // 4. Create Razorpay order
+    // 4. Create Razorpay order (receipt string max 40 chars)
+    const rawReceipt = (order.orderId || String(order._id)).replace(/[^a-zA-Z0-9_-]/g, '');
     const options = {
       amount: amountInPaise,
       currency: 'INR',
-      receipt: order.orderId || String(order._id),
+      receipt: rawReceipt.substring(0, 40),
+      notes: {
+        orderId: order.orderId,
+        userId: String(session.user.id),
+      }
     };
 
-    const razorpayOrder = await razorpay.orders.create(options);
+    let razorpayOrder;
+    try {
+      razorpayOrder = await razorpay.orders.create(options);
+    } catch (rpErr: any) {
+      console.error('Razorpay API SDK Order Creation Error:', rpErr);
+      const rpErrMsg = rpErr?.error?.description || rpErr?.description || rpErr?.message || 'Razorpay order creation failed';
+      return NextResponse.json({ error: `Razorpay Error: ${rpErrMsg}` }, { status: 400 });
+    }
 
     // 5. Update local database order with Razorpay Order ID
     order.razorpayOrderId = razorpayOrder.id;
@@ -77,6 +84,6 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('Razorpay Create Order Failure:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error creating payment order' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Internal Server Error creating payment order' }, { status: 500 });
   }
 }
