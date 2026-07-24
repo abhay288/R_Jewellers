@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
+import { cn } from '@/shared/lib/utils';
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -52,6 +53,34 @@ export default function AdminSettingsPage() {
     enableAiRecommendations: 'true',
     enableVisualSearch: 'true',
   });
+
+  const [testingRazorpay, setTestingRazorpay] = useState(false);
+  const [razorpayTestStatus, setRazorpayTestStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleTestRazorpay = async () => {
+    setTestingRazorpay(true);
+    setRazorpayTestStatus(null);
+    try {
+      const res = await fetch('/api/admin/settings/test-razorpay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyId: payment.razorpayKeyId,
+          keySecret: payment.razorpayKeySecret,
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setRazorpayTestStatus({ type: 'success', text: data.message });
+      } else {
+        setRazorpayTestStatus({ type: 'error', text: data.error || 'Razorpay authentication failed.' });
+      }
+    } catch (err) {
+      setRazorpayTestStatus({ type: 'error', text: 'Network error testing Razorpay credentials.' });
+    } finally {
+      setTestingRazorpay(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchSettings() {
@@ -233,17 +262,37 @@ export default function AdminSettingsPage() {
               className="w-full bg-background border border-border/50 rounded-xl px-4 py-2 focus:outline-none focus:border-primary text-sm font-mono" 
             />
           </div>
-          <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1 md:col-span-2 space-y-3">
             <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg border border-border/40">
               💡 <strong>Important Razorpay Configuration Note:</strong> Ensure both <span className="font-mono text-primary font-semibold">Key ID</span> and <span className="font-mono text-primary font-semibold">Key Secret</span> are from the exact same mode in your Razorpay Dashboard. Live mode keys start with <code className="font-mono text-amber-600 bg-amber-500/10 px-1 py-0.5 rounded">rzp_live_</code> while Test mode keys start with <code className="font-mono text-amber-600 bg-amber-500/10 px-1 py-0.5 rounded">rzp_test_</code>.
             </p>
+
+            {razorpayTestStatus && (
+              <div className={cn(
+                "p-3 rounded-xl border text-xs font-medium transition-all",
+                razorpayTestStatus.type === 'success' 
+                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400" 
+                  : "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400"
+              )}>
+                {razorpayTestStatus.type === 'success' ? '✓ ' : '✕ '}
+                {razorpayTestStatus.text}
+              </div>
+            )}
           </div>
         </div>
-        <div className="pt-4 flex justify-end">
+        <div className="pt-4 flex flex-wrap items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={handleTestRazorpay}
+            disabled={testingRazorpay || !payment.razorpayKeyId || !payment.razorpayKeySecret}
+            className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer"
+          >
+            {testingRazorpay ? 'Testing Connection...' : '⚡ Test Razorpay Credentials'}
+          </button>
           <button 
             onClick={() => handleSave('payment', payment)}
             disabled={saving}
-            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md disabled:opacity-50"
+            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md disabled:opacity-50 cursor-pointer"
           >
             Save Payment & Shipping
           </button>
