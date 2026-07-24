@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { XCircle, ChevronRight, ChevronLeft, Loader2, AlertTriangle, CheckCircle2, HelpCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface CancelOrderModalProps {
   order: any;
@@ -10,39 +10,32 @@ interface CancelOrderModalProps {
   onSuccess: (updatedOrder: any) => void;
 }
 
-const STEP1_REASONS = [
-  { id: "Ordered by mistake", label: "Ordered by mistake / Changed my mind", icon: "🛍️" },
-  { id: "Found a better price elsewhere", label: "Found a lower price elsewhere", icon: "💰" },
-  { id: "Shipping time is too long", label: "Delivery time is too long / Delayed", icon: "⏱️" },
-  { id: "Need to change shipping address or item", label: "Need to change shipping address or item", icon: "📍" },
-  { id: "Other", label: "Financial reasons / Other", icon: "💸" },
-];
-
-const STEP2_FACTORS = [
-  "I plan to reorder a different jewelry piece later",
-  "I purchased from another store",
-  "I no longer need this item",
-  "Shipping or payment issues",
+const CANCELLATION_REASONS = [
+  { id: "I plan to reorder a different jewelry piece later", label: "I plan to reorder a different jewelry piece later", icon: "💍" },
+  { id: "I purchased from another store", label: "I purchased from another store", icon: "🛍️" },
+  { id: "I no longer need this item", label: "I no longer need this item", icon: "❌" },
+  { id: "Shipping or payment issues", label: "Shipping or payment issues / Delivery delayed", icon: "⏱️" },
+  { id: "Found a lower price elsewhere", label: "Found a lower price elsewhere", icon: "💰" },
+  { id: "Ordered by mistake / Changed my mind", label: "Ordered by mistake / Changed my mind", icon: "📍" },
 ];
 
 export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOrderModalProps) {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [primaryReason, setPrimaryReason] = useState("");
-  const [secondaryFactor, setSecondaryFactor] = useState("");
+  const [step, setStep] = useState<1 | 2>(1);
+  const [cancellationReason, setCancellationReason] = useState("");
   const [customFeedback, setCustomFeedback] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState("");
 
   const handleConfirmCancel = async () => {
-    if (!primaryReason || !secondaryFactor) {
-      setError("Please complete the questionnaire before cancelling.");
+    if (!cancellationReason) {
+      setError("Please select a reason for cancellation.");
       return;
     }
 
     setIsCancelling(true);
     setError("");
 
-    const fullReasonString = `Primary Reason: ${primaryReason} | Factor: ${secondaryFactor}${
+    const fullReasonString = `Reason: ${cancellationReason}${
       customFeedback ? ` | Feedback: ${customFeedback}` : ""
     }`;
 
@@ -81,7 +74,7 @@ export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOr
             <XCircle className="w-6 h-6" />
             <div>
               <h3 className="text-xl font-bold font-playfair text-foreground">Cancel Order #{order.orderId}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Step {step} of 3 — Cancellation Questionnaire</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Step {step} of 2 — Reason for Cancellation</p>
             </div>
           </div>
           <button
@@ -96,7 +89,7 @@ export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOr
         <div className="w-full bg-secondary h-1.5">
           <div
             className="bg-red-500 h-1.5 transition-all duration-300 ease-out"
-            style={{ width: step === 1 ? "33%" : step === 2 ? "66%" : "100%" }}
+            style={{ width: step === 1 ? "50%" : "100%" }}
           />
         </div>
 
@@ -109,25 +102,25 @@ export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOr
             </div>
           )}
 
-          {/* STEP 1: Primary Reason */}
+          {/* STEP 1: Reason Selection */}
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
               <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
                 <HelpCircle className="w-4 h-4 text-primary" />
-                <span>1. What is your primary reason for cancelling?</span>
+                <span>Why do you want to cancel this order?</span>
               </div>
 
               <div className="space-y-2.5">
-                {STEP1_REASONS.map((r) => (
+                {CANCELLATION_REASONS.map((r) => (
                   <button
                     key={r.id}
                     type="button"
                     onClick={() => {
-                      setPrimaryReason(r.id);
+                      setCancellationReason(r.id);
                       setError("");
                     }}
                     className={`w-full p-3.5 rounded-2xl border text-left text-sm flex items-center justify-between transition-all ${
-                      primaryReason === r.id
+                      cancellationReason === r.id
                         ? "border-red-500 bg-red-500/10 font-semibold text-red-600 dark:text-red-400 shadow-sm"
                         : "border-border hover:border-red-500/50 text-foreground bg-background"
                     }`}
@@ -136,52 +129,21 @@ export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOr
                       <span className="text-lg">{r.icon}</span>
                       <span>{r.label}</span>
                     </span>
-                    {primaryReason === r.id && <CheckCircle2 className="w-4 h-4 text-red-600 shrink-0" />}
+                    {cancellationReason === r.id && <CheckCircle2 className="w-4 h-4 text-red-600 shrink-0" />}
                   </button>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* STEP 2: Secondary Factor */}
+          {/* STEP 2: Order Summary & Feedback */}
           {step === 2 && (
-            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-              <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-                <HelpCircle className="w-4 h-4 text-primary" />
-                <span>2. Which of the following best describes your decision?</span>
-              </div>
-
-              <div className="space-y-2.5">
-                {STEP2_FACTORS.map((factor) => (
-                  <button
-                    key={factor}
-                    type="button"
-                    onClick={() => {
-                      setSecondaryFactor(factor);
-                      setError("");
-                    }}
-                    className={`w-full p-3.5 rounded-2xl border text-left text-sm flex items-center justify-between transition-all ${
-                      secondaryFactor === factor
-                        ? "border-red-500 bg-red-500/10 font-semibold text-red-600 dark:text-red-400 shadow-sm"
-                        : "border-border hover:border-red-500/50 text-foreground bg-background"
-                    }`}
-                  >
-                    <span>{factor}</span>
-                    {secondaryFactor === factor && <CheckCircle2 className="w-4 h-4 text-red-600 shrink-0" />}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* STEP 3: Order Summary & Feedback */}
-          {step === 3 && (
             <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
               <div className="p-4 bg-secondary/40 border border-border/50 rounded-2xl text-xs space-y-1.5">
                 <p className="font-semibold text-foreground text-sm mb-2">Order Cancellation Summary</p>
                 <p><span className="text-muted-foreground">Order ID:</span> <strong className="text-foreground">{order.orderId}</strong></p>
                 <p><span className="text-muted-foreground">Total Amount:</span> <strong className="text-primary font-bold">₹{order.totalAmount}</strong></p>
-                <p><span className="text-muted-foreground">Reason Selected:</span> {primaryReason}</p>
+                <p><span className="text-muted-foreground">Reason Selected:</span> <strong className="text-red-600 font-semibold">{cancellationReason}</strong></p>
               </div>
 
               <div className="space-y-2">
@@ -208,9 +170,9 @@ export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOr
         <div className="p-6 border-t border-border/50 bg-secondary/20 flex gap-3">
           {step > 1 ? (
             <button
-              onClick={() => setStep((step - 1) as any)}
+              onClick={() => setStep(1)}
               disabled={isCancelling}
-              className="py-3 px-5 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors flex items-center gap-1"
+              className="py-3 px-5 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" /> Back
             </button>
@@ -218,27 +180,23 @@ export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOr
             <button
               onClick={onClose}
               disabled={isCancelling}
-              className="py-3 px-5 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors"
+              className="py-3 px-5 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors cursor-pointer"
             >
               Keep Order
             </button>
           )}
 
-          {step < 3 ? (
+          {step < 2 ? (
             <button
               onClick={() => {
-                if (step === 1 && !primaryReason) {
+                if (!cancellationReason) {
                   setError("Please select a reason to continue.");
                   return;
                 }
-                if (step === 2 && !secondaryFactor) {
-                  setError("Please select an option to continue.");
-                  return;
-                }
                 setError("");
-                setStep((step + 1) as any);
+                setStep(2);
               }}
-              className="flex-1 py-3 px-6 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-1"
+              className="flex-1 py-3 px-6 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-1 cursor-pointer"
             >
               Next <ChevronRight className="w-4 h-4" />
             </button>
@@ -246,7 +204,7 @@ export default function CancelOrderModal({ order, onClose, onSuccess }: CancelOr
             <button
               onClick={handleConfirmCancel}
               disabled={isCancelling}
-              className="flex-1 py-3 px-6 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
+              className="flex-1 py-3 px-6 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center cursor-pointer"
             >
               {isCancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Cancellation"}
             </button>

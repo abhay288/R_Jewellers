@@ -108,20 +108,34 @@ export class ImportService {
       const baseName = relativePath.split('/').pop()?.trim() || '';
       if (!baseName || baseName.startsWith('.')) continue;
 
+      const lowerPath = relativePath.toLowerCase();
       const lowerName = baseName.toLowerCase();
       const ext = lowerName.split('.').pop() || '';
 
       if (['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'].includes(ext)) {
         const arrayBuf = await fileEntry.async('nodebuffer');
-        images.set(lowerName, { buffer: arrayBuf, name: baseName });
-        // Also index by filename without extension for flexible SKU matching
+        const fileObj = { buffer: arrayBuf, name: baseName };
+
+        // Index by full lowercased relative path (e.g., rj-kun-101/image1.jpg)
+        images.set(lowerPath, fileObj);
+        // Index by base filename (e.g., rj-kun-101.jpg)
+        images.set(lowerName, fileObj);
+
+        // Index by filename without extension (e.g., rj-kun-101)
         const nameWithoutExt = lowerName.substring(0, lowerName.lastIndexOf('.'));
-        images.set(nameWithoutExt, { buffer: arrayBuf, name: baseName });
+        if (nameWithoutExt) {
+          images.set(nameWithoutExt, fileObj);
+        }
       } else if (['mp4', 'webm', 'mov', 'm4v'].includes(ext)) {
         const arrayBuf = await fileEntry.async('nodebuffer');
-        videos.set(lowerName, { buffer: arrayBuf, name: baseName });
+        const fileObj = { buffer: arrayBuf, name: baseName };
+
+        videos.set(lowerPath, fileObj);
+        videos.set(lowerName, fileObj);
         const nameWithoutExt = lowerName.substring(0, lowerName.lastIndexOf('.'));
-        videos.set(nameWithoutExt, { buffer: arrayBuf, name: baseName });
+        if (nameWithoutExt) {
+          videos.set(nameWithoutExt, fileObj);
+        }
       }
     }
 
@@ -347,22 +361,29 @@ export class ImportService {
         }
 
         if (mediaFiles) {
-          // Find matching images in ZIP (either by SKU/Folder prefix or exact name)
+          // Find matching images in ZIP (either by SKU folder name e.g. "RJ-KUN-101/" or image renamed to SKU e.g. "RJ-KUN-101.jpg")
           const matchedImages: Buffer[] = [];
+          const targetSku = (userSku || name).toLowerCase().trim();
+          const targetFolderPrefix = `${targetSku}/`;
+
+          const seenBuffers = new Set<Buffer>();
+
           for (const [key, val] of mediaFiles.images.entries()) {
-            if (
-              key.startsWith(imageFolderKey) ||
-              (userSku && key.startsWith(userSku.toLowerCase())) ||
-              key.includes(name.toLowerCase().substring(0, 5))
-            ) {
+            if (seenBuffers.has(val.buffer)) continue;
+
+            const isSkuFolderMatch = key.startsWith(targetFolderPrefix);
+            const isSkuFilenameMatch = key === targetSku || key.startsWith(`${targetSku}.`) || key.startsWith(`${targetSku}_`) || key.startsWith(`${targetSku}-`);
+
+            if (isSkuFolderMatch || isSkuFilenameMatch) {
               matchedImages.push(val.buffer);
+              seenBuffers.add(val.buffer);
             }
           }
 
           // Upload matched images to Cloudinary
           for (let i = 0; i < matchedImages.length; i++) {
             try {
-              const url = await this.uploadBufferToCloudinary(matchedImages[i], `${imageFolderKey}_${i+1}.jpg`, false);
+              const url = await this.uploadBufferToCloudinary(matchedImages[i], `${targetSku}_${i+1}.jpg`, false);
               if (url) imageUrls.push(url);
             } catch (err) {
               console.error(`Failed uploading image ${i} for ${name}:`, err);

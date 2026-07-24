@@ -37,12 +37,12 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
   const [importResult, setImportResult] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Sample CSV Download generator (Simplified for Artificial Jewellery)
+  // Sample CSV Download generator (Simplified for Artificial Jewellery - Auto SKU Image Matching)
   const downloadSampleCSV = () => {
     const headers = [
       'SKU', 'Product Name', 'Category', 'Price', 'MRP', 'Discount %', 
       'Stock', 'Material', 'Stone Type', 'Occasion', 'Description', 
-      'Care Instructions', 'Image URLs'
+      'Care Instructions'
     ];
 
     const sampleRow1 = [
@@ -57,8 +57,7 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
       'Handcrafted Kundan & Pearl', 
       'Wedding & Festive', 
       'Exquisite 22K Gold Plated Kundan Choker set featuring handcrafted Kundan stones with pearls. Comes with matching jhumkas. Anti-tarnish and skin-safe.', 
-      'Avoid contact with water and perfume. Clean with soft cloth and store in velvet box.', 
-      'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f'
+      'Avoid contact with water and perfume. Clean with soft cloth and store in velvet box.'
     ];
 
     const sampleRow2 = [
@@ -73,8 +72,7 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
       'American Diamond / CZ', 
       'Everyday & Party Wear', 
       'Brilliant cut CZ solitaire ring crafted in premium silver polish alloy. Adjustable band fits all ring sizes seamlessly.', 
-      'Keep dry. Store in sealed pouch when not in use.', 
-      'https://images.unsplash.com/photo-1605100804763-247f67b3557e'
+      'Keep dry. Store in sealed pouch when not in use.'
     ];
 
     const csvContent = Papa.unparse([headers, sampleRow1, sampleRow2]);

@@ -10,20 +10,22 @@ const ipCache = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 
 const LIMITS = {
-  auth: 10,       // login, register, reset password
-  checkout: 15,   // checkout, contact message, returns
-  api: 60,        // other shop and catalog APIs
-  page: 120,      // standard pages
+  auth: 30,       // login, register, reset password
+  checkout: 120,  // checkout, place order, payment create
+  api: 300,       // other shop and catalog APIs
+  page: 600,      // standard pages
 };
 
 export default auth(async function middleware(request) {
   const { pathname } = request.nextUrl;
+  const method = request.method;
   
-  // 1. IP Rate Limiting (Exempt NextAuth internal routes /api/auth/ to prevent 429 on OAuth callbacks)
+  // 1. IP Rate Limiting (Exempt NextAuth internal routes and GET read operations)
   const isAuthApiRoute = pathname.startsWith('/api/auth/');
+  const isReadOperation = method === 'GET';
   const ip = (request as any).ip || request.headers.get('x-forwarded-for') || 'unknown';
 
-  if (ip !== 'unknown' && !isAuthApiRoute) {
+  if (ip !== 'unknown' && !isAuthApiRoute && !isReadOperation) {
     let limit = LIMITS.page;
     if (pathname.startsWith('/api/')) {
       if (
@@ -82,10 +84,10 @@ export default auth(async function middleware(request) {
     response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
   }
   
-  // Custom CSP allowing fonts, scripts, Google OAuth, and media resources securely
+  // Custom CSP allowing fonts, scripts, Razorpay CDN, Google OAuth, and media resources securely
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://cdn.jsdelivr.net https://checkout.razorpay.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; img-src 'self' blob: data: https:; media-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://* https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://accounts.google.com https://api.razorpay.com https://checkout.razorpay.com https://*;"
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://cdn.jsdelivr.net https://checkout.razorpay.com https://cdn.razorpay.com https://*.razorpay.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; img-src 'self' blob: data: https:; media-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://* https://www.google-analytics.com https://www.googletagmanager.com https://*.razorpay.com; frame-src 'self' https://accounts.google.com https://api.razorpay.com https://checkout.razorpay.com https://cdn.razorpay.com https://*;"
   );
 
   // 3. Protected Routes Logic using req.auth provided by Auth.js wrapper

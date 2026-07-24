@@ -968,7 +968,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
               </div>
               <div className="flex items-center space-x-3 text-xs text-muted-foreground">
                 <RotateCcw className="w-5 h-5 text-amber-500 shrink-0" />
-                <span>7-Day Hassle-free Exchange & Return Guarantee</span>
+                <span>2-Day Hassle-free Exchange & Return Guarantee</span>
               </div>
             </div>
 
