@@ -122,7 +122,7 @@ const OrderSchema: Schema<IOrder> = new Schema(
     
     status: { 
       type: String, 
-      enum: ['Order Placed', 'Confirmed', 'Packed', 'Shipped', 'Out For Delivery', 'Delivered', 'Cancelled', 'Returned'], 
+      enum: ['Payment Pending', 'Order Placed', 'Confirmed', 'Packed', 'Shipped', 'Out For Delivery', 'Delivered', 'Cancelled', 'Returned'], 
       default: 'Order Placed' 
     },
     paymentMethod: { type: String, default: 'COD' },

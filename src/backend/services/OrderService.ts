@@ -214,6 +214,8 @@ export class OrderService {
       };
 
       // 6. Create Order
+      const initialStatus = paymentMethod === 'COD' ? 'Order Placed' : 'Payment Pending';
+
       const newOrder = await Order.create([{
         orderId,
         user: userId,
@@ -224,10 +226,10 @@ export class OrderService {
         coupon: totals.appliedCoupon ? totals.appliedCoupon._id : undefined,
         shippingAddress: addressId,
         shippingAddressSnapshot,
-        status: 'Order Placed',
+        status: initialStatus,
         paymentMethod,
         paymentStatus: 'pending',
-        trackingTimeline: [{ status: 'Order Placed', note: 'Order has been placed successfully.' }]
+        trackingTimeline: [{ status: initialStatus, note: paymentMethod === 'COD' ? 'Order has been placed successfully.' : 'Awaiting online payment completion.' }]
       }], { session });
 
       // 7. Create standalone OrderTimeline entry
@@ -345,6 +347,8 @@ export class OrderService {
     };
 
     // 6. Create Order
+    const initialStatus = paymentMethod === 'COD' ? 'Order Placed' : 'Payment Pending';
+
     const newOrder = await Order.create({
       orderId,
       user: userId,
@@ -355,10 +359,10 @@ export class OrderService {
       coupon: totals.appliedCoupon ? totals.appliedCoupon._id : undefined,
       shippingAddress: addressId,
       shippingAddressSnapshot,
-      status: 'Order Placed',
+      status: initialStatus,
       paymentMethod,
       paymentStatus: 'pending',
-      trackingTimeline: [{ status: 'Order Placed', note: 'Order has been placed successfully.' }]
+      trackingTimeline: [{ status: initialStatus, note: paymentMethod === 'COD' ? 'Order has been placed successfully.' : 'Awaiting online payment completion.' }]
     });
 
     // 7. Create standalone OrderTimeline entry
@@ -574,6 +578,9 @@ export class OrderService {
     const query: any = {};
     if (statusFilter && statusFilter !== 'All') {
       query.status = statusFilter;
+    } else {
+      // Exclude abandoned/unpaid online checkout attempts from main Admin orders dashboard
+      query.status = { $ne: 'Payment Pending' };
     }
 
     if (search) {
@@ -581,6 +588,8 @@ export class OrderService {
 
       if (statusFilter && statusFilter !== 'All') {
         pipeline.push({ $match: { status: statusFilter } });
+      } else {
+        pipeline.push({ $match: { status: { $ne: 'Payment Pending' } } });
       }
 
       // Join with users collection

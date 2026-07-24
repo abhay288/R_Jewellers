@@ -28,6 +28,7 @@ export default function AdminOrdersClient({ initialOrders, totalPages, currentPa
       case 'Cancelled': return 'bg-red-100 text-red-700 border-red-200';
       case 'Shipped': return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'Out For Delivery': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+      case 'Payment Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
       default: return 'bg-yellow-100 text-yellow-700 border-yellow-200';
     }
   };
@@ -55,15 +56,16 @@ export default function AdminOrdersClient({ initialOrders, totalPages, currentPa
             value={statusFilter}
             onChange={handleFilterChange}
           >
-            <option value="All">All Statuses</option>
-            <option value="Order Placed">Order Placed</option>
-            <option value="Confirmed">Confirmed</option>
+            <option value="All">All Active Orders</option>
+            <option value="Order Placed">Order Placed (COD)</option>
+            <option value="Confirmed">Confirmed (Paid)</option>
             <option value="Packed">Packed</option>
             <option value="Shipped">Shipped</option>
             <option value="Out For Delivery">Out For Delivery</option>
             <option value="Delivered">Delivered</option>
             <option value="Cancelled">Cancelled</option>
             <option value="Returned">Returned</option>
+            <option value="Payment Pending">Payment Pending (Unpaid Online)</option>
           </select>
         </div>
       </div>
