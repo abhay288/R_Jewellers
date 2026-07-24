@@ -72,6 +72,9 @@ export class EmailService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
         <style>
+          *, *:before, *:after {
+            box-sizing: border-box;
+          }
           body {
             font-family: 'Playfair Display', Georgia, Cambria, "Times New Roman", Times, serif;
             background-color: #fcfbfa;
@@ -79,23 +82,26 @@ export class EmailService {
             margin: 0;
             padding: 0;
             -webkit-font-smoothing: antialiased;
+            width: 100% !important;
           }
           .container {
             max-width: 600px;
-            margin: 40px auto;
+            width: 100%;
+            margin: 20px auto;
             background-color: #ffffff;
             border: 1px solid #e5dfd9;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
             border-top: 6px solid #8c765c;
+            overflow: hidden;
           }
           .header {
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px 20px;
             background-color: #ffffff;
             border-bottom: 1px solid #f5f2ef;
           }
           .logo {
-            font-size: 26px;
+            font-size: 24px;
             letter-spacing: 4px;
             text-transform: uppercase;
             font-weight: 700;
@@ -111,11 +117,13 @@ export class EmailService {
             margin-top: 5px;
           }
           .content {
-            padding: 40px 40px 20px 40px;
+            padding: 28px 24px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 15px;
+            font-size: 14px;
             line-height: 1.6;
             color: #333333;
+            word-break: break-word;
+            overflow-wrap: break-word;
           }
           .title {
             font-family: 'Playfair Display', Georgia, Cambria, serif;
@@ -267,8 +275,8 @@ export class EmailService {
   async sendOrderConfirmationEmail(to: string, name: string, order: any) {
     const itemsHtml = order.products.map((item: any) => `
       <tr>
-        <td style="padding: 10px 0; border-bottom: 1px solid #f5f2ef;">${item.name} (x${item.quantity})</td>
-        <td style="padding: 10px 0; border-bottom: 1px solid #f5f2ef; text-align: right;">₹${item.finalPrice * item.quantity}</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #f5f2ef; word-break: break-word;">${item.name} (x${item.quantity})</td>
+        <td style="padding: 10px 0; border-bottom: 1px solid #f5f2ef; text-align: right; white-space: nowrap;">₹${item.finalPrice * item.quantity}</td>
       </tr>
     `).join('');
 
@@ -279,27 +287,37 @@ export class EmailService {
         <p>Dear ${name},</p>
         <p>Thank you for shopping with Radhika Jewellers. We are delighted to confirm that your order <strong>${order.orderId}</strong> has been received and is being prepared.</p>
         
-        <div style="background-color: #faf8f6; padding: 20px; border: 1px solid #e5dfd9; margin: 20px 0;">
-          <h3 style="margin-top: 0; color: #8c765c; font-family: 'Playfair Display', serif;">Order Details</h3>
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            ${itemsHtml}
-            <tr>
-              <td style="padding: 15px 0 5px; font-weight: bold;">Subtotal</td>
-              <td style="padding: 15px 0 5px; text-align: right; font-weight: bold;">₹${order.totalAmount - order.deliveryCharges + order.discount}</td>
-            </tr>
-            ${order.discount ? `
-            <tr>
-              <td style="padding: 5px 0; color: #8c765c;">Discount</td>
-              <td style="padding: 5px 0; text-align: right; color: #8c765c;">-₹${order.discount}</td>
-            </tr>` : ''}
-            <tr>
-              <td style="padding: 5px 0;">Delivery Charges</td>
-              <td style="padding: 5px 0; text-align: right;">₹${order.deliveryCharges}</td>
-            </tr>
-            <tr style="border-top: 2px solid #8c765c;">
-              <td style="padding: 10px 0 0; font-weight: bold; font-size: 16px;">Total Amount</td>
-              <td style="padding: 10px 0 0; text-align: right; font-weight: bold; font-size: 16px; color: #8c765c;">₹${order.totalAmount}</td>
-            </tr>
+        <div style="background-color: #faf8f6; padding: 16px; border: 1px solid #e5dfd9; border-radius: 6px; margin: 20px 0; box-sizing: border-box; width: 100%;">
+          <h3 style="margin-top: 0; margin-bottom: 12px; color: #8c765c; font-family: 'Playfair Display', serif; font-size: 16px;">Order Details</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; box-sizing: border-box;">
+            <thead>
+              <tr>
+                <th style="padding: 8px 0; border-bottom: 2px solid #8c765c; text-align: left; color: #8c765c; font-size: 12px; width: 65%;">ITEM</th>
+                <th style="padding: 8px 0; border-bottom: 2px solid #8c765c; text-align: right; color: #8c765c; font-size: 12px; width: 35%;">PRICE</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td style="padding: 12px 0 4px; font-weight: bold;">Subtotal</td>
+                <td style="padding: 12px 0 4px; text-align: right; font-weight: bold;">₹${order.totalAmount - order.deliveryCharges + (order.discount || 0)}</td>
+              </tr>
+              ${order.discount ? `
+              <tr>
+                <td style="padding: 4px 0; color: #8c765c;">Discount</td>
+                <td style="padding: 4px 0; text-align: right; color: #8c765c;">-₹${order.discount}</td>
+              </tr>` : ''}
+              <tr>
+                <td style="padding: 4px 0;">Delivery Charges</td>
+                <td style="padding: 4px 0; text-align: right;">${order.deliveryCharges === 0 ? 'FREE' : `₹${order.deliveryCharges}`}</td>
+              </tr>
+              <tr style="border-top: 2px solid #8c765c;">
+                <td style="padding: 10px 0 0; font-weight: bold; font-size: 15px;">Total Amount</td>
+                <td style="padding: 10px 0 0; text-align: right; font-weight: bold; font-size: 15px; color: #8c765c;">₹${order.totalAmount}</td>
+              </tr>
+            </tfoot>
           </table>
         </div>
 

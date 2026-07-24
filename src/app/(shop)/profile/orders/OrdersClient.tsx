@@ -3,17 +3,62 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, ChevronRight, Filter } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Package, ChevronRight, Filter, XCircle, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function OrdersClient({ initialOrders, totalPages, currentPage, currentStatus }: any) {
   const router = useRouter();
+  const [orders, setOrders] = useState<any[]>(initialOrders);
   const [statusFilter, setStatusFilter] = useState(currentStatus);
+
+  // Cancel order modal states
+  const [cancellingOrder, setCancellingOrder] = useState<any | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState('');
 
   const handleFilterChange = (e: any) => {
     const newStatus = e.target.value;
     setStatusFilter(newStatus);
     router.push(`/profile/orders?status=${newStatus}&page=1`);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!cancellingOrder) return;
+    if (!cancelReason) {
+      setCancelError('Please select a reason for cancellation.');
+      return;
+    }
+
+    setIsCancelling(true);
+    setCancelError('');
+
+    try {
+      const res = await fetch(`/api/shop/orders/${cancellingOrder.orderId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: cancelReason }),
+      });
+
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error || 'Failed to cancel order');
+      }
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === cancellingOrder._id || o.orderId === cancellingOrder.orderId
+            ? { ...o, status: 'Cancelled' }
+            : o
+        )
+      );
+      setCancellingOrder(null);
+      setCancelReason('');
+    } catch (err: any) {
+      setCancelError(err.message);
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -48,7 +93,7 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
         </div>
       </div>
 
-      {initialOrders.length === 0 ? (
+      {orders.length === 0 ? (
         <div className="text-center py-20 bg-secondary/20 rounded-2xl border border-border">
           <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
           <h3 className="text-xl font-medium mb-2">No orders found</h3>
@@ -59,74 +104,98 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
         </div>
       ) : (
         <div className="space-y-6">
-          {initialOrders.map((order: any, idx: number) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              key={order._id} 
-              className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow group"
-            >
-              <div className="flex flex-col lg:flex-row justify-between gap-6">
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="font-semibold text-lg">{order.orderId}</span>
-                    <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-6">
-                    <div>
-                      <p className="text-muted-foreground">Order Date</p>
-                      <p className="font-medium">{new Date(order.createdAt).toLocaleDateString()}</p>
+          {orders.map((order: any, idx: number) => {
+            const canCancel = ['Order Placed', 'Confirmed'].includes(order.status);
+
+            return (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                key={order._id} 
+                className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow group"
+              >
+                <div className="flex flex-col lg:flex-row justify-between gap-6">
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                      <span className="font-semibold text-lg">{order.orderId}</span>
+                      <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${getStatusColor(order.status)}`}>
+                        {order.status}
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Total Amount</p>
-                      <p className="font-bold text-primary">₹{order.totalAmount}</p>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-6">
+                      <div>
+                        <p className="text-muted-foreground">Order Date</p>
+                        <p className="font-medium">{new Date(order.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Total Amount</p>
+                        <p className="font-bold text-primary">₹{order.totalAmount}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Payment</p>
+                        <p className="font-medium">{order.paymentMethod}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Payment</p>
-                      <p className="font-medium">{order.paymentMethod}</p>
+
+                    <div className="flex -space-x-4">
+                      {order.products.slice(0, 4).map((p: any, i: number) => {
+                        const imageUrl = p.image || (p.product && typeof p.product === 'object' && (
+                          Array.isArray(p.product.images) && p.product.images.length > 0 
+                            ? (typeof p.product.images[0] === 'string' ? p.product.images[0] : p.product.images[0]?.url)
+                            : p.product.image
+                        )) || (
+                          p.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                          p.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" :
+                          p.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                          p.name?.toLowerCase().includes('bangle') || p.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                          "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                        );
+
+                        return (
+                          <div key={i} className="w-12 h-12 rounded-full border-2 border-background overflow-hidden bg-secondary relative">
+                            <img 
+                              src={imageUrl} 
+                              alt={p.name} 
+                              className="w-full h-full object-cover" 
+                            />
+                          </div>
+                        );
+                      })}
+                      {order.products.length > 4 && (
+                        <div className="w-12 h-12 rounded-full border-2 border-background bg-secondary flex items-center justify-center text-xs font-medium relative z-10">
+                          +{order.products.length - 4}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex -space-x-4">
-                    {order.products.slice(0, 4).map((p: any, i: number) => (
-                      <div key={i} className="w-12 h-12 rounded-full border-2 border-background overflow-hidden bg-secondary relative">
-                        <img 
-                          src={p.product?.images?.[0]?.url || p.product?.images?.[0] || (
-                            p.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
-                            p.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" :
-                            p.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
-                            p.name?.toLowerCase().includes('bangle') || p.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
-                            "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
-                          )} 
-                          alt={p.name} 
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                    ))}
-                    {order.products.length > 4 && (
-                      <div className="w-12 h-12 rounded-full border-2 border-background bg-secondary flex items-center justify-center text-xs font-medium relative z-10">
-                        +{order.products.length - 4}
-                      </div>
+                  <div className="flex flex-col md:flex-row lg:flex-col items-center lg:items-end justify-center gap-3 lg:border-l lg:border-border lg:pl-6">
+                    {canCancel && (
+                      <button
+                        onClick={() => {
+                          setCancellingOrder(order);
+                          setCancelReason('');
+                          setCancelError('');
+                        }}
+                        className="w-full lg:w-auto px-5 py-2.5 border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors text-sm font-medium"
+                      >
+                        Cancel Order
+                      </button>
                     )}
+                    <Link 
+                      href={`/profile/orders/${order.orderId}`}
+                      className="w-full lg:w-auto flex items-center justify-center px-6 py-2.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full transition-colors text-sm font-medium"
+                    >
+                      View Details
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </Link>
                   </div>
                 </div>
-
-                <div className="flex items-center lg:border-l lg:border-border lg:pl-6">
-                  <Link 
-                    href={`/profile/orders/${order.orderId}`}
-                    className="w-full lg:w-auto flex items-center justify-center lg:justify-between px-6 py-3 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full transition-colors text-sm font-medium"
-                  >
-                    View Details
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
@@ -143,6 +212,73 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
           ))}
         </div>
       )}
+
+      {/* Cancel Order Confirmation Modal */}
+      <AnimatePresence>
+        {cancellingOrder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 border border-border"
+            >
+              <div className="flex items-center gap-3 mb-4 text-red-600">
+                <XCircle className="w-6 h-6" />
+                <h3 className="text-xl font-bold">Cancel Order #{cancellingOrder.orderId}</h3>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-4">
+                Are you sure you want to cancel this order? Stock will be restored and your request will be processed immediately.
+              </p>
+
+              {cancelError && (
+                <p className="text-sm text-red-600 mb-4 bg-red-50 p-3 rounded-xl border border-red-200">
+                  {cancelError}
+                </p>
+              )}
+
+              <div className="space-y-2 mb-6">
+                <label className="text-sm font-medium">Reason for cancellation</label>
+                <select
+                  className="w-full p-3 bg-background border border-border rounded-xl focus:ring-1 focus:ring-primary outline-none text-sm"
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                >
+                  <option value="">Select a reason</option>
+                  <option value="Changed my mind">I changed my mind</option>
+                  <option value="Found a better price elsewhere">Found a better price elsewhere</option>
+                  <option value="Ordered by mistake">Ordered by mistake</option>
+                  <option value="Shipping time is too long">Shipping time is too long</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setCancellingOrder(null)}
+                  disabled={isCancelling}
+                  className="flex-1 py-3 px-4 bg-secondary text-secondary-foreground rounded-full text-sm font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50"
+                >
+                  Keep Order
+                </button>
+                <button
+                  onClick={handleConfirmCancel}
+                  disabled={isCancelling}
+                  className="flex-1 py-3 px-4 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
+                >
+                  {isCancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Cancel"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

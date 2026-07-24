@@ -24,16 +24,17 @@ export default function SmoothScroll({
       return;
     }
 
-    // Initialize Lenis with ultra-smooth momentum settings for storefront luxury feel
+    // Initialize Lenis with ultra-smooth momentum settings for luxury feel
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.05,
+      touchMultiplier: 1.6,
       infinite: false,
+      autoResize: true,
     });
 
     lenisRef.current = lenis;
@@ -47,8 +48,17 @@ export default function SmoothScroll({
 
     animationFrameId = requestAnimationFrame(update);
 
+    // Auto-recalculate scroll height when DOM dimensions change (e.g. dynamic loaded components)
+    const resizeObserver = new ResizeObserver(() => {
+      lenis.resize();
+    });
+    if (document.body) {
+      resizeObserver.observe(document.body);
+    }
+
     return () => {
       cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
       lenis.destroy();
       lenisRef.current = null;
     };
@@ -58,6 +68,8 @@ export default function SmoothScroll({
   useEffect(() => {
     if (lenisRef.current && !isAdmin) {
       lenisRef.current.scrollTo(0, { immediate: true });
+    } else if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
     }
   }, [pathname, isAdmin]);
 

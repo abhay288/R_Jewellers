@@ -24,22 +24,64 @@ export const generateInvoicePDF = (order: any, brandName: string = 'Radhika Jewe
   doc.text(`Order Date: ${new Date(order.createdAt).toLocaleDateString()}`, 140, 35);
   doc.text(`Payment: ${order.paymentMethod}`, 140, 40);
 
-  // Billing / Shipping
+  // Billing / Shipping Details
   doc.setFontSize(12);
   doc.setTextColor(40);
   doc.text('Billed To:', 14, 50);
   
   doc.setFontSize(10);
   doc.setTextColor(100);
-  if (order.shippingAddress) {
-    doc.text(`${order.shippingAddress.fullName}`, 14, 57);
-    doc.text(`${order.shippingAddress.houseNo}, ${order.shippingAddress.street}`, 14, 62);
-    doc.text(`${order.shippingAddress.area}, ${order.shippingAddress.city}`, 14, 67);
-    doc.text(`${order.shippingAddress.state} - ${order.shippingAddress.postalCode}`, 14, 72);
-    doc.text(`Phone: ${order.shippingAddress.phone}`, 14, 77);
-  } else if (order.user) {
-    doc.text(`${order.user.name}`, 14, 57);
-    doc.text(`${order.user.email}`, 14, 62);
+
+  const addrObj = (typeof order.shippingAddress === 'object' && order.shippingAddress)
+    ? order.shippingAddress
+    : (order.shippingAddressSnapshot || null);
+  const userObj = (typeof order.user === 'object' && order.user) ? order.user : null;
+
+  const customerName = (addrObj?.fullName && addrObj.fullName !== 'undefined')
+    ? addrObj.fullName
+    : ((userObj?.name && userObj.name !== 'undefined') ? userObj.name : 'Valued Customer');
+
+  const customerPhone = (addrObj?.phone && addrObj.phone !== 'undefined')
+    ? addrObj.phone
+    : ((userObj?.phone && userObj.phone !== 'undefined') ? userObj.phone : '');
+
+  const customerEmail = (addrObj?.email && addrObj.email !== 'undefined')
+    ? addrObj.email
+    : ((userObj?.email && userObj.email !== 'undefined') ? userObj.email : '');
+
+  let addressLines: string[] = [];
+  if (addrObj) {
+    const l1 = [addrObj.houseNo, addrObj.street]
+      .filter((s: any) => Boolean(s) && String(s).trim() !== 'undefined')
+      .join(', ');
+    if (l1) addressLines.push(l1);
+
+    const l2 = [addrObj.area, addrObj.city]
+      .filter((s: any) => Boolean(s) && String(s).trim() !== 'undefined')
+      .join(', ');
+    if (l2) addressLines.push(l2);
+
+    const l3 = [addrObj.state, addrObj.postalCode]
+      .filter((s: any) => Boolean(s) && String(s).trim() !== 'undefined')
+      .join(' - ');
+    if (l3) addressLines.push(l3);
+  }
+
+  let currentY = 56;
+  doc.text(`${customerName}`, 14, currentY);
+  currentY += 5;
+
+  addressLines.forEach((line) => {
+    doc.text(line, 14, currentY);
+    currentY += 5;
+  });
+
+  if (customerPhone) {
+    doc.text(`Phone: ${customerPhone}`, 14, currentY);
+    currentY += 5;
+  } else if (customerEmail) {
+    doc.text(`Email: ${customerEmail}`, 14, currentY);
+    currentY += 5;
   }
 
   // Table Data

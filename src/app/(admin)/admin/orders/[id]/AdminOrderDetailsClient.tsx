@@ -323,34 +323,42 @@ export default function AdminOrderDetailsClient({ initialOrder }: { initialOrder
               <Package className="w-5 h-5 mr-2 text-gray-400" /> Products Ordered
             </h2>
             <div className="divide-y divide-gray-100">
-              {order.products.map((item: any, idx: number) => (
-                <div key={idx} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-                      <img 
-                        src={item.product?.images?.[0]?.url || item.product?.images?.[0] || (
-                          item.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
-                          item.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" :
-                          item.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
-                          item.name?.toLowerCase().includes('bangle') || item.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
-                          "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
-                        )} 
-                        alt={item.name} 
-                        className="w-full h-full object-cover" 
-                      />
+              {order.products.map((item: any, idx: number) => {
+                const imageUrl = item.image || (item.product && typeof item.product === 'object' && (
+                  Array.isArray(item.product.images) && item.product.images.length > 0 
+                    ? (typeof item.product.images[0] === 'string' ? item.product.images[0] : item.product.images[0]?.url)
+                    : item.product.image
+                )) || (
+                  item.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                  item.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" :
+                  item.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                  item.name?.toLowerCase().includes('bangle') || item.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                  "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                );
+
+                return (
+                  <div key={idx} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden shrink-0">
+                        <img 
+                          src={imageUrl} 
+                          alt={item.name} 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{item.name}</p>
+                        <p className="text-xs text-gray-500">SKU: {item.product?.sku || 'N/A'}</p>
+                        <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-sm">{item.name}</p>
-                      <p className="text-xs text-gray-500">SKU: {item.product?.sku || 'N/A'}</p>
-                      <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
+                    <div className="text-right">
+                      <p className="font-medium">₹{item.finalPrice}</p>
+                      {item.discount > 0 && <p className="text-xs text-green-600">Disc: ₹{item.discount}</p>}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">₹{item.finalPrice}</p>
-                    {item.discount > 0 && <p className="text-xs text-green-600">Disc: ₹{item.discount}</p>}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             <div className="mt-6 pt-6 border-t border-gray-100 space-y-2 text-sm">
@@ -398,47 +406,67 @@ export default function AdminOrderDetailsClient({ initialOrder }: { initialOrder
 
         {/* Right Column - Customer / Shipping Info */}
         <div className="space-y-8">
-          
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-bold mb-4 flex items-center">
-              <User className="w-5 h-5 mr-2 text-gray-400" /> Customer Details
-            </h2>
-            <div className="space-y-3 text-sm">
-              <div>
-                <p className="text-gray-500 text-xs">Name</p>
-                <p className="font-medium">{order.user?.name || 'Guest User'}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-xs">Email</p>
-                <p className="font-medium">{order.user?.email || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-xs">Phone</p>
-                <p className="font-medium">{order.user?.phone || 'N/A'}</p>
-              </div>
-            </div>
-          </div>
+          {(() => {
+            const addr = (typeof order.shippingAddress === 'object' && order.shippingAddress && (order.shippingAddress.fullName || order.shippingAddress.street)) 
+              ? order.shippingAddress 
+              : (order.shippingAddressSnapshot || null);
+            const name = order.user?.name || addr?.fullName || 'Guest User';
+            const email = order.user?.email || addr?.email || 'N/A';
+            const phone = order.user?.phone || addr?.phone || 'N/A';
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-bold mb-4 flex items-center">
-              <MapPin className="w-5 h-5 mr-2 text-gray-400" /> Shipping Address
-            </h2>
-            {order.shippingAddress ? (
-              <div className="text-sm space-y-1 text-gray-700">
-                <p className="font-medium text-gray-900 mb-2">{order.shippingAddress.fullName}</p>
-                <p>{order.shippingAddress.houseNo}, {order.shippingAddress.street}</p>
-                {order.shippingAddress.landmark && <p>Landmark: {order.shippingAddress.landmark}</p>}
-                <p>{order.shippingAddress.area}, {order.shippingAddress.city}</p>
-                <p>{order.shippingAddress.state} - {order.shippingAddress.postalCode}</p>
-                <p className="mt-3 font-medium">
-                  Phone: {order.shippingAddress.phone}
-                  {order.shippingAddress.alternatePhone && `, ${order.shippingAddress.alternatePhone}`}
-                </p>
-              </div>
-            ) : (
-              <p className="text-gray-500 text-sm">No address details available.</p>
-            )}
-          </div>
+            return (
+              <>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h2 className="text-lg font-bold mb-4 flex items-center">
+                    <User className="w-5 h-5 mr-2 text-gray-400" /> Customer Details
+                  </h2>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <p className="text-gray-500 text-xs">Name</p>
+                      <p className="font-medium">{name}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs">Email</p>
+                      <p className="font-medium">{email}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs">Phone</p>
+                      <p className="font-medium">{phone}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h2 className="text-lg font-bold mb-4 flex items-center">
+                    <MapPin className="w-5 h-5 mr-2 text-gray-400" /> Shipping Address
+                  </h2>
+                  {addr && (addr.fullName || addr.street || addr.city || addr.phone) ? (
+                    <div className="text-sm space-y-1 text-gray-700">
+                      {addr.fullName && <p className="font-medium text-gray-900 mb-2">{addr.fullName}</p>}
+                      {(addr.houseNo || addr.street) && (
+                        <p>{[addr.houseNo, addr.street].filter(Boolean).join(', ')}</p>
+                      )}
+                      {addr.landmark && <p>Landmark: {addr.landmark}</p>}
+                      {(addr.area || addr.city) && (
+                        <p>{[addr.area, addr.city].filter(Boolean).join(', ')}</p>
+                      )}
+                      {(addr.state || addr.postalCode) && (
+                        <p>{[addr.state, addr.postalCode].filter(Boolean).join(' - ')}</p>
+                      )}
+                      {addr.phone && (
+                        <p className="mt-3 font-medium">
+                          Phone: {addr.phone}
+                          {(addr.alternatePhone || addr.alternateMobile) && `, ${addr.alternatePhone || addr.alternateMobile}`}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">No address details available.</p>
+                  )}
+                </div>
+              </>
+            );
+          })()}
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-bold mb-4 flex items-center">

@@ -59,19 +59,46 @@ export function generateServerInvoicePDF(order: any): Buffer {
   doc.setTextColor(...DARK);
   doc.text('BILL TO', 20, y + 8);
 
-  const addr = order.shippingAddress;
+  const addrObj = (typeof order.shippingAddress === 'object' && order.shippingAddress)
+    ? order.shippingAddress
+    : (order.shippingAddressSnapshot || null);
+  const userObj = (typeof order.user === 'object' && order.user) ? order.user : null;
+
+  const customerName = (addrObj?.fullName && addrObj.fullName !== 'undefined')
+    ? addrObj.fullName
+    : ((userObj?.name && userObj.name !== 'undefined') ? userObj.name : 'Valued Customer');
+
+  const customerPhone = (addrObj?.phone && addrObj.phone !== 'undefined')
+    ? addrObj.phone
+    : ((userObj?.phone && userObj.phone !== 'undefined') ? userObj.phone : '');
+
+  const customerEmail = (addrObj?.email && addrObj.email !== 'undefined')
+    ? addrObj.email
+    : ((userObj?.email && userObj.email !== 'undefined') ? userObj.email : '');
+
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...GRAY);
-  if (addr) {
-    doc.text(addr.fullName || '', 20, y + 15);
-    doc.text(`${addr.houseNo || ''}, ${addr.street || ''}`, 20, y + 21);
-    doc.text(`${addr.area || ''}, ${addr.city || ''}`, 20, y + 27);
-    doc.text(`${addr.state || ''} - ${addr.postalCode || ''}`, 20, y + 33);
-    doc.text(`Phone: ${addr.phone || ''}`, 20, y + 39);
-  } else {
-    doc.text(order.user?.name || '', 20, y + 15);
-    doc.text(order.user?.email || '', 20, y + 21);
+
+  let lineY = y + 15;
+  doc.text(customerName, 20, lineY);
+  lineY += 6;
+
+  if (addrObj) {
+    const l1 = [addrObj.houseNo, addrObj.street].filter((s: any) => Boolean(s) && String(s).trim() !== 'undefined').join(', ');
+    if (l1) { doc.text(l1, 20, lineY); lineY += 6; }
+
+    const l2 = [addrObj.area, addrObj.city].filter((s: any) => Boolean(s) && String(s).trim() !== 'undefined').join(', ');
+    if (l2) { doc.text(l2, 20, lineY); lineY += 6; }
+
+    const l3 = [addrObj.state, addrObj.postalCode].filter((s: any) => Boolean(s) && String(s).trim() !== 'undefined').join(' - ');
+    if (l3) { doc.text(l3, 20, lineY); lineY += 6; }
+  }
+
+  if (customerPhone) {
+    doc.text(`Phone: ${customerPhone}`, 20, lineY);
+  } else if (customerEmail) {
+    doc.text(`Email: ${customerEmail}`, 20, lineY);
   }
 
   // Order info box (right)

@@ -47,13 +47,21 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // 1. Allow relative callback URLs (e.g. "/admin", "/checkout", "/account")
+      // 1. If returning from internal auth callback or login, redirect to homepage
+      if (url.includes("/api/auth/callback") || url.endsWith("/login")) {
+        return baseUrl;
+      }
+
+      // 2. Allow relative callback URLs (e.g. "/admin", "/checkout", "/account")
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       
-      // 2. Allow same-origin URLs or recognized domain targets
+      // 3. Allow same-origin URLs or recognized domain targets
       try {
         const targetUrl = new URL(url);
         const baseUrlObj = new URL(baseUrl);
+        if (targetUrl.pathname.includes("/api/auth/callback") || targetUrl.pathname.endsWith("/login")) {
+          return baseUrl;
+        }
         if (
           targetUrl.origin === baseUrlObj.origin ||
           targetUrl.hostname.endsWith("radhikajewellers.store") ||

@@ -87,8 +87,20 @@ export default function AdminOrdersClient({ initialOrders, totalPages, currentPa
                 <td className="px-6 py-4 font-medium text-gray-900">{order.orderId}</td>
                 <td className="px-6 py-4 text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
                 <td className="px-6 py-4">
-                  <div className="font-medium text-gray-900">{order.user?.name || 'Guest'}</div>
-                  <div className="text-gray-500 text-xs">{order.user?.email || ''}</div>
+                  {(() => {
+                    const addr = (typeof order.shippingAddress === 'object' && order.shippingAddress && (order.shippingAddress.fullName || order.shippingAddress.street))
+                      ? order.shippingAddress 
+                      : (order.shippingAddressSnapshot || null);
+                    const name = order.user?.name || addr?.fullName || 'Guest';
+                    const email = order.user?.email || addr?.email || '';
+
+                    return (
+                      <>
+                        <div className="font-medium text-gray-900">{name}</div>
+                        <div className="text-gray-500 text-xs">{email}</div>
+                      </>
+                    );
+                  })()}
                 </td>
                 <td className="px-6 py-4 font-medium text-gray-900">₹{order.totalAmount}</td>
                 <td className="px-6 py-4">

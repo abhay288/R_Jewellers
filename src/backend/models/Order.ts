@@ -7,6 +7,22 @@ export interface IOrderProduct {
   price: number;
   discount: number;
   finalPrice: number;
+  image?: string;
+}
+
+export interface IShippingAddressSnapshot {
+  fullName: string;
+  phone: string;
+  alternatePhone?: string;
+  email?: string;
+  houseNo: string;
+  street: string;
+  landmark?: string;
+  area: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country?: string;
 }
 
 export interface ITrackingTimeline {
@@ -28,6 +44,7 @@ export interface IOrder extends Document {
   
   // Addresses
   shippingAddress: mongoose.Types.ObjectId;
+  shippingAddressSnapshot?: IShippingAddressSnapshot;
   
   // Statuses
   status: 'Order Placed' | 'Confirmed' | 'Packed' | 'Shipped' | 'Out For Delivery' | 'Delivered' | 'Cancelled' | 'Returned';
@@ -65,6 +82,22 @@ const OrderProductSchema = new Schema<IOrderProduct>({
   price: { type: Number, required: true, min: 0 },
   discount: { type: Number, default: 0, min: 0 },
   finalPrice: { type: Number, required: true, min: 0 },
+  image: { type: String },
+}, { _id: false });
+
+const ShippingAddressSnapshotSchema = new Schema<IShippingAddressSnapshot>({
+  fullName: { type: String },
+  phone: { type: String },
+  alternatePhone: { type: String },
+  email: { type: String },
+  houseNo: { type: String },
+  street: { type: String },
+  landmark: { type: String },
+  area: { type: String },
+  city: { type: String },
+  state: { type: String },
+  postalCode: { type: String },
+  country: { type: String },
 }, { _id: false });
 
 const TrackingTimelineSchema = new Schema<ITrackingTimeline>({
@@ -85,6 +118,7 @@ const OrderSchema: Schema<IOrder> = new Schema(
     coupon: { type: Schema.Types.ObjectId, ref: 'Coupon' },
     
     shippingAddress: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
+    shippingAddressSnapshot: ShippingAddressSnapshotSchema,
     
     status: { 
       type: String, 

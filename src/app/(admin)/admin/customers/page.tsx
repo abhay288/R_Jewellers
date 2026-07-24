@@ -392,7 +392,7 @@ export default function CustomersPage() {
             <p className="text-xs text-muted-foreground mt-1">Try adjusting your search query or filter options.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto smooth-scroll custom-scrollbar">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
                 <tr className="border-b border-border/50 bg-secondary/30 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -578,8 +578,8 @@ export default function CustomersPage() {
 
       {/* Edit User Modal */}
       {editUser && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border/50 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overscroll-contain">
+          <div className="bg-card border border-border/50 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between border-b border-border/50 pb-4">
               <h3 className="text-lg font-bold text-foreground">Edit User Details</h3>
               <button onClick={() => setEditUser(null)} className="text-muted-foreground hover:text-foreground">
@@ -644,8 +644,8 @@ export default function CustomersPage() {
 
       {/* Role Change Modal */}
       {roleTargetUser && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border/50 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overscroll-contain">
+          <div className="bg-card border border-border/50 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between border-b border-border/50 pb-4">
               <h3 className="text-lg font-bold text-foreground">Confirm Role Change</h3>
               <button onClick={() => setRoleTargetUser(null)} className="text-muted-foreground hover:text-foreground">
@@ -681,8 +681,8 @@ export default function CustomersPage() {
 
       {/* Delete User Modal */}
       {deleteTargetUser && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border/50 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overscroll-contain">
+          <div className="bg-card border border-border/50 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between border-b border-border/50 pb-4">
               <h3 className="text-lg font-bold text-destructive">Delete User Account</h3>
               <button onClick={() => setDeleteTargetUser(null)} className="text-muted-foreground hover:text-foreground">

@@ -116,6 +116,29 @@ export const {
     },
     async createUser(message) {
       console.log(`[Auth.js Event] New user created in DB: ${message.user.email}`);
+      try {
+        await connectDB();
+        const emailLower = (message.user.email || "").toLowerCase().trim();
+        const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
+        const isAdmin = emailLower === ADMIN_EMAIL;
+
+        await User.findByIdAndUpdate(message.user.id, {
+          $set: {
+            role: isAdmin ? "admin" : "user",
+            emailVerified: new Date(),
+            failedLoginAttempts: 0,
+            notificationPreferences: {
+              orderStatus: true,
+              lowStock: true,
+              newReturns: true,
+              promotions: true,
+            },
+          },
+          $addToSet: { providers: "google" }
+        });
+      } catch (err) {
+        console.error("[Auth.js Event Error] Failed to set default user properties:", err);
+      }
     },
     async linkAccount(message) {
       console.log(`[Auth.js Event] Google account linked to user: ${message.user.email}`);
@@ -134,40 +157,31 @@ export const {
           const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
           const isAdmin = emailLower === ADMIN_EMAIL;
 
-          const updatedUser = await User.findOneAndUpdate(
-            { email: emailLower },
-            {
-              $set: {
-                ...(isAdmin ? { role: "admin" } : {}),
-                emailVerified: new Date(),
-              },
-              $addToSet: { providers: "google" },
-              $setOnInsert: {
-                name: user.name || "User",
-                image: user.image || undefined,
-                role: isAdmin ? "admin" : "user",
-                failedLoginAttempts: 0,
-                notificationPreferences: {
-                  orderStatus: true,
-                  lowStock: true,
-                  newReturns: true,
-                  promotions: true,
-                },
-              },
-            },
-            { upsert: true, new: true, setDefaultsOnInsert: true }
-          );
+          // Safely check if user already exists without triggering duplicate key upsert races
+          const existingUser = await User.findOne({ email: emailLower });
 
-          if (updatedUser) {
-            (user as any).id = updatedUser._id.toString();
-            (user as any).role = updatedUser.role;
-            (user as any).phone = updatedUser.phone || "";
+          if (existingUser) {
+            existingUser.emailVerified = new Date();
+            if (isAdmin) existingUser.role = "admin";
+            if (!existingUser.providers?.includes("google")) {
+              existingUser.providers = existingUser.providers || [];
+              existingUser.providers.push("google");
+            }
+            await existingUser.save();
+
+            (user as any).id = existingUser._id.toString();
+            (user as any).role = existingUser.role;
+            (user as any).phone = existingUser.phone || "";
+          } else {
+            // New user will be created safely by MongoDBAdapter without duplicate key collision
+            (user as any).role = isAdmin ? "admin" : "user";
           }
+
           if (isAdmin) {
             return "/admin";
           }
         } catch (error: any) {
-          console.error("[Auth.js Google OAuth MongoDB Sync Error]:", error?.message || error);
+          console.error("[Auth.js Google OAuth Sync Error]:", error?.message || error);
         }
       }
       return true;

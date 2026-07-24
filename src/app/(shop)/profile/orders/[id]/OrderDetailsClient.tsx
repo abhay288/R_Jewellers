@@ -230,33 +230,41 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
           <div className="bg-card border border-border p-6 rounded-2xl shadow-sm">
             <h3 className="font-semibold text-lg mb-6">Items Ordered</h3>
             <div className="divide-y divide-border">
-              {order.products.map((item: any, idx: number) => (
-                <div key={idx} className="py-4 first:pt-0 last:pb-0 flex gap-4">
-                  <div className="w-20 h-20 bg-secondary rounded-lg overflow-hidden shrink-0">
-                    <img 
-                      src={item.product?.images?.[0]?.url || item.product?.images?.[0] || (
-                        item.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
-                        item.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" :
-                        item.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
-                        item.name?.toLowerCase().includes('bangle') || item.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
-                        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
-                      )} 
-                      alt={item.name} 
-                      className="w-full h-full object-cover" 
-                    />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <h4 className="font-medium line-clamp-1">{item.name}</h4>
-                      <p className="text-sm text-muted-foreground mt-1">Qty: {item.quantity}</p>
+              {order.products.map((item: any, idx: number) => {
+                const imageUrl = item.image || (item.product && typeof item.product === 'object' && (
+                  Array.isArray(item.product.images) && item.product.images.length > 0 
+                    ? (typeof item.product.images[0] === 'string' ? item.product.images[0] : item.product.images[0]?.url)
+                    : item.product.image
+                )) || (
+                  item.name?.toLowerCase().includes('earring') ? "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=800" :
+                  item.name?.toLowerCase().includes('neck') ? "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=800" :
+                  item.name?.toLowerCase().includes('ring') ? "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800" :
+                  item.name?.toLowerCase().includes('bangle') || item.name?.toLowerCase().includes('bracelet') ? "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=800" :
+                  "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=800"
+                );
+
+                return (
+                  <div key={idx} className="py-4 first:pt-0 last:pb-0 flex gap-4">
+                    <div className="w-20 h-20 bg-secondary rounded-lg overflow-hidden shrink-0">
+                      <img 
+                        src={imageUrl} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover" 
+                      />
                     </div>
-                    <div className="flex justify-between items-end">
-                      <span className="font-semibold">₹{item.finalPrice}</span>
-                      {item.discount > 0 && <span className="text-xs text-green-600">Saved ₹{item.discount}</span>}
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-medium line-clamp-1">{item.name}</h4>
+                        <p className="text-sm text-muted-foreground mt-1">Qty: {item.quantity}</p>
+                      </div>
+                      <div className="flex justify-between items-end">
+                        <span className="font-semibold">₹{item.finalPrice}</span>
+                        {item.discount > 0 && <span className="text-xs text-green-600">Saved ₹{item.discount}</span>}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -264,20 +272,32 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
             <h3 className="font-semibold text-lg mb-6 flex items-center">
               <MapPin className="w-5 h-5 mr-2 text-primary" /> Delivery Address
             </h3>
-            {order.shippingAddress ? (
-              <div className="text-sm space-y-1 text-muted-foreground">
-                <p className="font-medium text-foreground text-base mb-2">{order.shippingAddress.fullName}</p>
-                <p>{order.shippingAddress.houseNo}, {order.shippingAddress.street}</p>
-                {order.shippingAddress.landmark && <p>Landmark: {order.shippingAddress.landmark}</p>}
-                <p>{order.shippingAddress.area}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
-                <p className="mt-3 text-foreground font-medium flex items-center">
-                  Phone: {order.shippingAddress.phone}
-                  {order.shippingAddress.alternatePhone && `, ${order.shippingAddress.alternatePhone}`}
-                </p>
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">Address details not available.</p>
-            )}
+            {(() => {
+              const addr = (typeof order.shippingAddress === 'object' && order.shippingAddress && (order.shippingAddress.fullName || order.shippingAddress.street))
+                ? order.shippingAddress 
+                : (order.shippingAddressSnapshot || null);
+
+              return addr && (addr.fullName || addr.street || addr.city || addr.phone) ? (
+                <div className="text-sm space-y-1 text-muted-foreground">
+                  {addr.fullName && <p className="font-medium text-foreground text-base mb-2">{addr.fullName}</p>}
+                  {(addr.houseNo || addr.street) && (
+                    <p>{[addr.houseNo, addr.street].filter(Boolean).join(', ')}</p>
+                  )}
+                  {addr.landmark && <p>Landmark: {addr.landmark}</p>}
+                  {(addr.area || addr.city || addr.state || addr.postalCode) && (
+                    <p>{[addr.area, addr.city, addr.state, addr.postalCode].filter(Boolean).join(', ')}</p>
+                  )}
+                  {addr.phone && (
+                    <p className="mt-3 text-foreground font-medium flex items-center">
+                      Phone: {addr.phone}
+                      {(addr.alternatePhone || addr.alternateMobile) && `, ${addr.alternatePhone || addr.alternateMobile}`}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-sm">Address details not available.</p>
+              );
+            })()}
           </div>
         </div>
 

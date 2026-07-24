@@ -76,7 +76,8 @@ export class OrderService {
         quantity: item.quantity,
         price: product.price,
         discount: product.price - price,
-        finalPrice: price
+        finalPrice: price,
+        image: product.images?.[0] || ''
       });
     }
 
@@ -84,25 +85,36 @@ export class OrderService {
     let appliedCoupon = null;
 
     if (couponCode) {
-      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
-      if (coupon) {
-        const now = new Date();
-        if (now >= coupon.validFrom && now <= coupon.validUntil) {
-          if (!coupon.minPurchaseAmount || subtotal >= coupon.minPurchaseAmount) {
-            if (!coupon.usageLimit || coupon.usedCount < coupon.usageLimit) {
-              if (coupon.discountType === 'percentage') {
-                discount = (subtotal * coupon.discountValue) / 100;
-                if (coupon.maxDiscountAmount && discount > coupon.maxDiscountAmount) {
-                  discount = coupon.maxDiscountAmount;
-                }
-              } else {
-                discount = coupon.discountValue;
-              }
-              appliedCoupon = coupon;
-            }
-          }
-        }
+      const cleanCode = couponCode.trim().toUpperCase();
+      const coupon = await Coupon.findOne({ code: cleanCode });
+      
+      if (!coupon || !coupon.isActive) {
+        throw new Error('Invalid or inactive coupon code.');
       }
+
+      const now = new Date();
+      if (now < coupon.validFrom) {
+        throw new Error('This coupon is not valid yet.');
+      }
+      if (now > coupon.validUntil) {
+        throw new Error('This coupon has expired.');
+      }
+      if (coupon.minPurchaseAmount && subtotal < coupon.minPurchaseAmount) {
+        throw new Error(`Minimum purchase amount of ₹${coupon.minPurchaseAmount} required for this coupon.`);
+      }
+      if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+        throw new Error('This coupon usage limit has been reached.');
+      }
+
+      if (coupon.discountType === 'percentage') {
+        discount = (subtotal * coupon.discountValue) / 100;
+        if (coupon.maxDiscountAmount && discount > coupon.maxDiscountAmount) {
+          discount = coupon.maxDiscountAmount;
+        }
+      } else {
+        discount = coupon.discountValue;
+      }
+      appliedCoupon = coupon;
     }
 
     const deliveryCharges = (subtotal - discount) >= 499 ? 0 : 50;
@@ -169,6 +181,21 @@ export class OrderService {
       // 5. Generate Order ID
       const orderId = await this.generateOrderId(session);
 
+      const shippingAddressSnapshot = {
+        fullName: address.fullName,
+        phone: address.phone,
+        alternatePhone: (address as any).alternatePhone || (address as any).alternateMobile,
+        email: address.email,
+        houseNo: address.houseNo,
+        street: address.street,
+        landmark: address.landmark,
+        area: address.area,
+        city: address.city,
+        state: address.state,
+        postalCode: address.postalCode,
+        country: address.country || 'India'
+      };
+
       // 6. Create Order
       const newOrder = await Order.create([{
         orderId,
@@ -179,6 +206,7 @@ export class OrderService {
         deliveryCharges: totals.deliveryCharges,
         coupon: totals.appliedCoupon ? totals.appliedCoupon._id : undefined,
         shippingAddress: addressId,
+        shippingAddressSnapshot,
         status: 'Order Placed',
         paymentMethod,
         paymentStatus: 'pending', // COD
@@ -203,25 +231,12 @@ export class OrderService {
       // Fire notification non-blocking
       this.notificationService.sendOrderStatusNotification(userId, orderId, 'Order Placed');
 
-      // Send Order Confirmation + Invoice PDF attachment
+      // Send New Order alert to store owner (Bill invoice is sent to customer ONLY when order is Confirmed)
       try {
-        const userObj = await User.findById(userId);
         const emailService = new EmailService();
-        if (userObj) {
-          // Populate shippingAddress for the invoice
-          const populatedOrder = await Order.findById(newOrder[0]._id)
-            .populate('shippingAddress')
-            .lean();
-
-          // Generate invoice PDF as Buffer
-          const pdfBuffer = generateServerInvoicePDF(populatedOrder ?? newOrder[0]);
-
-          // Send confirmation email with PDF attached
-          await emailService.sendInvoiceEmail(userObj.email, userObj.name, populatedOrder ?? newOrder[0], pdfBuffer);
-        }
         await emailService.sendOwnerNewOrderAlertEmail(newOrder[0]);
       } catch (emailErr) {
-        console.error('Failed to send order confirmation or owner alert emails:', emailErr);
+        console.error('Failed to send owner alert email:', emailErr);
       }
 
       // Check for low stock on purchased items
@@ -298,7 +313,7 @@ export class OrderService {
       // Fire notification
       this.notificationService.sendOrderStatusNotification(order.user.toString(), order.orderId, status);
 
-      // Send status update and invoice emails
+      // Send status update and invoice emails (Bill sent ONLY when order is Confirmed)
       try {
         const userObj = await User.findById(order.user);
         if (userObj) {
@@ -306,7 +321,13 @@ export class OrderService {
           await emailService.sendOrderStatusChangedEmail(userObj.email, userObj.name, order.orderId, status);
           
           if (status === 'Confirmed') {
-            await emailService.sendOrderConfirmationEmail(userObj.email, userObj.name, order);
+            const populatedOrder = await Order.findById(order._id)
+              .populate('shippingAddress')
+              .populate('products.product')
+              .lean();
+
+            const pdfBuffer = generateServerInvoicePDF(populatedOrder ?? order);
+            await emailService.sendInvoiceEmail(userObj.email, userObj.name, populatedOrder ?? order, pdfBuffer);
           }
         }
       } catch (emailErr) {
@@ -328,7 +349,14 @@ export class OrderService {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const order = await Order.findOne({ orderId, user: customerId }).session(session);
+      const isObjectId = mongoose.Types.ObjectId.isValid(orderId);
+      const orderQuery: any = {
+        $or: [
+          { orderId: orderId, user: customerId },
+          ...(isObjectId ? [{ _id: orderId, user: customerId }] : [])
+        ]
+      };
+      const order = await Order.findOne(orderQuery).session(session);
       if (!order) throw new Error("Order not found");
 
       if (['Packed', 'Shipped', 'Out For Delivery', 'Delivered', 'Cancelled', 'Returned'].includes(order.status)) {
@@ -410,7 +438,8 @@ export class OrderService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('products.product', 'images name sku slug'),
+        .populate('shippingAddress')
+        .populate('products.product', 'images name sku slug price'),
       Order.countDocuments(query)
     ]);
 
@@ -513,7 +542,8 @@ export class OrderService {
         .skip(skip)
         .limit(limit)
         .populate('user', 'name email phone')
-        .populate('shippingAddress'),
+        .populate('shippingAddress')
+        .populate('products.product', 'images name sku slug price'),
       Order.countDocuments(query)
     ]);
 
@@ -524,7 +554,13 @@ export class OrderService {
    * Get Single Order
    */
   async getOrderById(orderId: string, userId?: string) {
-    const query: any = { orderId };
+    const isObjectId = mongoose.Types.ObjectId.isValid(orderId);
+    const query: any = {
+      $or: [
+        { orderId: orderId },
+        ...(isObjectId ? [{ _id: orderId }] : [])
+      ]
+    };
     if (userId) query.user = userId;
     
     return Order.findOne(query)
