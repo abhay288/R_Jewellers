@@ -188,42 +188,45 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/shop/checkout/place-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          addressId: selectedAddressId, 
-          couponCode, 
-          paymentMethod,
-          items: items.map(i => ({ id: i.id, quantity: i.quantity }))
-        })
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        alert(err.error || 'Failed to initialize order');
-        setLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      const localOrderId = data.orderId;
-
       if (paymentMethod === 'COD') {
+        // Cash On Delivery Flow: Create order in MongoDB immediately
+        const res = await fetch('/api/shop/checkout/place-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            addressId: selectedAddressId, 
+            couponCode, 
+            paymentMethod: 'COD',
+            items: items.map(i => ({ id: i.id, quantity: i.quantity }))
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          alert(err.error || 'Failed to place COD order');
+          setLoading(false);
+          return;
+        }
+
+        const data = await res.json();
         clearCart();
         resetCheckout();
-        router.push(`/checkout/success/${localOrderId}`);
+        router.push(`/checkout/success/${data.orderId}`);
       } else {
-        // Razorpay Online Payment Flow
+        // Online Payment Flow (Razorpay): Create ONLY Gateway order first
         const rpRes = await fetch('/api/shop/checkout/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId: localOrderId })
+          body: JSON.stringify({ 
+            addressId: selectedAddressId,
+            couponCode,
+            items: items.map(i => ({ id: i.id, quantity: i.quantity }))
+          })
         });
 
         if (!rpRes.ok) {
           const rpErr = await rpRes.json();
-          alert(rpErr.error || 'Failed to initialize online payment');
+          alert(rpErr.error || 'Failed to initialize payment gateway order');
           setLoading(false);
           return;
         }
@@ -251,7 +254,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
         const activeKey = rpData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW';
 
-        console.log(`[Frontend Checkout Audit] Initializing Razorpay Checkout for Order #${localOrderId}:`);
+        console.log(`[Frontend Checkout] Opening Razorpay Modal for Gateway Order ${rpData.razorpayOrderId}:`);
         console.log(`  - Amount sent to Razorpay SDK (paise): ${rpData.amount} (${rpData.amount / 100} INR)`);
 
         const options: any = {
@@ -259,9 +262,9 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
           amount: rpData.amount,
           currency: rpData.currency || 'INR',
           name: 'Radhika Jewellers',
-          description: `Payment for Order #${localOrderId}`,
+          description: 'Luxury Jewellery Order Payment',
           image: '/icon.png',
-          order_id: rpData.order_id,
+          order_id: rpData.razorpayOrderId,
           handler: async function (response: any) {
             setLoading(true);
             try {
@@ -269,17 +272,20 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  orderId: localOrderId,
+                  addressId: selectedAddressId,
+                  couponCode,
+                  items: items.map(i => ({ id: i.id, quantity: i.quantity })),
                   razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id || '',
+                  razorpay_order_id: response.razorpay_order_id || rpData.razorpayOrderId,
                   razorpay_signature: response.razorpay_signature || '',
                 })
               });
 
               if (verifyRes.ok) {
+                const verifyData = await verifyRes.json();
                 clearCart();
                 resetCheckout();
-                router.push(`/checkout/success/${localOrderId}`);
+                router.push(`/checkout/success/${verifyData.orderId}`);
               } else {
                 const verifyErr = await verifyRes.json();
                 alert(verifyErr.error || 'Payment signature verification failed.');
@@ -302,6 +308,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
           modal: {
             ondismiss: function () {
               setLoading(false);
+              alert('Payment was cancelled or window closed. Your cart items have been kept intact.');
             }
           }
         };

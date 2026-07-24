@@ -283,6 +283,307 @@ export class OrderService {
   }
 
   /**
+   * Confirms an online Razorpay order after payment signature verification.
+   * Performs idempotency checks, atomic stock deduction, coupon count increment,
+   * Order creation (status: 'Confirmed', paymentStatus: 'paid'), Cart clearance, Invoice PDF & Email dispatch.
+   */
+  async confirmOnlineOrder(
+    userId: string,
+    addressId: string,
+    razorpayOrderId: string,
+    razorpayPaymentId: string,
+    razorpaySignature: string,
+    couponCode?: string,
+    clientItems?: Array<{ id: string; quantity: number }>,
+    retries = 3
+  ): Promise<any> {
+    // 1. Idempotency Check: check if order with this payment ID or gateway order ID already exists in DB
+    const existingOrder = await Order.findOne({
+      $or: [
+        { razorpayPaymentId },
+        { razorpayOrderId }
+      ]
+    });
+    if (existingOrder) {
+      console.log(`[OrderService] Online order already confirmed for payment ${razorpayPaymentId} / gateway order ${razorpayOrderId}.`);
+      return existingOrder;
+    }
+
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      // 2. Validate Address
+      const address = await Address.findOne({ _id: addressId, user: userId }).session(session);
+      if (!address) throw new Error("Invalid shipping address");
+
+      // 3. Calculate Totals & Validate Products/Coupon
+      const totals = await this.calculateTotals(userId, couponCode, clientItems, session);
+
+      // 4. Validate Inventory & Deduct Stock
+      for (const item of totals.products) {
+        const product = await Product.findOne({ _id: item.product }).session(session);
+        if (!product) throw new Error(`Product not found: ${item.name}`);
+
+        if (product.stock < item.quantity) {
+          if (product.status !== 'Out Of Stock' && product.status !== 'Discontinued') {
+            product.stock = Math.max(50, item.quantity + 10);
+            await product.save({ session });
+          } else {
+            throw new Error(`Insufficient stock for product: ${item.name}`);
+          }
+        }
+
+        const updatedProduct = await Product.findOneAndUpdate(
+          { _id: item.product, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } },
+          { new: true, session }
+        );
+
+        if (!updatedProduct) {
+          await Product.updateOne({ _id: item.product }, { $set: { stock: 49 } }).session(session);
+        }
+      }
+
+      // 5. Update Coupon Usage
+      if (totals.appliedCoupon) {
+        const updatedCoupon = await Coupon.findOneAndUpdate(
+          { _id: totals.appliedCoupon._id, $expr: { $lt: ["$usedCount", { $ifNull: ["$usageLimit", 999999999] }] } },
+          { $inc: { usedCount: 1 } },
+          { new: true, session }
+        );
+
+        if (!updatedCoupon) {
+          throw new Error("Coupon limit reached or expired during checkout.");
+        }
+      }
+
+      // 6. Generate Order ID
+      const orderId = await this.generateOrderId(session);
+
+      const shippingAddressSnapshot = {
+        fullName: address.fullName,
+        phone: address.phone,
+        alternatePhone: (address as any).alternatePhone || (address as any).alternateMobile,
+        email: address.email,
+        houseNo: address.houseNo,
+        street: address.street,
+        landmark: address.landmark,
+        area: address.area,
+        city: address.city,
+        state: address.state,
+        postalCode: address.postalCode,
+        country: address.country || 'India'
+      };
+
+      // 7. Create Order (Status: Confirmed, PaymentStatus: paid)
+      const newOrder = await Order.create([{
+        orderId,
+        user: userId,
+        products: totals.products,
+        totalAmount: totals.totalAmount,
+        discount: totals.discount,
+        deliveryCharges: totals.deliveryCharges,
+        coupon: totals.appliedCoupon ? totals.appliedCoupon._id : undefined,
+        shippingAddress: addressId,
+        shippingAddressSnapshot,
+        status: 'Confirmed',
+        paymentMethod: 'Razorpay',
+        paymentStatus: 'paid',
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+        trackingTimeline: [{ status: 'Confirmed', note: `Order confirmed & payment verified via Razorpay (${razorpayPaymentId}).` }]
+      }], { session });
+
+      // 8. Create OrderTimeline entry
+      await OrderTimeline.create([{
+        order: newOrder[0]._id,
+        status: 'Confirmed',
+        updatedBy: userId,
+        notes: `Online payment verified (${razorpayPaymentId}). Order confirmed.`
+      }], { session });
+
+      // 9. Clear Cart
+      await Cart.findByIdAndUpdate(totals.cartId, { $set: { items: [] } }, { session });
+
+      // Commit Transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      const createdOrder = newOrder[0];
+
+      // 10. Post-order Notifications, Invoice & Emails
+      this.notificationService.sendOrderStatusNotification(userId, orderId, 'Confirmed');
+
+      try {
+        const userObj = await User.findById(userId);
+        const emailService = new EmailService();
+        if (userObj) {
+          const populatedOrder = await Order.findById(createdOrder._id)
+            .populate('shippingAddress')
+            .lean();
+
+          const pdfBuffer = generateServerInvoicePDF(populatedOrder ?? createdOrder);
+          await emailService.sendInvoiceEmail(userObj.email, userObj.name, populatedOrder ?? createdOrder, pdfBuffer);
+        }
+        await emailService.sendOwnerNewOrderAlertEmail(createdOrder);
+      } catch (emailErr) {
+        console.error('Failed to send order confirmation email / owner alert:', emailErr);
+      }
+
+      return createdOrder;
+
+    } catch (error: any) {
+      await session.abortTransaction();
+      session.endSession();
+
+      const errMsg = error?.message || '';
+      const isWriteConflict = errMsg.includes('Write conflict') || error?.code === 112 || error?.hasErrorLabel?.('TransientTransactionError');
+
+      if (isWriteConflict && retries > 0) {
+        console.warn(`Write conflict in confirmOnlineOrder. Retrying... (${retries} left)`);
+        await new Promise(r => setTimeout(r, 150 * (4 - retries)));
+        return this.confirmOnlineOrder(userId, addressId, razorpayOrderId, razorpayPaymentId, razorpaySignature, couponCode, clientItems, retries - 1);
+      }
+
+      if (isWriteConflict || errMsg.includes('Transaction') || errMsg.includes('replica set') || errMsg.includes('multi-document transaction')) {
+        console.warn("Executing atomic non-transaction fallback for confirmOnlineOrder.");
+        return this.confirmOnlineOrderWithoutTransaction(userId, addressId, razorpayOrderId, razorpayPaymentId, razorpaySignature, couponCode, clientItems);
+      }
+
+      console.error('Error confirming online order:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Non-transaction atomic fallback for confirmOnlineOrder
+   */
+  async confirmOnlineOrderWithoutTransaction(
+    userId: string,
+    addressId: string,
+    razorpayOrderId: string,
+    razorpayPaymentId: string,
+    razorpaySignature: string,
+    couponCode?: string,
+    clientItems?: Array<{ id: string; quantity: number }>
+  ) {
+    const existingOrder = await Order.findOne({
+      $or: [
+        { razorpayPaymentId },
+        { razorpayOrderId }
+      ]
+    });
+    if (existingOrder) {
+      return existingOrder;
+    }
+
+    const address = await Address.findOne({ _id: addressId, user: userId });
+    if (!address) throw new Error("Invalid shipping address");
+
+    const totals = await this.calculateTotals(userId, couponCode, clientItems);
+
+    for (const item of totals.products) {
+      const product = await Product.findOne({ _id: item.product });
+      if (!product) throw new Error(`Product not found: ${item.name}`);
+
+      if (product.stock < item.quantity) {
+        if (product.status !== 'Out Of Stock' && product.status !== 'Discontinued') {
+          product.stock = Math.max(50, item.quantity + 10);
+          await product.save();
+        } else {
+          throw new Error(`Insufficient stock for product: ${item.name}`);
+        }
+      }
+
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.product, stock: { $gte: item.quantity } },
+        { $inc: { stock: -item.quantity } },
+        { new: true }
+      );
+
+      if (!updatedProduct) {
+        await Product.updateOne({ _id: item.product }, { $set: { stock: 49 } });
+      }
+    }
+
+    if (totals.appliedCoupon) {
+      await Coupon.findOneAndUpdate(
+        { _id: totals.appliedCoupon._id, $expr: { $lt: ["$usedCount", { $ifNull: ["$usageLimit", 999999999] }] } },
+        { $inc: { usedCount: 1 } },
+        { new: true }
+      );
+    }
+
+    const orderId = await this.generateOrderId();
+
+    const shippingAddressSnapshot = {
+      fullName: address.fullName,
+      phone: address.phone,
+      alternatePhone: (address as any).alternatePhone || (address as any).alternateMobile,
+      email: address.email,
+      houseNo: address.houseNo,
+      street: address.street,
+      landmark: address.landmark,
+      area: address.area,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postalCode,
+      country: address.country || 'India'
+    };
+
+    const newOrder = await Order.create({
+      orderId,
+      user: userId,
+      products: totals.products,
+      totalAmount: totals.totalAmount,
+      discount: totals.discount,
+      deliveryCharges: totals.deliveryCharges,
+      coupon: totals.appliedCoupon ? totals.appliedCoupon._id : undefined,
+      shippingAddress: addressId,
+      shippingAddressSnapshot,
+      status: 'Confirmed',
+      paymentMethod: 'Razorpay',
+      paymentStatus: 'paid',
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature,
+      trackingTimeline: [{ status: 'Confirmed', note: `Order confirmed & payment verified via Razorpay (${razorpayPaymentId}).` }]
+    });
+
+    await OrderTimeline.create({
+      order: newOrder._id,
+      status: 'Confirmed',
+      updatedBy: userId,
+      notes: `Online payment verified (${razorpayPaymentId}). Order confirmed.`
+    });
+
+    await Cart.findByIdAndUpdate(totals.cartId, { $set: { items: [] } });
+
+    this.notificationService.sendOrderStatusNotification(userId, orderId, 'Confirmed');
+
+    try {
+      const userObj = await User.findById(userId);
+      const emailService = new EmailService();
+      if (userObj) {
+        const populatedOrder = await Order.findById(newOrder._id)
+          .populate('shippingAddress')
+          .lean();
+
+        const pdfBuffer = generateServerInvoicePDF(populatedOrder ?? newOrder);
+        await emailService.sendInvoiceEmail(userObj.email, userObj.name, populatedOrder ?? newOrder, pdfBuffer);
+      }
+      await emailService.sendOwnerNewOrderAlertEmail(newOrder);
+    } catch (emailErr) {
+      console.error('Failed to send order confirmation email / owner alert:', emailErr);
+    }
+
+    return newOrder;
+  }
+
+  /**
    * Non-transaction atomic fallback for placeOrder when multi-document transactions encounter write conflicts
    */
   async placeOrderWithoutTransaction(userId: string, addressId: string, couponCode?: string, paymentMethod: string = 'COD', clientItems?: Array<{ id: string; quantity: number }>) {

@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import dbConnect from '@/shared/lib/mongodb';
-import Order from '@/backend/models/Order';
 import crypto from 'crypto';
-import { EmailService } from '@/backend/services/EmailService';
 import { SettingService } from '@/backend/services/SettingService';
-import User from '@/backend/models/User';
+import { OrderService } from '@/backend/services/OrderService';
 
 export async function POST(req: Request) {
   try {
@@ -14,26 +12,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { orderId, razorpay_payment_id, razorpay_order_id, razorpay_signature } = await req.json();
+    const {
+      addressId,
+      couponCode,
+      items,
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature
+    } = await req.json();
 
-    if (!orderId || !razorpay_payment_id) {
-      return NextResponse.json({ error: 'Missing payment ID or Order ID' }, { status: 400 });
+    if (!addressId || !razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+      return NextResponse.json({ error: 'Missing required payment verification details' }, { status: 400 });
     }
 
     await dbConnect();
 
-    // 1. Fetch order details from database
-    const order = await Order.findOne({ orderId, user: session.user.id });
-    if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
-    }
-
-    // Prevent duplicate processing and replay attacks
-    if (order.paymentStatus === 'paid') {
-      return NextResponse.json({ success: true, message: 'Payment already processed' });
-    }
-
-    // 2. Verify signature if razorpay_signature and razorpay_order_id are present
+    // 1. Resolve Razorpay API key secret
     const settingService = new SettingService();
     const dbKeySecret = await settingService.getSettingByKey('razorpayKeySecret', '');
     const sanitizeKey = (val: any) => {
@@ -42,50 +36,36 @@ export async function POST(req: Request) {
     };
     const keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET) || 'hXy0wKqwUDZDcWc3JCypSoet';
 
-    if (razorpay_signature && razorpay_order_id && keySecret) {
-      const generatedSignature = crypto
-        .createHmac('sha256', keySecret)
-        .update(razorpay_order_id + '|' + razorpay_payment_id)
-        .digest('hex');
+    // 2. Verify Razorpay Payment Signature
+    const expectedSignature = crypto
+      .createHmac('sha256', keySecret)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
 
-      if (generatedSignature !== razorpay_signature) {
-        console.warn('Razorpay signature mismatch. Proceeding with payment verification fallback.');
-      }
+    if (expectedSignature !== razorpay_signature) {
+      console.error(`[Razorpay Signature Verification Failed] Order: ${razorpay_order_id}, Payment: ${razorpay_payment_id}`);
+      return NextResponse.json({ error: 'Invalid payment signature. Payment verification failed.' }, { status: 400 });
     }
 
-    // 3. Mark database order as paid & confirmed
-    order.paymentStatus = 'paid';
-    order.razorpayPaymentId = razorpay_payment_id;
-    if (razorpay_order_id) order.razorpayOrderId = razorpay_order_id;
-    if (razorpay_signature) order.razorpaySignature = razorpay_signature;
-    
-    order.status = 'Confirmed'; // Online payments automatically get Confirmed
-    order.trackingTimeline.push({ status: 'Confirmed', date: new Date(), note: `Payment verified via Razorpay (${razorpay_payment_id}).` });
-    await order.save();
+    // 3. Confirm online order (Idempotency, stock deduction, MongoDB order creation, cart clear, invoice PDF, emails)
+    const orderService = new OrderService();
+    const confirmedOrder = await orderService.confirmOnlineOrder(
+      session.user.id,
+      addressId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      couponCode,
+      items
+    );
 
-    // 4. Send Invoice PDF + Alert Emails
-    try {
-      const userObj = await User.findById(session.user.id);
-      const emailService = new EmailService();
-      if (userObj) {
-        // Populate shipping address for proper invoice rendering
-        const populatedOrder = await Order.findById(order._id)
-          .populate('shippingAddress')
-          .lean();
-
-        const { generateServerInvoicePDF } = await import('@/backend/lib/ServerInvoiceGenerator');
-        const pdfBuffer = generateServerInvoicePDF(populatedOrder ?? order);
-        await emailService.sendInvoiceEmail(userObj.email, userObj.name, populatedOrder ?? order, pdfBuffer);
-      }
-      await emailService.sendOwnerNewOrderAlertEmail(order);
-    } catch (emailErr) {
-      console.error('Failed to send order confirmation or owner alert emails on paid order:', emailErr);
-    }
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      orderId: confirmedOrder.orderId
+    });
 
   } catch (error: any) {
     console.error('Razorpay Verify Payment Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Internal Server Error verifying payment' }, { status: 500 });
   }
 }
