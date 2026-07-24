@@ -222,10 +222,10 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content Area - Dedicated Scroll */}
-      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         
         {/* Top Header */}
-        <header className="h-20 bg-card/90 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30 shadow-2xs">
+        <header className="h-20 bg-card/90 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-6 lg:px-8 shrink-0 z-30 shadow-2xs">
           <div className="flex items-center space-x-4">
             <button className="lg:hidden p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors" onClick={() => setSidebarOpen(true)}>
               <Menu className="w-6 h-6" />
@@ -348,7 +348,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-6 lg:p-8 overflow-y-auto">
+        <div className="flex-1 min-h-0 p-6 lg:p-8 overflow-y-auto custom-scrollbar">
           {children}
         </div>
 

@@ -31,10 +31,10 @@ export default async function AdminOrdersPage({
   const serializedOrders = JSON.parse(JSON.stringify(orders));
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Order Management</h1>
-        <p className="text-muted-foreground mt-2">View and manage all customer orders.</p>
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      <div>
+        <h1 className="text-3xl font-playfair font-bold text-foreground">Order Management</h1>
+        <p className="text-xs text-muted-foreground mt-1">View, track, and manage all customer orders in real time.</p>
       </div>
       
       <AdminOrdersClient 
