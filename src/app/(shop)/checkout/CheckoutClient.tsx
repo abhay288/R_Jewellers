@@ -949,7 +949,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">UPI (GPay / PhonePe / Paytm), Credit & Debit Cards, NetBanking, Wallets</p>
                         <p className="text-[10px] text-emerald-500 font-semibold mt-1 flex items-center">
-                          <Lock className="w-3 h-3 mr-1" /> 100% Insured 256-Bit Encrypted Payment
+                          <Lock className="w-3 h-3 mr-1" /> 100% Secured Payment
                         </p>
                       </div>
 
