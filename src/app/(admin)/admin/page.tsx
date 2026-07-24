@@ -41,16 +41,23 @@ export default async function AdminDashboard() {
   ]);
   const totalRefundedAmount = refundStats[0]?.totalRefunded || 0;
 
-  // Real Lifetime Revenue from Order Model
+  // Real Lifetime Revenue from Completed / Paid Orders Only
+  const completedOrderMatch = {
+    $or: [
+      { paymentStatus: 'paid' },
+      { status: 'Delivered' }
+    ]
+  };
+
   const revenueStats = await Order.aggregate([
-    { $match: { status: { $ne: 'Cancelled' } } },
+    { $match: completedOrderMatch },
     { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' } } }
   ]);
   const totalRevenueAmount = revenueStats[0]?.totalRevenue || 0;
 
-  // Real Monthly Revenue Chart Data
+  // Real Monthly Revenue Chart Data for Completed / Paid Orders
   const monthlyRevenue = await Order.aggregate([
-    { $match: { status: { $ne: 'Cancelled' } } },
+    { $match: completedOrderMatch },
     {
       $group: {
         _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },

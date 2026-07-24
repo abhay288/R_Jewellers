@@ -16,6 +16,14 @@ export async function GET() {
 
     await dbConnect();
 
+    // Match criteria for completed/paid orders only
+    const completedOrderMatch: any = {
+      $or: [
+        { paymentStatus: 'paid' },
+        { status: 'Delivered' }
+      ]
+    };
+
     // 1. Lifetime Revenue & Orders count
     const totalOrdersCount = await Order.countDocuments();
     const paidOrdersCount = await Order.countDocuments({ paymentStatus: 'paid' });
@@ -23,13 +31,14 @@ export async function GET() {
     const razorpayOrdersCount = await Order.countDocuments({ paymentMethod: 'Razorpay' });
 
     const totalRevenueStats = await Order.aggregate([
-      { $match: { status: { $ne: 'Cancelled' } } },
+      { $match: completedOrderMatch },
       { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' }, totalDiscount: { $sum: '$discount' } } }
     ]);
 
     const totalRevenue = totalRevenueStats[0]?.totalRevenue || 0;
     const totalDiscountGiven = totalRevenueStats[0]?.totalDiscount || 0;
-    const averageOrderValue = totalOrdersCount > 0 ? Math.round(totalRevenue / totalOrdersCount) : 0;
+    const completedOrdersCount = await Order.countDocuments(completedOrderMatch);
+    const averageOrderValue = completedOrdersCount > 0 ? Math.round(totalRevenue / completedOrdersCount) : 0;
 
     // 2. Status Breakdown
     const statusCounts = await Order.aggregate([
@@ -40,9 +49,9 @@ export async function GET() {
       if (s._id) statusMap[s._id] = s.count;
     });
 
-    // 3. Monthly Revenue Trend (Last 12 months)
+    // 3. Monthly Revenue Trend (Last 12 months for completed/paid orders)
     const monthlyTrend = await Order.aggregate([
-      { $match: { status: { $ne: 'Cancelled' } } },
+      { $match: completedOrderMatch },
       {
         $group: {
           _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
@@ -60,9 +69,9 @@ export async function GET() {
       orders: item.orders
     }));
 
-    // 4. Top Selling Products
+    // 4. Top Selling Products from Completed/Paid Orders
     const topProducts = await Order.aggregate([
-      { $match: { status: { $ne: 'Cancelled' } } },
+      { $match: completedOrderMatch },
       { $unwind: "$products" },
       {
         $group: {

@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { 
-  IndianRupee, 
-  ShoppingCart, 
-  Users, 
-  TrendingUp, 
-  Package, 
-  CreditCard, 
-  Tag, 
-  Undo2, 
-  ArrowUpRight, 
-  BarChart3, 
-  Sparkles, 
+import {
+  IndianRupee,
+  ShoppingCart,
+  Users,
+  TrendingUp,
+  Package,
+  CreditCard,
+  Tag,
+  Undo2,
+  ArrowUpRight,
+  BarChart3,
+  Sparkles,
   RefreshCw,
   Award,
   CheckCircle2,
@@ -69,7 +69,7 @@ export default function AnalyticsPage() {
             <AlertCircle className="w-6 h-6 shrink-0" />
             <span className="text-sm font-semibold">{error || 'Failed to load store analytics'}</span>
           </div>
-          <button 
+          <button
             onClick={fetchAnalytics}
             className="bg-destructive text-destructive-foreground px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity flex items-center space-x-2 cursor-pointer"
           >
@@ -89,7 +89,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-16">
-      
+
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -98,7 +98,7 @@ export default function AnalyticsPage() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">Real-time revenue metrics, order velocity, payment breakdown, and product performance.</p>
         </div>
-        <button 
+        <button
           onClick={fetchAnalytics}
           className="self-start sm:self-auto bg-secondary/80 hover:bg-secondary text-secondary-foreground border border-border/50 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center space-x-2 shadow-xs cursor-pointer"
         >
@@ -109,7 +109,7 @@ export default function AnalyticsPage() {
 
       {/* Top Key Performance Indicator Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        
+
         <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-xs relative overflow-hidden group hover:border-amber-500/40 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Revenue</span>
@@ -209,8 +209,8 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
                 <div className="w-full bg-secondary/40 h-3 rounded-full overflow-hidden p-0.5 border border-border/30">
-                  <div 
-                    className="bg-linear-to-r from-amber-500 to-amber-600 h-full rounded-full transition-all duration-700" 
+                  <div
+                    className="bg-linear-to-r from-amber-500 to-amber-600 h-full rounded-full transition-all duration-700"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -222,7 +222,7 @@ export default function AnalyticsPage() {
 
       {/* Grid Section: Payment Method Breakdown & Order Status Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* Payment Methods Distribution */}
         <div className="bg-card border border-border/50 rounded-3xl p-6 md:p-8 shadow-xs flex flex-col justify-between">
           <div>
