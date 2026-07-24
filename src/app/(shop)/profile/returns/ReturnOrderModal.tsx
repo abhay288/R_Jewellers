@@ -188,7 +188,7 @@ export default function ReturnOrderModal({
                 maxLength={500}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full mt-4 p-4 rounded-xl border border-border bg-transparent outline-none focus:border-primary text-sm min-h-[100px] resize-none"
+                className="w-full mt-4 p-4 rounded-xl border border-border bg-transparent outline-none focus:border-primary text-sm min-h-25 resize-none"
               />
             </section>
 
