@@ -251,14 +251,13 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
         const activeKey = rpData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW';
 
-        const options = {
+        const options: any = {
           key: activeKey,
           amount: rpData.amount,
-          currency: rpData.currency,
+          currency: rpData.currency || 'INR',
           name: 'Radhika Jewellers',
           description: `Payment for Order #${localOrderId}`,
           image: '/icon.png',
-          order_id: rpData.order_id,
           handler: async function (response: any) {
             setLoading(true);
             try {
@@ -268,8 +267,8 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                 body: JSON.stringify({
                   orderId: localOrderId,
                   razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature,
+                  razorpay_order_id: response.razorpay_order_id || '',
+                  razorpay_signature: response.razorpay_signature || '',
                 })
               });
 
@@ -302,6 +301,10 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
             }
           }
         };
+
+        if (rpData.order_id) {
+          options.order_id = rpData.order_id;
+        }
 
         const rzp = new (window as any).Razorpay(options);
         rzp.on('payment.failed', function (response: any) {
