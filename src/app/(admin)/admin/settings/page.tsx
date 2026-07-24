@@ -21,6 +21,8 @@ export default function AdminSettingsPage() {
     taxRate: '8.5',
     freeShippingThreshold: '2000',
     shippingCharges: '100',
+    razorpayKeyId: '',
+    razorpayKeySecret: '',
   });
 
   const [smtp, setSmtp] = useState({
@@ -60,7 +62,7 @@ export default function AdminSettingsPage() {
           
           // Map database keys to their state objects
           if (data.storeName) setGeneral(prev => ({ ...prev, storeName: data.storeName, supportEmail: data.supportEmail || prev.supportEmail, storeDescription: data.storeDescription || prev.storeDescription }));
-          if (data.defaultCurrency) setPayment(prev => ({ ...prev, defaultCurrency: data.defaultCurrency, taxRate: data.taxRate || prev.taxRate, freeShippingThreshold: data.freeShippingThreshold || prev.freeShippingThreshold, shippingCharges: data.shippingCharges || prev.shippingCharges }));
+          if (data.defaultCurrency || data.razorpayKeyId) setPayment(prev => ({ ...prev, defaultCurrency: data.defaultCurrency || prev.defaultCurrency, taxRate: data.taxRate || prev.taxRate, freeShippingThreshold: data.freeShippingThreshold || prev.freeShippingThreshold, shippingCharges: data.shippingCharges || prev.shippingCharges, razorpayKeyId: data.razorpayKeyId || '', razorpayKeySecret: data.razorpayKeySecret || '' }));
           if (data.smtpHost) setSmtp(prev => ({ ...prev, smtpHost: data.smtpHost, smtpPort: data.smtpPort || prev.smtpPort, smtpUser: data.smtpUser || prev.smtpUser, smtpPass: data.smtpPass || prev.smtpPass, smtpFrom: data.smtpFrom || prev.smtpFrom }));
           if (data.firebaseApiKey) setFirebaseSettings(prev => ({ ...prev, firebaseApiKey: data.firebaseApiKey, firebaseAuthDomain: data.firebaseAuthDomain || prev.firebaseAuthDomain, firebaseProjectId: data.firebaseProjectId || prev.firebaseProjectId, firebaseMessagingSenderId: data.firebaseMessagingSenderId || prev.firebaseMessagingSenderId, firebaseAppId: data.firebaseAppId || prev.firebaseAppId }));
           if (data.googleAnalyticsId) setSeo(prev => ({ ...prev, googleAnalyticsId: data.googleAnalyticsId, metaTitle: data.metaTitle || prev.metaTitle, metaDescription: data.metaDescription || prev.metaDescription }));
@@ -207,10 +209,30 @@ export default function AdminSettingsPage() {
               className="w-full bg-background border border-border/50 rounded-xl px-4 py-2 focus:outline-none focus:border-primary text-sm" 
             />
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Razorpay Key ID (Live / Test)</label>
+            <input 
+              type="text" 
+              placeholder="rzp_live_... or rzp_test_..."
+              value={payment.razorpayKeyId}
+              onChange={(e) => setPayment({ ...payment, razorpayKeyId: e.target.value })}
+              className="w-full bg-background border border-border/50 rounded-xl px-4 py-2 focus:outline-none focus:border-primary text-sm font-mono" 
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Razorpay Key Secret</label>
+            <input 
+              type="password" 
+              placeholder="••••••••••••••••"
+              value={payment.razorpayKeySecret}
+              onChange={(e) => setPayment({ ...payment, razorpayKeySecret: e.target.value })}
+              className="w-full bg-background border border-border/50 rounded-xl px-4 py-2 focus:outline-none focus:border-primary text-sm font-mono" 
+            />
+          </div>
         </div>
         <div className="pt-4 flex justify-end">
           <button 
-            onClick={() => handleSave('shipping', payment)}
+            onClick={() => handleSave('payment', payment)}
             disabled={saving}
             className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md disabled:opacity-50"
           >

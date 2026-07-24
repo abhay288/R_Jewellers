@@ -4,6 +4,7 @@ import dbConnect from '@/shared/lib/mongodb';
 import Order from '@/backend/models/Order';
 import crypto from 'crypto';
 import { EmailService } from '@/backend/services/EmailService';
+import { SettingService } from '@/backend/services/SettingService';
 import User from '@/backend/models/User';
 
 export async function POST(req: Request) {
@@ -32,13 +33,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, message: 'Payment already processed' });
     }
 
-    // 2. Verify signature
-    if (!process.env.RAZORPAY_KEY_SECRET) {
-      return NextResponse.json({ error: 'Razorpay keys not configured' }, { status: 500 });
+    // 2. Verify signature using DB settings or ENV fallback
+    const settingService = new SettingService();
+    const keySecret = (
+      await settingService.getSettingByKey('razorpayKeySecret', process.env.RAZORPAY_KEY_SECRET || 'hXy0wKqwUDZDcWc3JCypSoet')
+    ).toString().trim();
+
+    if (!keySecret) {
+      return NextResponse.json({ error: 'Razorpay Key Secret not configured' }, { status: 500 });
     }
 
     const generatedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', keySecret)
       .update(razorpay_order_id + '|' + razorpay_payment_id)
       .digest('hex');
 

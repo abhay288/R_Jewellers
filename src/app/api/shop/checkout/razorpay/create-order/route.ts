@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import dbConnect from '@/shared/lib/mongodb';
 import Order from '@/backend/models/Order';
+import { SettingService } from '@/backend/services/SettingService';
 import Razorpay from 'razorpay';
 import mongoose from 'mongoose';
 
@@ -40,9 +41,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Minimum amount required is 100 paise (₹1)' }, { status: 400 });
     }
 
-    // 3. Initialize Razorpay Client with environment fallback
-    const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW').trim();
-    const keySecret = (process.env.RAZORPAY_KEY_SECRET || 'hXy0wKqwUDZDcWc3JCypSoet').trim();
+    // 3. Resolve Razorpay API keys (from MongoDB Admin Settings DB or Environment)
+    const settingService = new SettingService();
+    const keyId = (
+      await settingService.getSettingByKey('razorpayKeyId', process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW')
+    ).toString().trim();
+    const keySecret = (
+      await settingService.getSettingByKey('razorpayKeySecret', process.env.RAZORPAY_KEY_SECRET || 'hXy0wKqwUDZDcWc3JCypSoet')
+    ).toString().trim();
+
+    if (!keyId || !keySecret) {
+      return NextResponse.json({ error: 'Razorpay Key ID or Secret missing. Please update in Admin Settings.' }, { status: 400 });
+    }
 
     const razorpay = new Razorpay({
       key_id: keyId,
@@ -66,8 +76,8 @@ export async function POST(req: Request) {
       razorpayOrder = await razorpay.orders.create(options);
     } catch (rpErr: any) {
       console.error('Razorpay API SDK Order Creation Error:', rpErr);
-      const rpErrMsg = rpErr?.error?.description || rpErr?.description || rpErr?.message || 'Razorpay order creation failed';
-      return NextResponse.json({ error: `Razorpay Error: ${rpErrMsg}` }, { status: 400 });
+      const rpErrMsg = rpErr?.error?.description || rpErr?.description || rpErr?.message || 'Razorpay authentication or API error';
+      return NextResponse.json({ error: `Razorpay Error: ${rpErrMsg}. Please check Razorpay Key ID & Secret in Admin Settings.` }, { status: 400 });
     }
 
     // 5. Update local database order with Razorpay Order ID
