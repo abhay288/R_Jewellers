@@ -307,15 +307,12 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
         }
 
         const rzp = new (window as any).Razorpay(options);
-        rzp.on('payment.failed', function (response: any) {
-          alert('Payment failed: ' + (response.error?.description || 'Payment was declined'));
-          setLoading(false);
-        });
         rzp.open();
       }
-    } catch (err) {
-      console.error(err);
-      alert('An error occurred while placing your order.');
+    } catch (err: any) {
+      console.error('Error placing order:', err);
+      const errMsg = typeof err === 'string' ? err : (err?.message || 'An error occurred while placing your order.');
+      alert(errMsg);
       setLoading(false);
     }
   };
