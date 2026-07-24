@@ -988,7 +988,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
             <div className="bg-secondary/20 border border-border/40 rounded-3xl p-5 space-y-3">
               <div className="flex items-center space-x-3 text-xs text-muted-foreground">
                 <ShieldCheck className="w-5 h-5 text-amber-500 shrink-0" />
-                <span>100% Authentic Handcrafted Gold & Kundan Jewellery</span>
+                <span>Premium Quality Handcrafted Artificial & Kundan Jewellery</span>
               </div>
               <div className="flex items-center space-x-3 text-xs text-muted-foreground">
                 <Truck className="w-5 h-5 text-amber-500 shrink-0" />
