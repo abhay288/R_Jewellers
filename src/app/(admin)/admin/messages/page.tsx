@@ -14,8 +14,13 @@ import {
   ChevronLeft, 
   ChevronRight,
   X,
-  MessageSquare
+  MessageSquare,
+  Megaphone,
+  Sparkles,
+  Loader2,
+  Send
 } from 'lucide-react';
+import { cn } from '@/shared/lib/utils';
 
 interface ContactMessage {
   _id: string;
@@ -36,6 +41,47 @@ export default function AdminMessagesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+
+  // Broadcast Modal State
+  const [isBroadcastOpen, setIsBroadcastOpen] = useState(false);
+  const [broadcasting, setBroadcasting] = useState(false);
+  const [broadcastStatus, setBroadcastStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [broadcastForm, setBroadcastForm] = useState({
+    title: '',
+    message: '',
+    type: 'promo' as 'promo' | 'order' | 'system' | 'account',
+    link: '/shop',
+    targetGroup: 'all' as 'all' | 'customers',
+  });
+
+  const handleBroadcastSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastForm.title || !broadcastForm.message) {
+      return alert('Please fill in both the Title and Message content.');
+    }
+
+    setBroadcasting(true);
+    setBroadcastStatus(null);
+    try {
+      const res = await fetch('/api/admin/notifications/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(broadcastForm),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBroadcastStatus({ type: 'success', text: data.message });
+        setBroadcastForm({ title: '', message: '', type: 'promo', link: '/shop', targetGroup: 'all' });
+      } else {
+        setBroadcastStatus({ type: 'error', text: data.error || 'Failed to send broadcast notification.' });
+      }
+    } catch (err) {
+      setBroadcastStatus({ type: 'error', text: 'Network error broadcasting notification.' });
+    } finally {
+      setBroadcasting(false);
+    }
+  };
 
   useEffect(() => {
     fetchMessages();
@@ -88,11 +134,21 @@ export default function AdminMessagesPage() {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-playfair tracking-tight">Customer Inquiries</h1>
-          <p className="text-sm text-muted-foreground mt-1">Read and manage messages sent from the store contact form.</p>
+          <h1 className="text-3xl font-bold font-playfair tracking-tight">Customer Inquiries & Communications</h1>
+          <p className="text-sm text-muted-foreground mt-1">Read customer messages and broadcast push notifications to your store shoppers.</p>
         </div>
+        <button
+          onClick={() => {
+            setBroadcastStatus(null);
+            setIsBroadcastOpen(true);
+          }}
+          className="inline-flex items-center justify-center bg-amber-500 text-neutral-950 font-bold hover:bg-amber-400 px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md shadow-amber-500/20 cursor-pointer shrink-0"
+        >
+          <Megaphone className="w-4 h-4 mr-2" />
+          📢 Broadcast Notification
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -303,6 +359,131 @@ export default function AdminMessagesPage() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Broadcast Notification Modal */}
+      {isBroadcastOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-card border border-border/60 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-border/50 pb-4">
+              <div className="flex items-center space-x-2.5">
+                <Megaphone className="w-5 h-5 text-amber-500" />
+                <h2 className="text-xl font-playfair font-bold text-foreground">
+                  Broadcast Push Notification
+                </h2>
+              </div>
+              <button 
+                onClick={() => setIsBroadcastOpen(false)}
+                className="p-1.5 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {broadcastStatus && (
+              <div className={cn(
+                "p-4 rounded-2xl text-xs font-semibold flex items-center space-x-2.5 border",
+                broadcastStatus.type === 'success' 
+                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500" 
+                  : "bg-destructive/10 border-destructive/30 text-destructive"
+              )}>
+                {broadcastStatus.type === 'success' ? <Sparkles className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                <span>{broadcastStatus.text}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleBroadcastSubmit} className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Target Audience</label>
+                <select
+                  value={broadcastForm.targetGroup}
+                  onChange={(e) => setBroadcastForm({ ...broadcastForm, targetGroup: e.target.value as any })}
+                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500"
+                >
+                  <option value="all">🌐 All Registered Users & Devices</option>
+                  <option value="customers">🛍️ Customers Only (Role: User)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Notification Type</label>
+                <select
+                  value={broadcastForm.type}
+                  onChange={(e) => setBroadcastForm({ ...broadcastForm, type: e.target.value as any })}
+                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500"
+                >
+                  <option value="promo">🎉 Promotional / Offer Announcement</option>
+                  <option value="system">🔔 System / Store Announcement</option>
+                  <option value="order">📦 Order Update</option>
+                  <option value="account">👤 Account Alert</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Notification Title *</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. ✨ Festive Gold & Kundan Sale Live!"
+                  value={broadcastForm.title}
+                  onChange={(e) => setBroadcastForm({ ...broadcastForm, title: e.target.value })}
+                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Notification Message / Body *</label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="e.g. Enjoy up to 30% OFF on handcrafted bridal sets & bangles for a limited time!"
+                  value={broadcastForm.message}
+                  onChange={(e) => setBroadcastForm({ ...broadcastForm, message: e.target.value })}
+                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500 resize-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Action Link URL</label>
+                <input
+                  type="text"
+                  placeholder="e.g. /shop or /categories/kundan"
+                  value={broadcastForm.link}
+                  onChange={(e) => setBroadcastForm({ ...broadcastForm, link: e.target.value })}
+                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 text-xs font-mono text-foreground focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-6 border-t border-border/50">
+                <button
+                  type="button"
+                  onClick={() => setIsBroadcastOpen(false)}
+                  className="flex-1 py-3 rounded-xl border border-border/60 font-bold text-xs hover:bg-secondary transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={broadcasting}
+                  className="flex-1 bg-amber-500 text-neutral-950 py-3 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-amber-400 transition-colors shadow-md disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  {broadcasting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Sending Broadcast...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Send Push Broadcast</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

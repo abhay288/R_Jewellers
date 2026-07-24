@@ -173,6 +173,98 @@ export class NotificationService {
   }
 
   /**
+   * Broadcasts a push and in-app notification to all users (or targeted group) from Admin Panel
+   */
+  async broadcastNotification(
+    title: string,
+    message: string,
+    type: 'order' | 'promo' | 'system' | 'account' = 'promo',
+    link: string = '/shop',
+    targetGroup: 'all' | 'customers' = 'all'
+  ) {
+    try {
+      let query: any = {};
+      if (targetGroup === 'customers') {
+        query.role = 'user';
+      }
+      const users = await User.find(query).select('_id');
+      if (!users || users.length === 0) {
+        return { success: false, error: 'No matching users found to broadcast.' };
+      }
+
+      const userIds = users.map(u => u._id);
+
+      // Bulk create in-app Notification records for targeted users
+      const notificationDocs = userIds.map(uId => ({
+        user: uId,
+        title,
+        message,
+        type,
+        link,
+        isRead: false
+      }));
+
+      await Notification.insertMany(notificationDocs);
+
+      // Fetch active device push tokens
+      const devices = await DeviceToken.find({ user: { $in: userIds } });
+      const tokens = Array.from(new Set(devices.map(d => d.token)));
+
+      let pushSentCount = 0;
+
+      if (tokens.length > 0 && firebaseAdmin) {
+        const appUrl = process.env.NEXTAUTH_URL || 'https://www.radhikajewellers.store';
+        const logoUrl = `${appUrl}/assets/logo.png`;
+        const destinationUrl = link ? (link.startsWith('http') ? link : `${appUrl}${link}`) : `${appUrl}/shop`;
+
+        const messaging = firebaseAdmin.messaging();
+        const batchSize = 500;
+        for (let i = 0; i < tokens.length; i += batchSize) {
+          const tokenBatch = tokens.slice(i, i + batchSize);
+          const response = await messaging.sendEachForMulticast({
+            tokens: tokenBatch,
+            notification: {
+              title,
+              body: message
+            },
+            data: {
+              url: destinationUrl,
+              link: destinationUrl,
+              title,
+              body: message
+            },
+            webpush: {
+              notification: {
+                title,
+                body: message,
+                icon: logoUrl,
+                badge: logoUrl
+              },
+              fcmOptions: {
+                link: destinationUrl
+              }
+            }
+          });
+          pushSentCount += response.successCount;
+        }
+      }
+
+      console.log(`[Broadcast Completed] Target: ${targetGroup} | Users notified: ${userIds.length} | Push sent: ${pushSentCount}`);
+
+      return {
+        success: true,
+        userCount: userIds.length,
+        pushCount: pushSentCount,
+        message: `Broadcast notification successfully sent to ${userIds.length} user(s) (${pushSentCount} push alerts delivered).`
+      };
+
+    } catch (error: any) {
+      console.error('Error in broadcastNotification:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Order Events Push & Notification Handler
    */
   async sendOrderStatusNotification(userId: string, orderId: string, status: string) {
