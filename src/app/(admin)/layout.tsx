@@ -139,10 +139,15 @@ export default function AdminLayout({
         {/* Logo Header */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-border/50 bg-secondary/30 shrink-0">
           <Link href="/admin" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-gold p-0.5 shadow-md group-hover:scale-105 transition-transform duration-300">
-              <div className="w-full h-full bg-card rounded-[10px] flex items-center justify-center font-playfair font-bold text-amber-500 text-lg">
-                RJ
-              </div>
+            <div className="relative w-11 h-11 rounded-xl bg-card border border-amber-500/20 p-1 shadow-md group-hover:scale-105 transition-transform duration-300 flex items-center justify-center shrink-0 overflow-hidden">
+              <Image 
+                src="/assets/logo.png" 
+                alt="Radhika Jewellers Logo" 
+                width={44} 
+                height={44} 
+                className="object-contain w-full h-full mix-blend-multiply" 
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-playfair font-bold text-base tracking-wide text-foreground group-hover:text-primary transition-colors">Radhika</span>
