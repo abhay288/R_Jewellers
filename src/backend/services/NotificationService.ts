@@ -12,7 +12,7 @@ export class NotificationService {
   }
 
   /**
-   * Creates a notification for a user
+   * Creates an in-app notification for a user and triggers a branded push notification
    */
   async createNotification(
     userId: string,
@@ -30,18 +30,17 @@ export class NotificationService {
         link,
       });
 
-      // Automatically trigger push notification
+      // Automatically trigger push notification with brand metadata
       await this.sendPushNotification(userId, title, message, link);
 
       return notification;
     } catch (error) {
       console.error('Error creating notification:', error);
-      // Don't throw to prevent blocking the main transaction
     }
   }
 
   /**
-   * Sends an FCM push notification to a specific user's registered devices
+   * Sends an FCM push notification to a specific user's registered devices with Radhika Jewellers branding
    */
   async sendPushNotification(userId: string, title: string, body: string, link?: string) {
     try {
@@ -55,19 +54,42 @@ export class NotificationService {
       // 2. Fetch registered device tokens for the user
       const devices = await DeviceToken.find({ user: userId });
       if (!devices || devices.length === 0) {
-        console.log(`No registered push tokens found for user ${userId}. Logging mock push: [${title}] ${body}`);
+        console.log(`No registered push tokens found for user ${userId}. Logging push event: [${title}] ${body}`);
         return;
       }
 
       const tokens = devices.map(d => d.token);
+      const appUrl = process.env.NEXTAUTH_URL || 'https://www.radhikajewellers.store';
+      const logoUrl = `${appUrl}/assets/logo.png`;
+      const destinationUrl = link ? (link.startsWith('http') ? link : `${appUrl}${link}`) : appUrl;
 
       // 3. Send using Firebase Admin SDK if configured
       if (firebaseAdmin) {
         const messaging = firebaseAdmin.messaging();
         const response = await messaging.sendEachForMulticast({
           tokens,
-          notification: { title, body },
-          data: link ? { url: link } : {},
+          notification: { 
+            title: title.includes('Radhika') ? title : `${title} | Radhika Jewellers`, 
+            body 
+          },
+          data: {
+            url: destinationUrl,
+            link: destinationUrl,
+            title,
+            body,
+            brand: 'Radhika Jewellers'
+          },
+          webpush: {
+            notification: {
+              title: title.includes('Radhika') ? title : `${title} | Radhika Jewellers`,
+              body,
+              icon: logoUrl,
+              badge: logoUrl,
+            },
+            fcmOptions: {
+              link: destinationUrl
+            }
+          }
         });
 
         console.log(`Push notifications status: ${response.successCount} sent, ${response.failureCount} failed.`);
@@ -88,7 +110,7 @@ export class NotificationService {
           console.log(`Cleaned up ${expiredTokens.length} invalid device token(s).`);
         }
       } else {
-        console.log(`[Push Sim] User: ${userId} | Title: ${title} | Body: ${body} | Link: ${link}`);
+        console.log(`[Push Sim] User: ${userId} | Title: ${title} | Body: ${body} | Link: ${destinationUrl}`);
       }
     } catch (error) {
       console.error('Error in sendPushNotification:', error);
@@ -96,36 +118,54 @@ export class NotificationService {
   }
 
   /**
-   * Sends an FCM push notification to all admins
+   * Sends an FCM push notification to all store administrators
    */
   async sendAdminPushNotification(title: string, body: string, link?: string) {
     try {
-      // 1. Fetch all admins
       const admins = await User.find({ role: 'admin' });
       if (!admins || admins.length === 0) return;
 
       const adminIds = admins.map(a => a._id);
-
-      // 2. Get registered device tokens for all admins
       const devices = await DeviceToken.find({ user: { $in: adminIds } });
       if (!devices || devices.length === 0) {
-        console.log(`No registered admin push tokens. Logging mock admin push: [${title}] ${body}`);
+        console.log(`No registered admin push tokens. Logging admin push: [${title}] ${body}`);
         return;
       }
 
       const tokens = devices.map(d => d.token);
+      const appUrl = process.env.NEXTAUTH_URL || 'https://www.radhikajewellers.store';
+      const logoUrl = `${appUrl}/assets/logo.png`;
+      const destinationUrl = link ? (link.startsWith('http') ? link : `${appUrl}${link}`) : `${appUrl}/admin`;
 
-      // 3. Send via Firebase Admin SDK
       if (firebaseAdmin) {
         const messaging = firebaseAdmin.messaging();
         const response = await messaging.sendEachForMulticast({
           tokens,
-          notification: { title, body },
-          data: link ? { url: link } : {},
+          notification: { 
+            title: title.includes('Admin') ? title : `${title} | Admin Alert`, 
+            body 
+          },
+          data: {
+            url: destinationUrl,
+            link: destinationUrl,
+            title,
+            body
+          },
+          webpush: {
+            notification: {
+              title: title.includes('Admin') ? title : `${title} | Admin Alert`,
+              body,
+              icon: logoUrl,
+              badge: logoUrl,
+            },
+            fcmOptions: {
+              link: destinationUrl
+            }
+          }
         });
-        console.log(`Admin push notifications status: ${response.successCount} sent, ${response.failureCount} failed.`);
+        console.log(`Admin push status: ${response.successCount} sent, ${response.failureCount} failed.`);
       } else {
-        console.log(`[Admin Push Sim] Title: ${title} | Body: ${body} | Link: ${link}`);
+        console.log(`[Admin Push Sim] Title: ${title} | Body: ${body} | Link: ${destinationUrl}`);
       }
     } catch (error) {
       console.error('Error in sendAdminPushNotification:', error);
@@ -133,7 +173,7 @@ export class NotificationService {
   }
 
   /**
-   * Triggered on Order Status Change
+   * Order Events Push & Notification Handler
    */
   async sendOrderStatusNotification(userId: string, orderId: string, status: string) {
     let title = '';
@@ -142,32 +182,32 @@ export class NotificationService {
 
     switch (status) {
       case 'Order Placed':
-        title = 'Order Placed Successfully';
-        message = `Your order ${orderId} has been placed and is waiting for confirmation.`;
+        title = '🛍️ Order Placed Successfully';
+        message = `Your order ${orderId} has been received and is waiting for processing.`;
         break;
       case 'Confirmed':
-        title = 'Order Confirmed';
-        message = `Great news! Your order ${orderId} has been confirmed.`;
+        title = '👑 Order Confirmed';
+        message = `Great news! Your order ${orderId} has been confirmed & is being prepared.`;
         break;
       case 'Packed':
-        title = 'Order Packed';
-        message = `Your order ${orderId} is packed and ready to be shipped.`;
+        title = '🎁 Order Packed & Ready';
+        message = `Your order ${orderId} is beautifully packaged and ready to be shipped.`;
         break;
       case 'Shipped':
-        title = 'Order Shipped';
-        message = `Your order ${orderId} is on the way!`;
+        title = '🚚 Order Shipped & En Route';
+        message = `Your order ${orderId} is on the way to your delivery address!`;
         break;
       case 'Out For Delivery':
-        title = 'Order Out For Delivery';
-        message = `Your order ${orderId} is out for delivery today.`;
+        title = '🛵 Out For Delivery Today';
+        message = `Your package for order ${orderId} is out for delivery today.`;
         break;
       case 'Delivered':
-        title = 'Order Delivered';
-        message = `Your order ${orderId} has been delivered. Enjoy your purchase!`;
+        title = '✨ Order Delivered';
+        message = `Your order ${orderId} has been delivered. We hope you adore your luxury piece!`;
         break;
       case 'Cancelled':
-        title = 'Order Cancelled';
-        message = `Your order ${orderId} has been cancelled.`;
+        title = '❌ Order Cancelled';
+        message = `Your order ${orderId} has been cancelled. Please contact support if you need help.`;
         break;
     }
 
@@ -175,13 +215,81 @@ export class NotificationService {
       await this.createNotification(userId, title, message, 'order', link);
     }
 
-    // Trigger admin push notification for new order placement
-    if (status === 'Order Placed') {
+    // Trigger admin alert on new order confirmation
+    if (status === 'Confirmed' || status === 'Order Placed') {
       await this.sendAdminPushNotification(
-        'New Order Placed',
-        `Order ${orderId} has been placed successfully by customer.`,
+        `🛍️ New Order #${orderId}`,
+        `A new order of ₹${orderId} has been placed. Review details in admin panel.`,
         `/admin/orders/${orderId}`
       );
     }
+  }
+
+  /**
+   * Return & Refund Events Push & Notification Handler
+   */
+  async sendReturnStatusNotification(userId: string, returnId: string, orderId: string, status: string, amount?: number) {
+    let title = '';
+    let message = '';
+    const link = `/profile/orders/${orderId}`;
+
+    switch (status) {
+      case 'Return Requested':
+        title = '🔄 Return Request Received';
+        message = `We have received your return request ${returnId} for order ${orderId}.`;
+        break;
+      case 'Under Review':
+      case 'Approved':
+      case 'Return Approved':
+        title = '✅ Return Request Approved';
+        message = `Your return request ${returnId} has been approved. Pickup is being scheduled.`;
+        break;
+      case 'Quality Check':
+        title = '🔍 Quality Check in Progress';
+        message = `Your returned item for request ${returnId} is undergoing quality verification.`;
+        break;
+      case 'Refund Completed':
+        title = '💰 Refund Processed Successfully';
+        message = `Your refund ${amount ? `of ₹${amount.toLocaleString('en-IN')}` : ''} for return ${returnId} has been credited via UPI.`;
+        break;
+      case 'Rejected':
+        title = '⚠️ Return Request Update';
+        message = `Your return request ${returnId} could not be approved. Please check details.`;
+        break;
+    }
+
+    if (title) {
+      await this.createNotification(userId, title, message, 'order', link);
+    }
+
+    if (status === 'Return Requested') {
+      await this.sendAdminPushNotification(
+        `🔄 New Return Request #${returnId}`,
+        `Return request ${returnId} submitted for order ${orderId}.`,
+        `/admin/returns`
+      );
+    }
+  }
+
+  /**
+   * Inventory & Stock Alerts for Admin
+   */
+  async sendLowStockNotification(productName: string, currentStock: number) {
+    await this.sendAdminPushNotification(
+      '⚠️ Low Stock Warning',
+      `Product "${productName}" is low on stock (${currentStock} items remaining).`,
+      '/admin/inventory'
+    );
+  }
+
+  /**
+   * Contact Inquiry Alert for Admin
+   */
+  async sendContactMessageNotification(senderName: string, subject: string) {
+    await this.sendAdminPushNotification(
+      '💬 New Customer Message',
+      `New inquiry from ${senderName}: "${subject}".`,
+      '/admin/messages'
+    );
   }
 }

@@ -133,13 +133,13 @@ export class ReturnService {
       await session.commitTransaction();
       session.endSession();
 
-      // Notifications
-      this.notificationService.createNotification(
+      // Branded Push & In-app Notifications
+      await this.notificationService.sendReturnStatusNotification(
         userId,
-        'Return Request Submitted',
-        `Your return request ${returnIdStr} has been submitted and is under review.`,
-        'order',
-        `/profile/returns/${returnIdStr}`
+        returnIdStr,
+        orderId,
+        'Return Requested',
+        totalRefundAmount
       );
 
       try {
@@ -215,13 +215,13 @@ export class ReturnService {
       await session.commitTransaction();
       session.endSession();
 
-      // Notifications
-      this.notificationService.createNotification(
+      // Branded Push & In-app Notifications
+      await this.notificationService.sendReturnStatusNotification(
         returnReq.user.toString(),
-        `Return ${status}`,
-        `Your return request ${returnId} has been updated to ${status}.`,
-        'order',
-        `/profile/returns/${returnId}`
+        returnId,
+        (returnReq as any).order?.orderId || returnReq.order.toString(),
+        status,
+        returnReq.totalRefundAmount
       );
 
       // Email notifications

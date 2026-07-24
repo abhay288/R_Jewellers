@@ -32,6 +32,12 @@ export class ContactMessageService {
         const { EmailService } = require('./EmailService');
         const emailService = new EmailService();
 
+        // Trigger branded Admin Push Notification
+        await this.notificationService.sendContactMessageNotification(
+          `${data.firstName} ${data.lastName}`,
+          data.subject
+        );
+
         for (const admin of admins) {
           try {
             await this.notificationService.createNotification(
