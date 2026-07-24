@@ -489,7 +489,7 @@ export default function ShopClient({
                   key={product._id}
                   className="group cursor-pointer"
                 >
-                  <div className="relative aspect-3/4 rounded-2xl overflow-hidden mb-6 group/card">
+                  <div className="relative aspect-3/4 rounded-2xl overflow-hidden mb-5 group/card border border-border/50 bg-card shadow-sm hover:shadow-xl hover:border-primary/40 transition-all duration-500">
                     <ProductCardImageSlider
                       images={product.images || []}
                       productName={product.name}
@@ -497,9 +497,39 @@ export default function ShopClient({
                       fallbackCategory={product.category?.toString() || product.name}
                       className="w-full h-full"
                     />
+
+                    {/* Top Badges */}
+                    <div className="absolute top-3 left-3 z-30 flex flex-col gap-1.5 pointer-events-none">
+                      {product.discount > 0 && (
+                        <span className="px-2.5 py-1 bg-amber-500 text-white font-bold text-[10px] tracking-wider rounded-full uppercase shadow-sm">
+                          {product.discount}% OFF
+                        </span>
+                      )}
+                      {product.isBestSeller && (
+                        <span className="px-2.5 py-1 bg-primary text-primary-foreground font-bold text-[10px] tracking-wider rounded-full uppercase shadow-sm">
+                          Bestseller
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Quick Wishlist Icon Top Right */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleWishlist(product._id);
+                      }}
+                      className={cn(
+                        "absolute top-3 right-3 z-30 w-9 h-9 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer hover:scale-110",
+                        wishlistItems.includes(product._id) ? "text-red-500 fill-red-500" : "text-foreground hover:text-primary"
+                      )}
+                      title="Add to Wishlist"
+                    >
+                      <Heart className={cn("w-4 h-4", wishlistItems.includes(product._id) && "fill-current")} />
+                    </button>
                     
                     {/* Action Buttons overlay */}
-                    <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover/card:opacity-100 transform translate-y-4 group-hover/card:translate-y-0 transition-all duration-300 flex justify-center space-x-4 bg-linear-to-t from-black/50 to-transparent z-30 pointer-events-auto">
+                    <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover/card:opacity-100 transform translate-y-4 group-hover/card:translate-y-0 transition-all duration-300 flex justify-center space-x-3 bg-linear-to-t from-black/60 via-black/30 to-transparent z-30 pointer-events-auto">
                       <button 
                         onClick={(e) => {
                           e.preventDefault();
@@ -513,36 +543,25 @@ export default function ShopClient({
                             category: product.category?.toString() || 'Unknown'
                           });
                         }}
-                        className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors shadow-lg cursor-pointer"
-                        title="Add to Cart"
+                        className="flex-1 py-2.5 px-4 bg-primary text-primary-foreground font-semibold text-xs rounded-full flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg cursor-pointer"
                       >
-                        <ShoppingBag className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleWishlist(product._id);
-                        }}
-                        className={cn(
-                          "w-12 h-12 bg-white text-black rounded-full flex items-center justify-center transition-colors shadow-lg cursor-pointer",
-                          wishlistItems.includes(product._id) ? "text-red-500 hover:text-red-600" : "hover:bg-primary hover:text-white"
-                        )}
-                        title="Wishlist"
-                      >
-                        <Heart className={cn("w-5 h-5", wishlistItems.includes(product._id) && "fill-current")} />
+                        <ShoppingBag className="w-4 h-4" />
+                        Quick Add
                       </button>
                     </div>
                   </div>
                   
-                  <div className="text-center">
+                  <div className="text-center space-y-1">
                     <Link href={`/product/${product.slug || product._id}`} className="block">
-                      <h3 className="font-playfair text-lg font-medium mb-2 hover:text-primary transition-colors">{product.name}</h3>
+                      <h3 className="font-playfair text-base font-semibold text-foreground line-clamp-1 hover:text-primary transition-colors">
+                        {product.name}
+                      </h3>
                     </Link>
+                    
                     <div className="flex items-center justify-center space-x-2">
-                      <p className="text-primary font-medium">₹{product.finalPrice || product.price}</p>
+                      <p className="text-primary font-bold text-base">₹{(product.finalPrice || product.price)?.toLocaleString('en-IN')}</p>
                       {product.discount > 0 && (
-                        <p className="text-muted-foreground text-sm line-through">₹{product.price}</p>
+                        <p className="text-muted-foreground text-xs line-through">₹{product.price?.toLocaleString('en-IN')}</p>
                       )}
                     </div>
                   </div>

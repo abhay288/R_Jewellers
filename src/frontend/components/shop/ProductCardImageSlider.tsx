@@ -70,9 +70,11 @@ export default function ProductCardImageSlider({
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className={cn(
               "object-cover transition-transform duration-700 ease-out",
-              isHovered ? "scale-105" : "scale-100"
+              isHovered ? "scale-108" : "scale-100"
             )}
           />
+          {/* Subtle gradient vignette for depth */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/slider:opacity-100 transition-opacity duration-500" />
         </motion.div>
       </AnimatePresence>
 

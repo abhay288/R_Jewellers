@@ -48,8 +48,8 @@ export default function Navbar() {
     <>
       <motion.header
         className={cn(
-          "sticky top-0 left-0 right-0 z-50 bg-background transition-shadow duration-300",
-          isScrolled ? "shadow-md border-b border-border/10" : "shadow-xs border-b border-border/5"
+          "sticky top-0 left-0 right-0 z-50 transition-all duration-500 backdrop-blur-md",
+          isScrolled ? "bg-background/90 shadow-md border-b border-border/20 py-1" : "bg-background/95 shadow-xs border-b border-border/10"
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
