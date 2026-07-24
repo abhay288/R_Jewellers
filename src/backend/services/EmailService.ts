@@ -344,6 +344,28 @@ export class EmailService {
       : `${baseUrl}/orders/${orderId}`;
 
     const isShipped = status === 'Shipped' || status === 'Out For Delivery';
+    const isCancelled = status === 'Cancelled' || status === 'Canceled';
+
+    if (isCancelled) {
+      const subject = `Order Cancellation Confirmation — ${orderId}`;
+      const html = this.getLuxuryWrapper(
+        'Order Cancelled',
+        `
+          <h2 class="title" style="color: #c53030;">Order Cancelled</h2>
+          <p>Dear ${name},</p>
+          <p>Your order <strong>${orderId}</strong> has been cancelled successfully.</p>
+          <p>If any payment was already processed for this order, your refund will be credited back to your original payment method or registered UPI account within 5-7 business days.</p>
+          
+          <div class="button-container">
+            <a href="${baseUrl}/account/orders/${orderId}" class="button">View Order Details</a>
+          </div>
+
+          <p style="margin-top: 24px;">If you did not request this cancellation or have any questions, please contact our concierge team immediately.</p>
+          <p>With Warm Regards,<br>The Radhika Jewellers Team</p>
+        `
+      );
+      return this.sendEmail(to, subject, html);
+    }
 
     const shippingInfo = isShipped && extras?.courierName ? `
       <div style="background-color:#faf8f6;border:1px solid #e5dfd9;border-radius:8px;padding:20px;margin:20px 0;">
