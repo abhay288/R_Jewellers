@@ -28,11 +28,12 @@ export async function getInventoryDashboardStats() {
 
     products.forEach((product) => {
       availableStock += product.stock;
-      inventoryValue += product.stock * (product.purchaseCost || 0);
+      const unitValue = product.purchaseCost || product.finalPrice || product.price || 0;
+      inventoryValue += product.stock * unitValue;
       
       if (product.stock === 0) {
         outOfStock++;
-      } else if (product.stock <= product.minimumStock) {
+      } else if (product.stock <= (product.minimumStock || 10)) {
         lowStock++;
       }
     });

@@ -2,11 +2,12 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IBanner extends Document {
   title: string;
+  subtitle?: string;
   imageUrl: string;
-  link?: string;
-  position: 'hero' | 'sidebar' | 'footer' | 'popup';
+  linkUrl?: string;
+  buttonText?: string;
+  position: number;
   isActive: boolean;
-  order: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,22 +15,20 @@ export interface IBanner extends Document {
 const BannerSchema: Schema<IBanner> = new Schema(
   {
     title: { type: String, required: true, trim: true },
-    imageUrl: { type: String, required: true },
-    link: { type: String },
-    position: {
-      type: String,
-      enum: ['hero', 'sidebar', 'footer', 'popup'],
-      default: 'hero',
-    },
+    subtitle: { type: String, trim: true },
+    imageUrl: { type: String, required: true, trim: true },
+    linkUrl: { type: String, default: '/shop', trim: true },
+    buttonText: { type: String, default: 'Explore Collection', trim: true },
+    position: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
-    order: { type: Number, default: 0 },
   },
   {
     timestamps: true,
   }
 );
 
-BannerSchema.index({ isActive: 1, position: 1, order: 1 });
+BannerSchema.index({ position: 1 });
+BannerSchema.index({ isActive: 1 });
 
 const Banner: Model<IBanner> = mongoose.models.Banner || mongoose.model<IBanner>('Banner', BannerSchema);
 
