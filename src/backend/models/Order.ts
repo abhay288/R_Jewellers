@@ -47,7 +47,7 @@ export interface IOrder extends Document {
   shippingAddressSnapshot?: IShippingAddressSnapshot;
   
   // Statuses
-  status: 'Order Placed' | 'Confirmed' | 'Packed' | 'Shipped' | 'Out For Delivery' | 'Delivered' | 'Cancelled' | 'Returned';
+  status: 'Payment Pending' | 'Order Placed' | 'Confirmed' | 'Packed' | 'Shipped' | 'Out For Delivery' | 'Delivered' | 'Cancelled' | 'Returned';
   paymentMethod: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
   
