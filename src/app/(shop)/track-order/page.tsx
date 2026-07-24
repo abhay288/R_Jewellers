@@ -5,7 +5,7 @@ import { Package, Search } from "lucide-react";
 
 export default function TrackOrderPage() {
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div className="min-h-screen pt-6 md:pt-8 pb-16">
       <div className="container mx-auto px-6 max-w-2xl">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

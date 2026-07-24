@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function CancellationPage() {
   return (
-    <div className="min-h-screen pt-32 pb-24 bg-background">
+    <div className="min-h-screen pt-6 md:pt-8 pb-16 bg-background">
       <div className="container mx-auto px-6 max-w-4xl">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

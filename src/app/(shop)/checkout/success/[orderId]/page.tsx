@@ -24,7 +24,7 @@ export default async function CheckoutSuccessPage({ params }: { params: Promise<
   }
 
   return (
-    <div className="min-h-screen bg-background pt-32 pb-24">
+    <div className="min-h-screen bg-background pt-6 md:pt-8 pb-16">
       <div className="container mx-auto px-6 max-w-4xl text-center">
         
         <div className="flex justify-center mb-6">

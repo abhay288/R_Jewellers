@@ -42,7 +42,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div className="min-h-screen pt-6 md:pt-8 pb-16">
       {/* Header Section */}
       <div className="container mx-auto px-6 mb-20 text-center">
         <motion.h1 

@@ -87,7 +87,7 @@ export default function OrderTrackingPage() {
   const CurrentIcon = currentMeta.icon;
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-24">
+    <div className="min-h-screen bg-background pt-6 md:pt-8 pb-16">
       <div className="container mx-auto px-6 max-w-3xl">
         {/* Back */}
         <Link href="/account/orders" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-8 transition-colors">

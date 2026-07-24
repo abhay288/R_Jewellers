@@ -46,7 +46,7 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div className="min-h-screen pt-6 md:pt-8 pb-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}

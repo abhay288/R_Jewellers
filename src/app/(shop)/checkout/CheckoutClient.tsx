@@ -351,7 +351,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-28 pb-24">
+    <div className="min-h-screen bg-background pt-6 md:pt-8 pb-16">
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
         
         {/* Header */}
