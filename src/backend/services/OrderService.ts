@@ -40,8 +40,10 @@ export class OrderService {
   /**
    * Calculate totals (re-validated on server)
    */
-  async calculateTotals(userId: string, couponCode?: string, clientItems?: Array<{ id: string; quantity: number }>) {
-    let cart = await Cart.findOne({ user: userId }).populate('items.product');
+  async calculateTotals(userId: string, couponCode?: string, clientItems?: Array<{ id: string; quantity: number }>, session?: mongoose.ClientSession) {
+    let cartQuery = Cart.findOne({ user: userId }).populate('items.product');
+    if (session) cartQuery = cartQuery.session(session);
+    let cart = await cartQuery;
 
     // If DB cart is empty or missing, but client provided items, sync client items into DB Cart
     if ((!cart || !cart.items || cart.items.length === 0) && clientItems && clientItems.length > 0) {
@@ -52,7 +54,7 @@ export class OrderService {
       cart = await Cart.findOneAndUpdate(
         { user: userId },
         { $set: { items: formattedItems } },
-        { upsert: true, new: true }
+        { upsert: true, new: true, session }
       ).populate('items.product');
     }
 
@@ -64,7 +66,9 @@ export class OrderService {
     const products = [];
 
     for (const item of cart.items) {
-      const product = await Product.findById(item.product);
+      let prodQuery = Product.findById(item.product);
+      if (session) prodQuery = prodQuery.session(session);
+      const product = await prodQuery;
       if (!product) throw new Error(`Product not found`);
       
       const price = product.finalPrice || product.price;
@@ -86,7 +90,9 @@ export class OrderService {
 
     if (couponCode) {
       const cleanCode = couponCode.trim().toUpperCase();
-      const coupon = await Coupon.findOne({ code: cleanCode });
+      let couponQuery = Coupon.findOne({ code: cleanCode });
+      if (session) couponQuery = couponQuery.session(session);
+      const coupon = await couponQuery;
       
       if (!coupon || !coupon.isActive) {
         throw new Error('Invalid or inactive coupon code.');
@@ -132,19 +138,20 @@ export class OrderService {
   }
 
   /**
-   * Places an order using MongoDB transactions
+   * Places an order using MongoDB transactions with write conflict retries and non-transaction fallback
    */
-  async placeOrder(userId: string, addressId: string, couponCode?: string, paymentMethod: string = 'COD', clientItems?: Array<{ id: string; quantity: number }>) {
+  async placeOrder(userId: string, addressId: string, couponCode?: string, paymentMethod: string = 'COD', clientItems?: Array<{ id: string; quantity: number }>, retries = 3): Promise<any> {
     const session = await mongoose.startSession();
-    session.startTransaction();
     
     try {
+      session.startTransaction();
+      
       // 1. Validate Address
       const address = await Address.findOne({ _id: addressId, user: userId }).session(session);
       if (!address) throw new Error("Invalid address");
 
       // 2. Calculate Totals and Validate Products/Coupon
-      const totals = await this.calculateTotals(userId, couponCode, clientItems);
+      const totals = await this.calculateTotals(userId, couponCode, clientItems, session);
 
       // 3. Validate Inventory and Deduct Stock
       for (const item of totals.products) {
@@ -209,7 +216,7 @@ export class OrderService {
         shippingAddressSnapshot,
         status: 'Order Placed',
         paymentMethod,
-        paymentStatus: 'pending', // COD
+        paymentStatus: 'pending',
         trackingTimeline: [{ status: 'Order Placed', note: 'Order has been placed successfully.' }]
       }], { session });
 
@@ -217,7 +224,7 @@ export class OrderService {
       await OrderTimeline.create([{
         order: newOrder[0]._id,
         status: 'Order Placed',
-        updatedBy: userId, // Customer placed the order
+        updatedBy: userId,
         notes: 'Order placed successfully by customer.'
       }], { session });
 
@@ -228,10 +235,9 @@ export class OrderService {
       await session.commitTransaction();
       session.endSession();
 
-      // Fire notification non-blocking
+      // Post-order async tasks
       this.notificationService.sendOrderStatusNotification(userId, orderId, 'Order Placed');
 
-      // Send New Order alert to store owner (Bill invoice is sent to customer ONLY when order is Confirmed)
       try {
         const emailService = new EmailService();
         await emailService.sendOwnerNewOrderAlertEmail(newOrder[0]);
@@ -239,29 +245,120 @@ export class OrderService {
         console.error('Failed to send owner alert email:', emailErr);
       }
 
-      // Check for low stock on purchased items
-      try {
-        for (const item of totals.products) {
-          const prod = await Product.findById(item.product);
-          if (prod && prod.stock <= prod.minimumStock) {
-            await this.notificationService.sendAdminPushNotification(
-              'Low Stock Alert',
-              `Product "${prod.name}" has run low on stock (${prod.stock} items remaining).`,
-              '/admin/inventory'
-            );
-          }
-        }
-      } catch (stockErr) {
-        console.error('Failed to run post-order low stock checks:', stockErr);
-      }
-
       return newOrder[0];
 
-    } catch (error) {
+    } catch (error: any) {
       await session.abortTransaction();
       session.endSession();
+
+      const errMsg = error?.message || '';
+      const isWriteConflict = errMsg.includes('Write conflict') || error?.code === 112 || error?.hasErrorLabel?.('TransientTransactionError');
+      
+      if (isWriteConflict && retries > 0) {
+        console.warn(`Write conflict encountered during placeOrder. Retrying... (${retries} retries left)`);
+        await new Promise(r => setTimeout(r, 150 * (4 - retries)));
+        return this.placeOrder(userId, addressId, couponCode, paymentMethod, clientItems, retries - 1);
+      }
+
+      // If transactions fail due to MongoDB Atlas environment (e.g. write conflict or transaction yielding restrictions), fallback to atomic execution
+      if (isWriteConflict || errMsg.includes('Transaction') || errMsg.includes('replica set') || errMsg.includes('multi-document transaction')) {
+        console.warn("Executing atomic non-transaction fallback for placeOrder.");
+        return this.placeOrderWithoutTransaction(userId, addressId, couponCode, paymentMethod, clientItems);
+      }
+
       throw error;
     }
+  }
+
+  /**
+   * Non-transaction atomic fallback for placeOrder when multi-document transactions encounter write conflicts
+   */
+  async placeOrderWithoutTransaction(userId: string, addressId: string, couponCode?: string, paymentMethod: string = 'COD', clientItems?: Array<{ id: string; quantity: number }>) {
+    // 1. Validate Address
+    const address = await Address.findOne({ _id: addressId, user: userId });
+    if (!address) throw new Error("Invalid address");
+
+    // 2. Calculate Totals and Validate Products/Coupon
+    const totals = await this.calculateTotals(userId, couponCode, clientItems);
+
+    // 3. Validate Inventory and Deduct Stock atomically
+    for (const item of totals.products) {
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.product, stock: { $gte: item.quantity } },
+        { $inc: { stock: -item.quantity } },
+        { new: true }
+      );
+
+      if (!updatedProduct) {
+        throw new Error(`Insufficient stock for product: ${item.name}`);
+      }
+    }
+
+    // 4. Update Coupon Usage atomically
+    if (totals.appliedCoupon) {
+      await Coupon.findOneAndUpdate(
+        { _id: totals.appliedCoupon._id, $expr: { $lt: ["$usedCount", { $ifNull: ["$usageLimit", 999999999] }] } },
+        { $inc: { usedCount: 1 } }
+      );
+    }
+
+    // 5. Generate Order ID
+    const orderId = await this.generateOrderId();
+
+    const shippingAddressSnapshot = {
+      fullName: address.fullName,
+      phone: address.phone,
+      alternatePhone: (address as any).alternatePhone || (address as any).alternateMobile,
+      email: address.email,
+      houseNo: address.houseNo,
+      street: address.street,
+      landmark: address.landmark,
+      area: address.area,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postalCode,
+      country: address.country || 'India'
+    };
+
+    // 6. Create Order
+    const newOrder = await Order.create({
+      orderId,
+      user: userId,
+      products: totals.products,
+      totalAmount: totals.totalAmount,
+      discount: totals.discount,
+      deliveryCharges: totals.deliveryCharges,
+      coupon: totals.appliedCoupon ? totals.appliedCoupon._id : undefined,
+      shippingAddress: addressId,
+      shippingAddressSnapshot,
+      status: 'Order Placed',
+      paymentMethod,
+      paymentStatus: 'pending',
+      trackingTimeline: [{ status: 'Order Placed', note: 'Order has been placed successfully.' }]
+    });
+
+    // 7. Create standalone OrderTimeline entry
+    await OrderTimeline.create({
+      order: newOrder._id,
+      status: 'Order Placed',
+      updatedBy: userId,
+      notes: 'Order placed successfully by customer.'
+    });
+
+    // 8. Clear Cart
+    await Cart.findByIdAndUpdate(totals.cartId, { $set: { items: [] } });
+
+    // Post-order async tasks
+    this.notificationService.sendOrderStatusNotification(userId, orderId, 'Order Placed');
+
+    try {
+      const emailService = new EmailService();
+      await emailService.sendOwnerNewOrderAlertEmail(newOrder);
+    } catch (emailErr) {
+      console.error('Failed to send owner alert email:', emailErr);
+    }
+
+    return newOrder;
   }
 
   /**
