@@ -284,7 +284,7 @@ export class ImportService {
         const subcategory = (row['Sub Category'] || row['subcategory'] || row['Subcategory'] || '').toString().trim();
         const rawPrice = parseFloat(row['Price'] || row['price'] || '0');
         const rawMrp = row['MRP'] || row['mrp'] ? parseFloat(row['MRP'] || row['mrp']) : undefined;
-        const rawDiscount = row['Discount'] || row['discount'] ? parseFloat(row['Discount'] || row['discount']) : 0;
+        const rawDiscount = row['Discount %'] || row['Discount'] || row['discount'] ? parseFloat(row['Discount %'] || row['Discount'] || row['discount']) : 0;
         const stock = parseInt(row['Stock'] || row['stock'] || '10', 10);
         const minStock = parseInt(row['Minimum Stock'] || row['minimumStock'] || '2', 10);
         const userSku = (row['SKU'] || row['sku'] || '').toString().trim();
@@ -301,8 +301,8 @@ export class ImportService {
         const occasion = (row['Occasion'] || row['occasion'] || 'Bridal & Festive').toString().trim();
         const gender = (row['Gender'] || row['gender'] || 'Women').toString().trim() as any;
         const style = (row['Style'] || row['style'] || 'Traditional Royal').toString().trim();
-        const shortDesc = (row['Short Description'] || row['shortDescription'] || '').toString().trim();
-        const longDesc = (row['Long Description'] || row['description'] || row['longDescription'] || '').toString().trim();
+        const shortDesc = (row['Short Description'] || row['shortDescription'] || row['Description'] || row['description'] || '').toString().trim();
+        const longDesc = (row['Long Description'] || row['description'] || row['Description'] || row['longDescription'] || '').toString().trim();
         const featuresStr = (row['Features'] || row['features'] || '').toString().trim();
         const careInstructions = (row['Care Instructions'] || row['careInstructions'] || '').toString().trim();
         const shippingInfo = (row['Shipping Information'] || row['shippingInfo'] || '').toString().trim();
@@ -333,9 +333,18 @@ export class ImportService {
           }
         }
 
-        // 2. Handle Cloudinary Media Uploads from ZIP
+        // 2. Handle Image URLs & Cloudinary Media Uploads from ZIP
         const imageUrls: string[] = [];
         let videoUrl: string | undefined = undefined;
+
+        // Check for direct Image URLs column in CSV first
+        const rawCsvImageUrls = (row['Image URLs'] || row['Image URL'] || row['Images'] || row['Image'] || '').toString().trim();
+        if (rawCsvImageUrls) {
+          const directUrls = rawCsvImageUrls.split(/[\n,;]+/).map((u: string) => u.trim()).filter((u: string) => u.startsWith('http://') || u.startsWith('https://'));
+          if (directUrls.length > 0) {
+            imageUrls.push(...directUrls);
+          }
+        }
 
         if (mediaFiles) {
           // Find matching images in ZIP (either by SKU/Folder prefix or exact name)

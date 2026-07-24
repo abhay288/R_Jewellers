@@ -37,36 +37,52 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
   const [importResult, setImportResult] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Sample CSV Download generator
+  // Sample CSV Download generator (Simplified for Artificial Jewellery)
   const downloadSampleCSV = () => {
     const headers = [
-      'SKU', 'Product ID', 'Product Name', 'Slug', 'Category', 'Sub Category', 'Brand', 'Collection',
-      'Price', 'MRP', 'Discount', 'Stock', 'Minimum Stock', 'Weight', 'Dimensions', 'Material', 'Stone Type',
-      'Color', 'Finish', 'Occasion', 'Gender', 'Style', 'Short Description', 'Long Description', 'Features',
-      'Care Instructions', 'Shipping Information', 'Return Policy', 'Warranty', 'Tags', 'Featured', 'Trending',
-      'Best Seller', 'New Arrival', 'Active', 'SEO Title', 'SEO Description', 'SEO Keywords', 'Image Folder', 'Video Folder'
+      'SKU', 'Product Name', 'Category', 'Price', 'MRP', 'Discount %', 
+      'Stock', 'Material', 'Stone Type', 'Occasion', 'Description', 
+      'Care Instructions', 'Image URLs'
     ];
 
-    const sampleRow = [
-      'RJ-KUN-9012', 'PRD-10023', 'Royal Bridal Kundan Necklace Set', 'royal-kundan-necklace', 'Necklaces', 'Bridal Sets',
-      'Radhika Jewellers', 'Royal Heritage', '45000', '65000', '30', '15', '3', '120g', '18 inches', '22K Gold Plated Alloy',
-      'Handcrafted Kundan & Pearl', 'Yellow Gold', 'Antique High Polish', 'Wedding & Royal Reception', 'Women', 'Traditional Rajasthani',
-      'Exquisite 22K Gold Plated Kundan Necklace Set with Matching Earrings.',
-      '<h2>Royal Kundan Craftsmanship</h2><p>Designed for brides who desire timeless heritage beauty. Embedded with precision-cut Kundan stones.</p>',
-      '22K Gold Plating, Certified Kundan Stones, Includes Adjustable Dori, Includes Matching Jhumkas',
-      'Avoid contact with moisture perfume and soap. Store in cotton velvet box.',
-      'Free 48-Hour Insured Express Delivery across India.', 'Easy 48-hour return or replacement policy.',
-      '1 Year Plating Warranty', 'kundan, necklace, bridal, gold, traditional', 'TRUE', 'TRUE', 'TRUE', 'TRUE', 'TRUE',
-      'Royal Kundan Necklace Set | Radhika Jewellers', 'Shop authentic Kundan bridal necklace set online at Radhika Jewellers.',
-      'kundan necklace, bridal jewellery, gold necklace', 'RJ-KUN-9012', 'RJ-KUN-9012'
+    const sampleRow1 = [
+      'RJ-KUN-101', 
+      'Royal Kundan Bridal Choker Set with Earrings', 
+      'Bridal Sets', 
+      '2499', 
+      '4999', 
+      '50', 
+      '20', 
+      '22K Gold Plated Alloy', 
+      'Handcrafted Kundan & Pearl', 
+      'Wedding & Festive', 
+      'Exquisite 22K Gold Plated Kundan Choker set featuring handcrafted Kundan stones with pearls. Comes with matching jhumkas. Anti-tarnish and skin-safe.', 
+      'Avoid contact with water and perfume. Clean with soft cloth and store in velvet box.', 
+      'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f'
     ];
 
-    const csvContent = Papa.unparse([headers, sampleRow]);
+    const sampleRow2 = [
+      'RJ-RNG-202', 
+      'Classic Solitaire CZ Diamond Adjustable Ring', 
+      'Rings', 
+      '899', 
+      '1499', 
+      '40', 
+      '35', 
+      'Rhodium Silver Polish Alloy', 
+      'American Diamond / CZ', 
+      'Everyday & Party Wear', 
+      'Brilliant cut CZ solitaire ring crafted in premium silver polish alloy. Adjustable band fits all ring sizes seamlessly.', 
+      'Keep dry. Store in sealed pouch when not in use.', 
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e'
+    ];
+
+    const csvContent = Papa.unparse([headers, sampleRow1, sampleRow2]);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', 'Radhika_Jewellers_Product_Import_Template.csv');
+    link.setAttribute('download', 'Radhika_Jewellers_Artificial_Jewellery_Bulk_Import_Template.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
