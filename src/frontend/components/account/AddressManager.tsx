@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   MapPin, Plus, Edit2, Trash2, CheckCircle2, AlertCircle, 
-  Loader2, Building, Home, Briefcase, Star, X, Check
+  Loader2, Building, Home, Briefcase, Star, X, Check, Navigation
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
@@ -50,6 +50,71 @@ export default function AddressManager() {
   const [postalCode, setPostalCode] = useState("");
   const [addressType, setAddressType] = useState<"Home" | "Office" | "Other">("Home");
   const [isDefault, setIsDefault] = useState(false);
+
+  // GPS Auto-Fill State
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<string | null>(null);
+
+  const handleDetectLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setDetectingLocation(true);
+    setLocationStatus("Detecting GPS coordinates...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          setLocationStatus("Fetching address details...");
+
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+
+          if (res.ok) {
+            const data = await res.json();
+            const addr = data.address || {};
+
+            const pincode = addr.postcode || "";
+            const cityName = addr.city || addr.town || addr.village || addr.county || addr.state_district || "";
+            const districtName = addr.state_district || addr.county || cityName;
+            const stateName = addr.state || "";
+            const streetName = addr.road || addr.suburb || addr.neighbourhood || addr.residential || "";
+
+            if (pincode) setPostalCode(pincode);
+            if (cityName) setCity(cityName);
+            if (districtName) setDistrict(districtName);
+            if (stateName) setState(stateName);
+            if (streetName) setStreet(streetName);
+            if (addr.suburb || addr.neighbourhood) setArea(addr.suburb || addr.neighbourhood);
+
+            setLocationStatus("Location detected successfully!");
+            setTimeout(() => setLocationStatus(null), 4000);
+          } else {
+            alert("Failed to retrieve address details from location service.");
+          }
+        } catch (err) {
+          console.error("Location detection error:", err);
+          alert("Error fetching address details from GPS.");
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      (err) => {
+        setDetectingLocation(false);
+        setLocationStatus(null);
+        if (err.code === err.PERMISSION_DENIED) {
+          alert("Location permission denied. Please allow location access in your browser.");
+        } else {
+          alert(`Location error: ${err.message}`);
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   const fetchAddresses = async () => {
     try {
@@ -336,6 +401,29 @@ export default function AddressManager() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* GPS Auto-Fill Bar */}
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                    <Navigation className={cn("w-3.5 h-3.5", detectingLocation && "animate-spin")} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-foreground">Auto-Fill Address via GPS</h4>
+                    <p className="text-[10px] text-muted-foreground">
+                      {locationStatus || "Detect pincode, city, state & street"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDetectLocation}
+                  disabled={detectingLocation}
+                  className="bg-amber-500 text-neutral-950 px-3.5 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider hover:bg-amber-400 transition-colors shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                >
+                  {detectingLocation ? "Detecting..." : "📍 Detect Location"}
+                </button>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold uppercase text-muted-foreground">Full Name *</label>

@@ -7,7 +7,7 @@ import { useCheckoutStore } from "@/frontend/store/useCheckoutStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Check, ChevronRight, MapPin, CreditCard, ShoppingBag, Loader2,
-  ShieldCheck, Truck, RotateCcw, Lock, Tag, Sparkles, Plus, Trash2, ArrowLeft
+  ShieldCheck, Truck, RotateCcw, Lock, Tag, Sparkles, Plus, Trash2, ArrowLeft, Navigation
 } from "lucide-react";
 import Image from "next/image";
 import Script from "next/script";
@@ -92,6 +92,77 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
         setIsFetchingPincode(false);
       }
     }
+  };
+
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<string | null>(null);
+
+  const handleDetectLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setDetectingLocation(true);
+    setLocationStatus("Detecting GPS coordinates...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          setLocationStatus("Fetching address details...");
+          
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+
+          if (res.ok) {
+            const data = await res.json();
+            const addr = data.address || {};
+
+            const pincode = addr.postcode || "";
+            const city = addr.city || addr.town || addr.village || addr.county || addr.state_district || "";
+            const district = addr.state_district || addr.county || city;
+            const state = addr.state || "";
+            const streetName = addr.road || addr.suburb || addr.neighbourhood || addr.residential || "";
+
+            setNewAddress((prev) => ({
+              ...prev,
+              postalCode: pincode || prev.postalCode,
+              city: city || prev.city,
+              district: district || prev.district,
+              state: state || prev.state,
+              street: streetName || prev.street,
+              area: addr.suburb || addr.neighbourhood || prev.area
+            }));
+
+            if (pincode && pincode.length === 6) {
+              handlePincodeLookup(pincode);
+            }
+
+            setLocationStatus("Location detected successfully!");
+            setTimeout(() => setLocationStatus(null), 4000);
+          } else {
+            alert("Failed to retrieve address details from location service.");
+          }
+        } catch (err) {
+          console.error("Location detection error:", err);
+          alert("Error fetching address details from GPS.");
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      (error) => {
+        setDetectingLocation(false);
+        setLocationStatus(null);
+        if (error.code === error.PERMISSION_DENIED) {
+          alert("Location permission denied. Please allow location access in your browser to auto-detect address.");
+        } else {
+          alert(`Location error: ${error.message}`);
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const handleSaveAddress = async (e: React.FormEvent) => {
@@ -526,6 +597,29 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
                   ) : (
                     /* New Address Form */
                     <form onSubmit={handleSaveAddress} className="space-y-4 pt-2">
+                      {/* GPS Auto-Fill Bar */}
+                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                            <Navigation className={cn("w-4 h-4", detectingLocation && "animate-spin")} />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-foreground">Auto-Fill Address via GPS</h4>
+                            <p className="text-[11px] text-muted-foreground">
+                              {locationStatus || "Click to detect pincode, city, state & street"}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleDetectLocation}
+                          disabled={detectingLocation}
+                          className="bg-amber-500 text-neutral-950 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-amber-400 transition-colors shadow-xs shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                        >
+                          {detectingLocation ? "Detecting..." : "📍 Use My Current Location"}
+                        </button>
+                      </div>
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Full Name *</label>
