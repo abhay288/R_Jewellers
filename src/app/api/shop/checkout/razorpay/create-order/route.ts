@@ -54,44 +54,45 @@ export async function POST(req: Request) {
       dbKeySecret || process.env.RAZORPAY_KEY_SECRET || 'hXy0wKqwUDZDcWc3JCypSoet'
     ).toString().trim();
 
-    // 4. Attempt Razorpay Order Creation via SDK
-    let razorpayOrderId: string | undefined = undefined;
-
-    if (keyId && keySecret) {
-      try {
-        const razorpay = new Razorpay({
-          key_id: keyId,
-          key_secret: keySecret,
-        });
-
-        const rawReceipt = (order.orderId || String(order._id)).replace(/[^a-zA-Z0-9_-]/g, '');
-        const options = {
-          amount: amountInPaise,
-          currency: 'INR',
-          receipt: rawReceipt.substring(0, 40),
-          notes: {
-            orderId: order.orderId,
-            userId: String(session.user.id),
-          }
-        };
-
-        const razorpayOrder = await razorpay.orders.create(options);
-        if (razorpayOrder && razorpayOrder.id) {
-          razorpayOrderId = razorpayOrder.id;
-          order.razorpayOrderId = razorpayOrder.id;
-          await order.save();
-        }
-      } catch (rpErr: any) {
-        console.warn('Razorpay SDK orders.create warning (falling back to direct client checkout):', rpErr?.message || rpErr);
-      }
+    if (!keyId || !keySecret) {
+      return NextResponse.json({ error: 'Razorpay API Key ID and Key Secret missing. Please update in Admin Settings.' }, { status: 400 });
     }
 
-    // 5. Return success with keyId, amount, currency, and razorpayOrderId (if created)
-    return NextResponse.json({
-      success: true,
-      order_id: razorpayOrderId,
+    // 4. Create Razorpay order via official SDK
+    const razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+
+    const rawReceipt = (order.orderId || String(order._id)).replace(/[^a-zA-Z0-9_-]/g, '');
+    const options = {
       amount: amountInPaise,
       currency: 'INR',
+      receipt: rawReceipt.substring(0, 40),
+      notes: {
+        orderId: order.orderId,
+        userId: String(session.user.id),
+      }
+    };
+
+    let razorpayOrder;
+    try {
+      razorpayOrder = await razorpay.orders.create(options);
+    } catch (rpErr: any) {
+      console.error('Razorpay API SDK Order Creation Error:', rpErr);
+      const rpErrMsg = rpErr?.error?.description || rpErr?.description || rpErr?.message || 'Razorpay order creation failed';
+      return NextResponse.json({ error: `Razorpay Error: ${rpErrMsg}. Please check Razorpay Key ID & Secret in Admin Settings.` }, { status: 400 });
+    }
+
+    // 5. Update local database order with Razorpay Order ID
+    order.razorpayOrderId = razorpayOrder.id;
+    await order.save();
+
+    return NextResponse.json({
+      success: true,
+      order_id: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
       key: keyId
     });
 

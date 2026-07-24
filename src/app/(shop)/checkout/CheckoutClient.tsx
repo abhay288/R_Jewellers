@@ -258,6 +258,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
           name: 'Radhika Jewellers',
           description: `Payment for Order #${localOrderId}`,
           image: '/icon.png',
+          order_id: rpData.order_id,
           handler: async function (response: any) {
             setLoading(true);
             try {
@@ -301,10 +302,6 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
             }
           }
         };
-
-        if (rpData.order_id) {
-          options.order_id = rpData.order_id;
-        }
 
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
