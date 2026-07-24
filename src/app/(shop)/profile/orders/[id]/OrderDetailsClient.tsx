@@ -3,40 +3,54 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download, CheckCircle2, Package, Truck, Home, MapPin, XCircle } from 'lucide-react';
+import { ArrowLeft, Download, CheckCircle2, Package, Truck, Home, MapPin, XCircle, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateInvoicePDF } from '@/frontend/lib/InvoiceGenerator';
 
 import ReturnOrderModal from '../../returns/ReturnOrderModal';
 import CancelOrderModal from '../CancelOrderModal';
+import OrderReviewModal from '../OrderReviewModal';
 
 export default function OrderDetailsClient({ initialOrder }: { initialOrder: any }) {
   const router = useRouter();
   const [order, setOrder] = useState(initialOrder);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState('');
   const [returnCountdown, setReturnCountdown] = useState<string | null>(null);
 
   const canCancel = ['Order Placed', 'Confirmed'].includes(order.status);
-  
-  // Return Eligibility
   const isDelivered = order.status === 'Delivered';
-  const returnEligibleDate = order.returnEligibilityDate ? new Date(order.returnEligibilityDate) : null;
-  const now = new Date();
-  const canReturn = isDelivered && returnEligibleDate && returnEligibleDate > now;
+  
+  // 48 Hours Return Window calculation
+  const TWO_DAYS_MS = 48 * 60 * 60 * 1000;
+  let deliveryTime = 0;
+  if (order.deliveredAt) {
+    deliveryTime = new Date(order.deliveredAt).getTime();
+  } else if (order.returnEligibilityDate) {
+    deliveryTime = new Date(order.returnEligibilityDate).getTime() - TWO_DAYS_MS;
+  } else if (isDelivered) {
+    deliveryTime = new Date(order.updatedAt).getTime();
+  }
+
+  const nowTime = Date.now();
+  const timeSinceDelivery = deliveryTime ? nowTime - deliveryTime : 0;
+  const canReturn = isDelivered && deliveryTime > 0 && timeSinceDelivery <= TWO_DAYS_MS;
+  const isReturnExpired = isDelivered && deliveryTime > 0 && timeSinceDelivery > TWO_DAYS_MS;
+
+  const returnExpiryTime = deliveryTime ? deliveryTime + TWO_DAYS_MS : 0;
 
   // Countdown timer effect
   useState(() => {
-    if (canReturn && returnEligibleDate) {
+    if (canReturn && returnExpiryTime) {
       const interval = setInterval(() => {
-        const diff = returnEligibleDate.getTime() - new Date().getTime();
+        const diff = returnExpiryTime - Date.now();
         if (diff <= 0) {
           setReturnCountdown(null);
           clearInterval(interval);
-          // Optional: trigger refresh
         } else {
           const hours = Math.floor(diff / (1000 * 60 * 60));
           const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -115,18 +129,27 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
               Cancel Order
             </button>
           )}
+          {isDelivered && (
+            <button
+              onClick={() => setIsReviewModalOpen(true)}
+              className="flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 border border-amber-500/30 text-amber-700 bg-amber-500/10 hover:bg-amber-500/20 rounded-full text-sm font-semibold transition-colors"
+            >
+              <Star className="w-4 h-4 mr-2 fill-amber-500 text-amber-500" />
+              Rate & Review
+            </button>
+          )}
           {canReturn && (
-            <div className="flex flex-col items-end">
-              <button 
-                onClick={() => setIsReturnModalOpen(true)}
-                className="flex-1 md:flex-none px-6 py-2.5 border border-primary text-primary hover:bg-primary/5 rounded-full text-sm font-medium transition-colors"
-              >
-                Return Order
-              </button>
-              {returnCountdown && (
-                <span className="text-[10px] text-muted-foreground mt-1 mr-2 font-medium uppercase tracking-wider">{returnCountdown}</span>
-              )}
-            </div>
+            <button 
+              onClick={() => setIsReturnModalOpen(true)}
+              className="flex-1 md:flex-none px-6 py-2.5 border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-full text-sm font-medium transition-colors"
+            >
+              Return Order
+            </button>
+          )}
+          {isReturnExpired && (
+            <span className="text-xs text-muted-foreground bg-secondary px-4 py-2 rounded-full border border-border/50 font-medium">
+              Return window closed (48h expired)
+            </span>
           )}
           <button 
             onClick={handleDownloadInvoice}
@@ -360,6 +383,12 @@ export default function OrderDetailsClient({ initialOrder }: { initialOrder: any
           setIsReturnModalOpen(false);
           router.push('/profile/returns');
         }}
+      />
+
+      <OrderReviewModal
+        isOpen={isReviewModalOpen}
+        order={order}
+        onClose={() => setIsReviewModalOpen(false)}
       />
     </div>
   );

@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, ChevronRight, Loader2, MapPin, RotateCcw } from "lucide-react";
+import { Package, ChevronRight, Loader2, MapPin, RotateCcw, Star } from "lucide-react";
 import CancelOrderModal from "@/app/(shop)/profile/orders/CancelOrderModal";
 import ReturnOrderModal from "@/app/(shop)/profile/returns/ReturnOrderModal";
+import OrderReviewModal from "@/app/(shop)/profile/orders/OrderReviewModal";
 
 const STATUS_COLORS: Record<string, string> = {
   "Order Placed":      "bg-blue-500/10 text-blue-600",
@@ -18,6 +19,8 @@ const STATUS_COLORS: Record<string, string> = {
   "Returned":          "bg-rose-500/10 text-rose-600",
 };
 
+const TWO_DAYS_MS = 48 * 60 * 60 * 1000;
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +31,9 @@ export default function OrdersPage() {
 
   // Return modal state
   const [returnOrder, setReturnOrder] = useState<any | null>(null);
+
+  // Review modal state
+  const [reviewOrder, setReviewOrder] = useState<any | null>(null);
 
   const fetchOrders = async () => {
     try {
@@ -93,8 +99,23 @@ export default function OrdersPage() {
       ) : (
         <div className="space-y-6">
           {orders.map((order) => {
+            const isDelivered = order.status === "Delivered";
             const canCancel = ["Order Placed", "Confirmed"].includes(order.status);
-            const canReturn = order.status === "Delivered";
+
+            // 48 Hours Return Window calculation
+            let deliveryTime = 0;
+            if (order.deliveredAt) {
+              deliveryTime = new Date(order.deliveredAt).getTime();
+            } else if (order.returnEligibilityDate) {
+              deliveryTime = new Date(order.returnEligibilityDate).getTime() - TWO_DAYS_MS;
+            } else if (isDelivered) {
+              deliveryTime = new Date(order.updatedAt).getTime();
+            }
+
+            const now = Date.now();
+            const timeSinceDelivery = deliveryTime ? now - deliveryTime : 0;
+            const isReturnWindowActive = isDelivered && deliveryTime > 0 && timeSinceDelivery <= TWO_DAYS_MS;
+            const isReturnWindowExpired = isDelivered && deliveryTime > 0 && timeSinceDelivery > TWO_DAYS_MS;
 
             return (
               <div
@@ -118,7 +139,7 @@ export default function OrdersPage() {
                     <p className="text-sm text-muted-foreground">
                       Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
-                    {order.estimatedDelivery && (
+                    {order.estimatedDelivery && !isDelivered && (
                       <p className="text-sm text-green-600 font-medium mt-0.5">
                         Expected Delivery: {new Date(order.estimatedDelivery).toLocaleDateString("en-IN", { day: "numeric", month: "long" })}
                       </p>
@@ -133,7 +154,9 @@ export default function OrdersPage() {
 
                   <div className="flex items-center justify-between md:flex-col md:items-end gap-2">
                     <span className="font-bold text-lg text-primary">₹{order.totalAmount?.toFixed(2)}</span>
-                    <div className="flex gap-2 flex-wrap justify-end">
+                    <div className="flex gap-2 flex-wrap justify-end items-center">
+                      
+                      {/* Cancel Button */}
                       {canCancel && (
                         <button
                           onClick={() => setCancellingOrder(order)}
@@ -142,7 +165,20 @@ export default function OrdersPage() {
                           Cancel Order
                         </button>
                       )}
-                      {canReturn && (
+
+                      {/* Post-Delivery Product Rating & Review Button */}
+                      {isDelivered && (
+                        <button
+                          onClick={() => setReviewOrder(order)}
+                          className="flex items-center gap-1.5 text-xs text-amber-700 hover:text-amber-800 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-4 py-2 rounded-full font-semibold transition-colors"
+                        >
+                          <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                          Rate & Review
+                        </button>
+                      )}
+
+                      {/* Return Button (Active within 48 hours / Dismissed after 2 days) */}
+                      {isReturnWindowActive && (
                         <button
                           onClick={() => setReturnOrder(order)}
                           className="flex items-center gap-1 text-xs text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-4 py-2 rounded-full font-medium transition-colors"
@@ -151,6 +187,14 @@ export default function OrdersPage() {
                           Request Return
                         </button>
                       )}
+
+                      {/* Dismissed Return Badge when 48h expired */}
+                      {isReturnWindowExpired && (
+                        <span className="text-[11px] text-muted-foreground bg-secondary/80 px-3 py-1.5 rounded-full border border-border/50 font-medium">
+                          Return window closed (48h expired)
+                        </span>
+                      )}
+
                       <Link
                         href={`/orders/${order.awbNumber || order.orderId}`}
                         className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity"
@@ -215,6 +259,15 @@ export default function OrdersPage() {
           order={returnOrder}
           onClose={() => setReturnOrder(null)}
           onSuccess={handleReturnSuccess}
+        />
+      )}
+
+      {/* Product Rating & Feedback Review Modal */}
+      {reviewOrder && (
+        <OrderReviewModal
+          isOpen={!!reviewOrder}
+          order={reviewOrder}
+          onClose={() => setReviewOrder(null)}
         />
       )}
     </div>

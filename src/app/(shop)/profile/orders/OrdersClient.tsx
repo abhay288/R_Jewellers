@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, ChevronRight, Filter, RotateCcw } from 'lucide-react';
+import { Package, ChevronRight, Filter, RotateCcw, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CancelOrderModal from './CancelOrderModal';
 import ReturnOrderModal from '../returns/ReturnOrderModal';
+import OrderReviewModal from './OrderReviewModal';
+
+const TWO_DAYS_MS = 48 * 60 * 60 * 1000;
 
 export default function OrdersClient({ initialOrders, totalPages, currentPage, currentStatus }: any) {
   const router = useRouter();
@@ -18,6 +21,9 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
 
   // Return order modal state
   const [returnOrder, setReturnOrder] = useState<any | null>(null);
+
+  // Review modal state
+  const [reviewOrder, setReviewOrder] = useState<any | null>(null);
 
   const handleFilterChange = (e: any) => {
     const newStatus = e.target.value;
@@ -81,8 +87,23 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
       ) : (
         <div className="space-y-6">
           {orders.map((order: any, idx: number) => {
+            const isDelivered = order.status === 'Delivered';
             const canCancel = ['Order Placed', 'Confirmed'].includes(order.status);
-            const canReturn = order.status === 'Delivered';
+
+            // 48 Hours Return Window calculation
+            let deliveryTime = 0;
+            if (order.deliveredAt) {
+              deliveryTime = new Date(order.deliveredAt).getTime();
+            } else if (order.returnEligibilityDate) {
+              deliveryTime = new Date(order.returnEligibilityDate).getTime() - TWO_DAYS_MS;
+            } else if (isDelivered) {
+              deliveryTime = new Date(order.updatedAt).getTime();
+            }
+
+            const now = Date.now();
+            const timeSinceDelivery = deliveryTime ? now - deliveryTime : 0;
+            const isReturnWindowActive = isDelivered && deliveryTime > 0 && timeSinceDelivery <= TWO_DAYS_MS;
+            const isReturnWindowExpired = isDelivered && deliveryTime > 0 && timeSinceDelivery > TWO_DAYS_MS;
 
             return (
               <motion.div 
@@ -157,7 +178,16 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
                         Cancel Order
                       </button>
                     )}
-                    {canReturn && (
+                    {isDelivered && (
+                      <button
+                        onClick={() => setReviewOrder(order)}
+                        className="w-full lg:w-auto flex items-center justify-center px-5 py-2.5 border border-amber-500/30 text-amber-700 bg-amber-500/10 hover:bg-amber-500/20 rounded-full transition-colors text-sm font-semibold"
+                      >
+                        <Star className="w-3.5 h-3.5 mr-1.5 fill-amber-500 text-amber-500" />
+                        Rate & Review
+                      </button>
+                    )}
+                    {isReturnWindowActive && (
                       <button
                         onClick={() => setReturnOrder(order)}
                         className="w-full lg:w-auto flex items-center justify-center px-5 py-2.5 border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-full transition-colors text-sm font-medium"
@@ -165,6 +195,11 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
                         <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
                         Request Return
                       </button>
+                    )}
+                    {isReturnWindowExpired && (
+                      <span className="text-xs text-muted-foreground bg-secondary px-3 py-1.5 rounded-full border border-border/50 font-medium">
+                        Return window closed (48h expired)
+                      </span>
                     )}
                     <Link 
                       href={`/profile/orders/${order.orderId}`}
@@ -211,6 +246,15 @@ export default function OrdersClient({ initialOrders, totalPages, currentPage, c
           order={returnOrder}
           onClose={() => setReturnOrder(null)}
           onSuccess={handleReturnSuccess}
+        />
+      )}
+
+      {/* Product Rating & Review Modal */}
+      {reviewOrder && (
+        <OrderReviewModal
+          isOpen={!!reviewOrder}
+          order={reviewOrder}
+          onClose={() => setReviewOrder(null)}
         />
       )}
     </div>
