@@ -251,6 +251,9 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
         const activeKey = rpData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW';
 
+        console.log(`[Frontend Checkout Audit] Initializing Razorpay Checkout for Order #${localOrderId}:`);
+        console.log(`  - Amount sent to Razorpay SDK (paise): ${rpData.amount} (${rpData.amount / 100} INR)`);
+
         const options: any = {
           key: activeKey,
           amount: rpData.amount,
