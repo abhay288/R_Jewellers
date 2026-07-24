@@ -36,7 +36,11 @@ export async function POST(req: Request) {
     // 2. Verify signature if razorpay_signature and razorpay_order_id are present
     const settingService = new SettingService();
     const dbKeySecret = await settingService.getSettingByKey('razorpayKeySecret', '');
-    const keySecret = (dbKeySecret || process.env.RAZORPAY_KEY_SECRET || 'hXy0wKqwUDZDcWc3JCypSoet').toString().trim();
+    const sanitizeKey = (val: any) => {
+      if (!val) return '';
+      return String(val).trim().replace(/^["']|["']$/g, '').trim();
+    };
+    const keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET) || 'hXy0wKqwUDZDcWc3JCypSoet';
 
     if (razorpay_signature && razorpay_order_id && keySecret) {
       const generatedSignature = crypto

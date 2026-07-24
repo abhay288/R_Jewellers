@@ -46,16 +46,27 @@ export async function POST(req: Request) {
     const dbKeyId = await settingService.getSettingByKey('razorpayKeyId', '');
     const dbKeySecret = await settingService.getSettingByKey('razorpayKeySecret', '');
 
-    const keyId = (
-      dbKeyId || process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW'
-    ).toString().trim();
+    const sanitizeKey = (val: any) => {
+      if (!val) return '';
+      return String(val)
+        .trim()
+        .replace(/^["']|["']$/g, '')
+        .trim();
+    };
 
-    const keySecret = (
-      dbKeySecret || process.env.RAZORPAY_KEY_SECRET || 'hXy0wKqwUDZDcWc3JCypSoet'
-    ).toString().trim();
+    let keyId = sanitizeKey(dbKeyId) || sanitizeKey(process.env.RAZORPAY_KEY_ID) || sanitizeKey(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
+    let keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
+
+    // If neither keyId nor keySecret is provided anywhere, fall back to default test keys
+    if (!keyId && !keySecret) {
+      keyId = 'rzp_test_TEEygPJ4TOEaHW';
+      keySecret = 'hXy0wKqwUDZDcWc3JCypSoet';
+    }
 
     if (!keyId || !keySecret) {
-      return NextResponse.json({ error: 'Razorpay API Key ID and Key Secret missing. Please update in Admin Settings.' }, { status: 400 });
+      return NextResponse.json({
+        error: `Razorpay API Key ${!keyId ? 'ID' : 'Secret'} is missing. Please update both Key ID and Key Secret in Admin Settings.`
+      }, { status: 400 });
     }
 
     // 4. Create Razorpay order via official SDK

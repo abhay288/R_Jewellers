@@ -81,10 +81,14 @@ export default function AdminSettingsPage() {
     setSaving(true);
     setMessage(null);
     try {
+      const cleanedData = { ...data };
+      if (cleanedData.razorpayKeyId) cleanedData.razorpayKeyId = String(cleanedData.razorpayKeyId).trim().replace(/^["']|["']$/g, '');
+      if (cleanedData.razorpayKeySecret) cleanedData.razorpayKeySecret = String(cleanedData.razorpayKeySecret).trim().replace(/^["']|["']$/g, '');
+
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings: data, group }),
+        body: JSON.stringify({ settings: cleanedData, group }),
       });
       if (res.ok) {
         setMessage({ type: 'success', text: `Settings saved successfully.` });
@@ -228,6 +232,11 @@ export default function AdminSettingsPage() {
               onChange={(e) => setPayment({ ...payment, razorpayKeySecret: e.target.value })}
               className="w-full bg-background border border-border/50 rounded-xl px-4 py-2 focus:outline-none focus:border-primary text-sm font-mono" 
             />
+          </div>
+          <div className="col-span-1 md:col-span-2">
+            <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg border border-border/40">
+              💡 <strong>Important Razorpay Configuration Note:</strong> Ensure both <span className="font-mono text-primary font-semibold">Key ID</span> and <span className="font-mono text-primary font-semibold">Key Secret</span> are from the exact same mode in your Razorpay Dashboard. Live mode keys start with <code className="font-mono text-amber-600 bg-amber-500/10 px-1 py-0.5 rounded">rzp_live_</code> while Test mode keys start with <code className="font-mono text-amber-600 bg-amber-500/10 px-1 py-0.5 rounded">rzp_test_</code>.
+            </p>
           </div>
         </div>
         <div className="pt-4 flex justify-end">

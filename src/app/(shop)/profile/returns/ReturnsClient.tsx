@@ -132,7 +132,7 @@ export default function ReturnsClient() {
                       />
                     </div>
                     <div>
-                      <p className="text-sm font-medium line-clamp-1 max-w-[150px]">{item.product?.name || 'Unknown Item'}</p>
+                      <p className="text-sm font-medium line-clamp-1 max-w-37.5">{item.product?.name || 'Unknown Item'}</p>
                       <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
                   </div>

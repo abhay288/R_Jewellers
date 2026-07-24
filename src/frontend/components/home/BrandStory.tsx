@@ -28,7 +28,7 @@ export default function BrandStory() {
           
           {/* Image Side */}
           <motion.div 
-            className="flex-1 relative w-full h-[600px] lg:h-[800px] rounded-t-[50%] rounded-b-3xl overflow-hidden glass-card p-2"
+            className="flex-1 relative w-full h-150 lg:h-200 rounded-t-[50%] rounded-b-3xl overflow-hidden glass-card p-2"
             style={{ y, scale }}
           >
             <Image 
