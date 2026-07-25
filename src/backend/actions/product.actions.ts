@@ -74,17 +74,18 @@ export async function createProduct(data: any) {
     }
     
     const product = await Product.create(data);
-    const userId = (session?.user as any)?.id || (session?.user as any)?._id || session?.user?.email || 'admin';
+    const rawUserId = (session?.user as any)?.id || (session?.user as any)?._id;
+    const validUserId = rawUserId && /^[0-9a-fA-F]{24}$/.test(String(rawUserId)) ? rawUserId : undefined;
     
     try {
-      if (product.stock > 0 && userId) {
+      if (product.stock > 0) {
         await InventoryHistory.create({
           product: product._id,
           previousStock: 0,
           newStock: product.stock,
           changeQuantity: product.stock,
           reason: 'Added',
-          user: userId,
+          ...(validUserId ? { user: validUserId } : {}),
           notes: 'Initial stock on creation',
         });
       }
@@ -93,7 +94,7 @@ export async function createProduct(data: any) {
         "Product Created",
         "Product",
         product._id,
-        userId,
+        validUserId,
         { productName: product.name }
       );
     } catch (logErr) {
@@ -164,7 +165,10 @@ export async function updateProduct(id: string, data: any) {
     const product = await Product.findByIdAndUpdate(id, data, { new: true });
     if (!product) throw new Error("Product not found");
 
-    if (data.stock !== undefined && data.stock !== previousStock && session?.user?.id) {
+    const rawUserId = (session?.user as any)?.id || (session?.user as any)?._id;
+    const validUserId = rawUserId && /^[0-9a-fA-F]{24}$/.test(String(rawUserId)) ? rawUserId : undefined;
+
+    if (data.stock !== undefined && data.stock !== previousStock) {
       const diff = data.stock - previousStock;
       const reason = diff > 0 ? 'Added' : 'Adjusted';
       await InventoryHistory.create({
@@ -173,14 +177,14 @@ export async function updateProduct(id: string, data: any) {
         newStock: product.stock,
         changeQuantity: diff,
         reason: reason,
-        user: session.user.id,
+        ...(validUserId ? { user: validUserId } : {}),
         notes: 'Stock updated via product edit',
       });
 
       // Check low stock alert
-      if (product.stock < product.minimumStock) {
+      if (product.stock < product.minimumStock && validUserId) {
         await Notification.create({
-          user: session.user.id, // Assuming the admin who caused it or system admin gets it
+          user: validUserId,
           title: 'Low Stock Alert',
           message: `${product.name} (SKU: ${product.sku || 'N/A'}) has fallen below minimum stock level (${product.stock}/${product.minimumStock}).`,
           type: 'system',
@@ -189,13 +193,11 @@ export async function updateProduct(id: string, data: any) {
       }
     }
     
-    if (!session?.user?.id) throw new Error("Unauthorized");
-    
     await activityLogService.logAction(
       "Product Updated",
       "Product",
       product._id,
-      session.user.id,
+      validUserId,
       { productName: product.name }
     );
     

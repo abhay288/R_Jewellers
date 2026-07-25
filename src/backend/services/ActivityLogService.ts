@@ -20,8 +20,8 @@ export class ActivityLogService {
       await this.repository.create({
         action,
         entityType,
-        entityId: entityId ? new mongoose.Types.ObjectId(entityId as string) : undefined,
-        user: userId ? new mongoose.Types.ObjectId(userId as string) : undefined,
+        entityId: entityId && mongoose.Types.ObjectId.isValid(String(entityId)) ? new mongoose.Types.ObjectId(String(entityId)) : undefined,
+        user: userId && mongoose.Types.ObjectId.isValid(String(userId)) ? new mongoose.Types.ObjectId(String(userId)) : undefined,
         details,
         ipAddress
       });
