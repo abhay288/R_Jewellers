@@ -328,13 +328,16 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
         console.log(`[Frontend Checkout] Opening Razorpay Modal for Gateway Order ${rpData.razorpayOrderId}:`);
         console.log(`  - Amount sent to Razorpay SDK (paise): ${rpData.amount} (${rpData.amount / 100} INR)`);
 
+        const rawContact = (selectedAddr.phone || '').replace(/[\s+\-()]/g, '');
+        const formattedContact = rawContact.length === 10 ? `+91${rawContact}` : rawContact;
+
         const options: any = {
           key: activeKey,
           amount: rpData.amount,
           currency: rpData.currency || 'INR',
           name: 'Radhika Jewellers',
           description: 'Luxury Jewellery Order Payment',
-          image: '/icon.png',
+          image: '/assets/logo.png',
           order_id: rpData.razorpayOrderId,
           handler: async function (response: any) {
             setLoading(true);
@@ -371,7 +374,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
           prefill: {
             name: selectedAddr.fullName || session?.user?.name || '',
             email: selectedAddr.email || session?.user?.email || '',
-            contact: selectedAddr.phone || '',
+            contact: formattedContact,
           },
           theme: {
             color: '#d97706' // Warm Gold
