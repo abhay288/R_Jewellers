@@ -22,6 +22,7 @@ import {
 import Link from 'next/link';
 import ImportWizard from '@/frontend/components/admin/products/ImportWizard';
 import AddProductModal from '@/frontend/components/admin/products/AddProductModal';
+import { cn } from "@/shared/lib/utils";
 
 interface ProductsClientProps {
   products: ProductColumn[];
@@ -36,6 +37,27 @@ export default function ProductsClient({ products, categories }: ProductsClientP
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Sync Prices state
+  const [syncingPrices, setSyncingPrices] = useState(false);
+
+  const handleSyncPrices = async () => {
+    setSyncingPrices(true);
+    try {
+      const { syncAllProductPrices } = await import('@/backend/actions/product.actions');
+      const res = await syncAllProductPrices();
+      if (res.success) {
+        alert(`Successfully synced and updated prices for ${res.count} existing products!`);
+        window.location.reload();
+      } else {
+        alert(res.error || 'Failed to sync prices.');
+      }
+    } catch (err) {
+      alert('Error syncing product prices.');
+    } finally {
+      setSyncingPrices(false);
+    }
+  };
 
   // Bulk Form state
   const [bulkAction, setBulkAction] = useState<string>('bulk_price_update');
@@ -142,6 +164,16 @@ export default function ProductsClient({ products, categories }: ProductsClientP
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={handleSyncPrices}
+              disabled={syncingPrices}
+              className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary/80 text-foreground border border-border/80 px-4 py-2.5 rounded-xl font-bold text-xs tracking-wide uppercase transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50"
+              title="Recalculate finalPrice & MRP for all items"
+            >
+              <RefreshCw className={cn("w-4 h-4 text-amber-500", syncingPrices && "animate-spin")} />
+              {syncingPrices ? "Syncing Prices..." : "Sync Prices"}
+            </button>
+
             <button
               onClick={() => setShowImportWizard(true)}
               className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs tracking-wide uppercase transition-all shadow-md shadow-emerald-600/20 hover:scale-105 active:scale-95 cursor-pointer"

@@ -73,6 +73,22 @@ export async function createProduct(data: any) {
       if (existingSku) throw new Error("Product with this SKU already exists.");
     }
     
+    // Calculate price, MRP & finalPrice explicitly
+    const priceNum = Number(data.price || 0);
+    const discountNum = Number(data.discount || 0);
+    let mrpNum = data.mrp ? Number(data.mrp) : Math.round(priceNum * 1.3);
+    if (!mrpNum || mrpNum < priceNum) {
+      mrpNum = Math.round(priceNum * 1.3);
+    }
+    let finalPriceNum = priceNum;
+    if (discountNum > 0) {
+      finalPriceNum = Math.round(priceNum - (priceNum * (discountNum / 100)));
+    }
+    data.price = priceNum;
+    data.mrp = mrpNum;
+    data.discount = discountNum;
+    data.finalPrice = finalPriceNum;
+    
     const product = await Product.create(data);
     const rawUserId = (session?.user as any)?.id || (session?.user as any)?._id;
     const validUserId = rawUserId && /^[0-9a-fA-F]{24}$/.test(String(rawUserId)) ? rawUserId : undefined;
@@ -103,6 +119,11 @@ export async function createProduct(data: any) {
     
     revalidatePath("/admin/products");
     revalidatePath("/admin");
+    revalidatePath("/shop");
+    revalidatePath("/");
+    if (product.slug) {
+      revalidatePath(`/product/${product.slug}`);
+    }
     return { success: true, data: JSON.parse(JSON.stringify(product)) };
   } catch (error: any) {
     console.error("createProduct error:", error);
@@ -160,6 +181,23 @@ export async function updateProduct(id: string, data: any) {
       console.error("Failed to generate embedding during product update:", err);
     }
 
+    // Price & MRP & Final Price Recalculation
+    const priceNum = data.price !== undefined ? Number(data.price) : currentProduct.price;
+    const discountNum = data.discount !== undefined ? Number(data.discount) : (currentProduct.discount || 0);
+    let mrpNum = data.mrp !== undefined ? Number(data.mrp) : currentProduct.mrp;
+    if (!mrpNum || mrpNum < priceNum) {
+      mrpNum = Math.round(priceNum * 1.3);
+    }
+    let finalPriceNum = priceNum;
+    if (discountNum > 0) {
+      finalPriceNum = Math.round(priceNum - (priceNum * (discountNum / 100)));
+    }
+
+    data.price = priceNum;
+    data.mrp = mrpNum;
+    data.discount = discountNum;
+    data.finalPrice = finalPriceNum;
+
     const previousStock = currentProduct.stock;
     
     const product = await Product.findByIdAndUpdate(id, data, { new: true });
@@ -203,6 +241,15 @@ export async function updateProduct(id: string, data: any) {
     
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}`);
+    revalidatePath("/admin");
+    revalidatePath("/shop");
+    revalidatePath("/");
+    if (currentProduct.slug) {
+      revalidatePath(`/product/${currentProduct.slug}`);
+    }
+    if (product.slug && product.slug !== currentProduct.slug) {
+      revalidatePath(`/product/${product.slug}`);
+    }
     return { success: true, data: JSON.parse(JSON.stringify(product)) };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -320,5 +367,43 @@ export async function toggleProductStatus(id: string, isActive: boolean) {
     return { success: true, data: JSON.parse(JSON.stringify(product)) };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+export async function syncAllProductPrices() {
+  try {
+    await requireAdmin();
+    await connectDB();
+    const products = await Product.find({ isDeleted: { $ne: true } });
+    let updatedCount = 0;
+
+    for (const prod of products) {
+      const priceNum = Number(prod.price || 0);
+      const discountNum = Number(prod.discount || 0);
+      let mrpNum = prod.mrp ? Number(prod.mrp) : Math.round(priceNum * 1.3);
+      if (!mrpNum || mrpNum < priceNum) {
+        mrpNum = Math.round(priceNum * 1.3);
+      }
+      let finalPriceNum = priceNum;
+      if (discountNum > 0) {
+        finalPriceNum = Math.round(priceNum - (priceNum * (discountNum / 100)));
+      }
+
+      if (prod.finalPrice !== finalPriceNum || prod.mrp !== mrpNum) {
+        prod.finalPrice = finalPriceNum;
+        prod.mrp = mrpNum;
+        await prod.save();
+        updatedCount++;
+      }
+    }
+
+    revalidatePath("/admin/products");
+    revalidatePath("/shop");
+    revalidatePath("/");
+    console.log(`Synced prices for ${updatedCount} existing products.`);
+    return { success: true, count: updatedCount };
+  } catch (err: any) {
+    console.error("syncAllProductPrices error:", err);
+    return { success: false, error: err.message };
   }
 }
