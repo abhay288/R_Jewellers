@@ -31,7 +31,7 @@ export default async function AdminOrdersPage({
   const serializedOrders = JSON.parse(JSON.stringify(orders));
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16 min-h-full overflow-y-auto">
       <div>
         <h1 className="text-3xl font-playfair font-bold text-foreground">Order Management</h1>
         <p className="text-xs text-muted-foreground mt-1">View, track, and manage all customer orders in real time.</p>

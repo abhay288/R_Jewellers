@@ -878,22 +878,26 @@ export class OrderService {
    * Admin: Get all orders with search/filter
    */
   async getAdminOrders(page: number = 1, limit: number = 10, search?: string, statusFilter?: string) {
-    const query: any = {};
-    if (statusFilter && statusFilter !== 'All') {
-      query.status = statusFilter;
-    } else {
-      // Exclude abandoned/unpaid online checkout attempts from main Admin orders dashboard
-      query.status = { $ne: 'Payment Pending' };
-    }
+    const confirmedMatchCondition = {
+      $and: [
+        { status: { $ne: 'Payment Pending' } },
+        {
+          $or: [
+            { paymentMethod: 'COD' },
+            { paymentStatus: 'paid' },
+            { status: { $in: ['Confirmed', 'Packed', 'Shipped', 'Out For Delivery', 'Delivered', 'Cancelled', 'Returned'] } }
+          ]
+        }
+      ]
+    };
+
+    const query: any = (statusFilter && statusFilter !== 'All') 
+      ? { status: statusFilter } 
+      : confirmedMatchCondition;
 
     if (search) {
       const pipeline: any[] = [];
-
-      if (statusFilter && statusFilter !== 'All') {
-        pipeline.push({ $match: { status: statusFilter } });
-      } else {
-        pipeline.push({ $match: { status: { $ne: 'Payment Pending' } } });
-      }
+      pipeline.push({ $match: query });
 
       // Join with users collection
       pipeline.push({

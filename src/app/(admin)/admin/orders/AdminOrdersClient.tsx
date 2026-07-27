@@ -71,7 +71,7 @@ export default function AdminOrdersClient({ initialOrders, totalPages, currentPa
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-auto max-h-[70vh] custom-scrollbar">
         <table className="w-full text-sm text-left">
           <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
             <tr>
