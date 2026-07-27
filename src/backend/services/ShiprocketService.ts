@@ -223,8 +223,12 @@ export class ShiprocketService {
     const state = addr.state || 'Gujarat';
     const pincode = String(addr.postalCode || addr.pincode || '380001').replace(/\D/g, '').trim() || '380001';
 
+    // Shiprocket rejects duplicate order_ids. Append a timestamp epoch suffix to guarantee uniqueness
+    // while keeping the readable orderId intact in MongoDB. E.g. "RJ-2025-0001-1753600000"
+    const shiprocketOrderId = `${order.orderId}-${Math.floor(Date.now() / 1000)}`;
+
     const payload = {
-      order_id: order.orderId,
+      order_id: shiprocketOrderId,
       order_date: orderDate,
       pickup_location: process.env.SHIPROCKET_PICKUP_LOCATION_NAME || 'Primary',
       channel_id: '',

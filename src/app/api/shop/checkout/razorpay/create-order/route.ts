@@ -34,9 +34,7 @@ export async function POST(req: Request) {
     const originalAmountRupees = totals.totalAmount;
     const amountInPaise = Math.round(originalAmountRupees * 100);
 
-    console.log(`[Razorpay Order Creation Audit] Gateway Order Initialization`);
-    console.log(`  - Original amount (₹): ₹${originalAmountRupees}`);
-    console.log(`  - Amount sent to Razorpay (paise): ${amountInPaise} paise`);
+    // Amount validated
 
     if (amountInPaise < 100) {
       return NextResponse.json({ error: 'Minimum payment amount required is ₹1' }, { status: 400 });
@@ -55,14 +53,8 @@ export async function POST(req: Request) {
         .trim();
     };
 
-    let keyId = sanitizeKey(dbKeyId) || sanitizeKey(process.env.RAZORPAY_KEY_ID) || sanitizeKey(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
-    let keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
-
-    // Fallback to default test keys if neither is configured
-    if (!keyId && !keySecret) {
-      keyId = 'rzp_test_TEEygPJ4TOEaHW';
-      keySecret = 'hXy0wKqwUDZDcWc3JCypSoet';
-    }
+    const keyId = sanitizeKey(dbKeyId) || sanitizeKey(process.env.RAZORPAY_KEY_ID) || sanitizeKey(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
+    const keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
 
     if (!keyId || !keySecret) {
       return NextResponse.json({

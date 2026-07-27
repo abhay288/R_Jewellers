@@ -149,7 +149,7 @@
   }
   html {
     @apply font-sans;
-    scroll-behavior: smooth;
+    /* scroll-behavior intentionally NOT set — Lenis handles all smooth scrolling programmatically */
     -webkit-tap-highlight-color: transparent;
     text-size-adjust: 100%;
   }
@@ -200,13 +200,18 @@
     background: rgba(201, 162, 39, 0.8);
   }
 
-  /* Smooth scroll container utility */
-  .smooth-scroll,
+  /* Smooth scroll container utility — only use on non-Lenis containers (e.g., modal inner scrolls) */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+  }
+
+  /* overflow containers get touch scrolling and overscroll containment but NOT CSS smooth scroll (Lenis handles page scroll) */
   .overflow-y-auto,
   .overflow-x-auto,
   .overflow-auto {
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
     overscroll-behavior: contain;
   }
 

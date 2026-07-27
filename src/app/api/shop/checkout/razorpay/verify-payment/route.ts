@@ -34,7 +34,10 @@ export async function POST(req: Request) {
       if (!val) return '';
       return String(val).trim().replace(/^["']|["']$/g, '').trim();
     };
-    const keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET) || 'hXy0wKqwUDZDcWc3JCypSoet';
+    const keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
+    if (!keySecret) {
+      return NextResponse.json({ error: 'Razorpay Key Secret not configured. Please update it in Admin Settings.' }, { status: 400 });
+    }
 
     // 2. Verify Razorpay Payment Signature
     const expectedSignature = crypto

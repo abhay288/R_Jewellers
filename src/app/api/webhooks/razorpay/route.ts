@@ -25,7 +25,11 @@ export async function POST(req: Request) {
       return String(val).trim().replace(/^["']|["']$/g, '').trim();
     };
 
-    const webhookSecret = sanitizeKey(dbWebhookSecret) || sanitizeKey(process.env.RAZORPAY_WEBHOOK_SECRET) || sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET) || 'hXy0wKqwUDZDcWc3JCypSoet';
+    const webhookSecret = sanitizeKey(dbWebhookSecret) || sanitizeKey(process.env.RAZORPAY_WEBHOOK_SECRET) || sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
+    if (!webhookSecret) {
+      console.error('[Razorpay Webhook] No webhook/key secret configured. Rejecting request.');
+      return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 400 });
+    }
 
     // 2. Verify Webhook Signature
     const expectedSignature = crypto
