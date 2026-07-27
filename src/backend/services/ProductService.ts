@@ -173,7 +173,27 @@ export class ProductService {
       default: sortQuery = { createdAt: -1 }; break;
     }
 
-    return this.repository.paginate(query, page, limit, sortQuery);
+    const skip = (page - 1) * limit;
+    const ProductModel = mongoose.models.Product || (await import('../models/Product')).default;
+
+    const [data, total] = await Promise.all([
+      ProductModel.find(query)
+        .select('name slug price mrp discount finalPrice images category stock brand isNewArrival isFeatured isTrending isBestSeller averageRating reviewCount createdAt')
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
+      ProductModel.countDocuments(query).exec()
+    ]);
+
+    return {
+      data: data as any,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   async getProductBySlug(slugOrId: string) {

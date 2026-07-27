@@ -3,8 +3,8 @@ import { ProductService } from '@/backend/services/ProductService';
 import { CategoryService } from '@/backend/services/CategoryService';
 import dbConnect from '@/shared/lib/mongodb';
 
-// Allow this page to be dynamically rendered to handle search parameters
-export const dynamic = 'force-dynamic';
+// Enable 30-second stale-while-revalidate ISR cache for instant shop page rendering
+export const revalidate = 30;
 
 export default async function ShopPage({
   searchParams,

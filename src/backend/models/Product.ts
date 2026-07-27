@@ -215,6 +215,14 @@ ProductSchema.pre('validate', function(next: any) {
   next();
 });
 
+// Add compound indexes for high performance storefront queries
+ProductSchema.index({ isActive: 1, status: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, isFeatured: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, isTrending: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, isBestSeller: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+ProductSchema.index({ name: 'text', tags: 'text', description: 'text' });
+
 const Product: Model<IProduct> = mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
 
 export default Product;
