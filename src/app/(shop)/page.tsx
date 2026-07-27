@@ -3,8 +3,8 @@ import { ProductService } from '@/backend/services/ProductService';
 import { CategoryService } from '@/backend/services/CategoryService';
 import dbConnect from '@/shared/lib/mongodb';
 
-// Ensure the page is revalidated properly for ISR cache
-export const revalidate = 60; // Revalidate every 60 seconds
+// Enable 300-second ISR cache for 0ms instant home page rendering
+export const revalidate = 300;
 
 export default async function HomePage() {
   await dbConnect();
