@@ -13,7 +13,12 @@ const BRAND = 'Radhika Jewellers';
 const BRAND_GOLD = [140, 118, 92] as [number, number, number];
 const DARK = [30, 30, 30] as [number, number, number];
 const GRAY = [110, 110, 110] as [number, number, number];
-const LIGHT_GRAY = [240, 238, 234] as [number, number, number];
+const LIGHT_GRAY = [242, 240, 236] as [number, number, number];
+
+const formatMoney = (amount: number) => {
+  const num = Number(amount || 0);
+  return `Rs. ${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
 
 export function generateServerInvoicePDF(order: any): Buffer {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -121,9 +126,9 @@ export function generateServerInvoicePDF(order: any): Buffer {
   const tableRows = (order.products || []).map((item: any) => [
     item.name || '',
     item.quantity?.toString() || '1',
-    `₹${item.price?.toFixed ? item.price.toFixed(2) : item.price}`,
-    item.discount ? `₹${item.discount.toFixed ? item.discount.toFixed(2) : item.discount}` : '₹0.00',
-    `₹${item.finalPrice?.toFixed ? (item.finalPrice * (item.quantity || 1)).toFixed(2) : (item.price * (item.quantity || 1))}`,
+    formatMoney(item.price),
+    formatMoney(item.discount || 0),
+    formatMoney((item.finalPrice || item.price) * (item.quantity || 1)),
   ]);
 
   autoTable(doc, {
@@ -140,11 +145,11 @@ export function generateServerInvoicePDF(order: any): Buffer {
     bodyStyles: { fontSize: 9, textColor: DARK },
     alternateRowStyles: { fillColor: LIGHT_GRAY },
     columnStyles: {
-      0: { cellWidth: 75 },
-      1: { halign: 'center', cellWidth: 15 },
-      2: { halign: 'right', cellWidth: 28 },
-      3: { halign: 'right', cellWidth: 25 },
-      4: { halign: 'right', cellWidth: 28 },
+      0: { cellWidth: 65 },
+      1: { halign: 'center', cellWidth: 16 },
+      2: { halign: 'right', cellWidth: 33 },
+      3: { halign: 'right', cellWidth: 33 },
+      4: { halign: 'right', cellWidth: 35 },
     },
     margin: { left: 14, right: 14 },
   });
@@ -154,31 +159,35 @@ export function generateServerInvoicePDF(order: any): Buffer {
   // ─── Totals ──────────────────────────────────────────────────────
   const subtotal = (order.totalAmount + (order.discount || 0) - (order.deliveryCharges || 0));
   const totalsY = finalY + 8;
+  const boxWidth = 78;
+  const boxX = pageW - 14 - boxWidth;
+  const labelX = boxX + 6;
+  const valueX = pageW - 18;
 
   // box
   doc.setFillColor(...LIGHT_GRAY);
-  doc.roundedRect(pageW - 14 - 70, totalsY - 4, 70, 40, 2, 2, 'F');
+  doc.roundedRect(boxX, totalsY - 4, boxWidth, 42, 2, 2, 'F');
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...GRAY);
-  doc.text('Subtotal:', pageW - 14 - 60, totalsY + 4);
-  doc.text(`₹${subtotal.toFixed(2)}`, pageW - 14, totalsY + 4, { align: 'right' });
+  doc.text('Subtotal:', labelX, totalsY + 4);
+  doc.text(formatMoney(subtotal), valueX, totalsY + 4, { align: 'right' });
 
-  doc.text('Discount:', pageW - 14 - 60, totalsY + 11);
-  doc.text(`-₹${(order.discount || 0).toFixed(2)}`, pageW - 14, totalsY + 11, { align: 'right' });
+  doc.text('Discount:', labelX, totalsY + 11);
+  doc.text(`-${formatMoney(order.discount || 0)}`, valueX, totalsY + 11, { align: 'right' });
 
-  doc.text('Delivery:', pageW - 14 - 60, totalsY + 18);
-  doc.text(`₹${(order.deliveryCharges || 0).toFixed(2)}`, pageW - 14, totalsY + 18, { align: 'right' });
+  doc.text('Delivery:', labelX, totalsY + 18);
+  doc.text(formatMoney(order.deliveryCharges || 0), valueX, totalsY + 18, { align: 'right' });
 
   // Grand total row
   doc.setFillColor(...BRAND_GOLD);
-  doc.roundedRect(pageW - 14 - 70, totalsY + 24, 70, 10, 2, 2, 'F');
+  doc.roundedRect(boxX, totalsY + 25, boxWidth, 12, 2, 2, 'F');
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(10.5);
   doc.setTextColor(255, 255, 255);
-  doc.text('Grand Total:', pageW - 14 - 60, totalsY + 31);
-  doc.text(`₹${(order.totalAmount || 0).toFixed(2)}`, pageW - 14, totalsY + 31, { align: 'right' });
+  doc.text('Grand Total:', labelX, totalsY + 33);
+  doc.text(formatMoney(order.totalAmount || 0), valueX, totalsY + 33, { align: 'right' });
 
   // ─── Footer ──────────────────────────────────────────────────────
   const pageH = doc.internal.pageSize.getHeight();

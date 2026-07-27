@@ -84,17 +84,22 @@ export const generateInvoicePDF = (order: any, brandName: string = 'Radhika Jewe
     currentY += 5;
   }
 
+  const formatMoney = (amount: number) => {
+    const num = Number(amount || 0);
+    return `Rs. ${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   // Table Data
   const tableColumn = ["Item", "Quantity", "Unit Price", "Discount", "Total"];
   const tableRows: any[][] = [];
 
-  order.products.forEach((item: any) => {
+  (order.products || []).forEach((item: any) => {
     const itemData = [
-      item.name,
-      item.quantity.toString(),
-      `INR ${item.price}`,
-      `INR ${item.discount}`,
-      `INR ${item.finalPrice * item.quantity}`,
+      item.name || '',
+      (item.quantity || 1).toString(),
+      formatMoney(item.price),
+      formatMoney(item.discount || 0),
+      formatMoney((item.finalPrice || item.price) * (item.quantity || 1)),
     ];
     tableRows.push(itemData);
   });
@@ -104,29 +109,38 @@ export const generateInvoicePDF = (order: any, brandName: string = 'Radhika Jewe
     startY: 85,
     head: [tableColumn],
     body: tableRows,
-    theme: 'striped',
-    headStyles: { fillColor: [40, 40, 40] },
-    margin: { top: 10 }
+    theme: 'grid',
+    headStyles: { fillColor: [140, 118, 92], textColor: [255, 255, 255], fontStyle: 'bold' },
+    columnStyles: {
+      0: { cellWidth: 65 },
+      1: { halign: 'center', cellWidth: 16 },
+      2: { halign: 'right', cellWidth: 33 },
+      3: { halign: 'right', cellWidth: 33 },
+      4: { halign: 'right', cellWidth: 35 },
+    },
+    margin: { left: 14, right: 14 }
   });
 
-  const finalY = (doc as any).lastAutoTable.finalY || 85;
+  const finalY = (doc as any).lastAutoTable?.finalY || 85;
+  const pageW = doc.internal.pageSize.getWidth();
+  const subtotal = order.totalAmount + (order.discount || 0) - (order.deliveryCharges || 0);
 
   // Totals Section
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(40);
-  doc.text('Subtotal:', 140, finalY + 10);
-  doc.text(`INR ${order.totalAmount + order.discount - order.deliveryCharges}`, 170, finalY + 10);
+  doc.text('Subtotal:', pageW - 80, finalY + 10);
+  doc.text(formatMoney(subtotal), pageW - 18, finalY + 10, { align: 'right' });
   
-  doc.text('Discount:', 140, finalY + 17);
-  doc.text(`INR -${order.discount}`, 170, finalY + 17);
+  doc.text('Discount:', pageW - 80, finalY + 17);
+  doc.text(`-${formatMoney(order.discount || 0)}`, pageW - 18, finalY + 17, { align: 'right' });
   
-  doc.text('Delivery Charges:', 140, finalY + 24);
-  doc.text(`INR ${order.deliveryCharges}`, 170, finalY + 24);
+  doc.text('Delivery Charges:', pageW - 80, finalY + 24);
+  doc.text(formatMoney(order.deliveryCharges || 0), pageW - 18, finalY + 24, { align: 'right' });
   
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text('Grand Total:', 140, finalY + 34);
-  doc.text(`INR ${order.totalAmount}`, 170, finalY + 34);
+  doc.text('Grand Total:', pageW - 80, finalY + 34);
+  doc.text(formatMoney(order.totalAmount || 0), pageW - 18, finalY + 34, { align: 'right' });
 
   // Footer
   doc.setFontSize(9);
