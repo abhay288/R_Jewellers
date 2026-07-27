@@ -1,11 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Outfit } from "next/font/google";
+import { cookies } from "next/headers";
 import SmoothScroll from "@/frontend/components/layout/SmoothScroll";
 import DiamondCursor from "@/frontend/components/layout/DiamondCursor";
 import Script from "next/script";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import AuthProvider from "@/frontend/components/providers/AuthProvider";
+import { CookieConsentProvider } from "@/frontend/context/CookieConsentContext";
+import CookieConsentBanner from "@/frontend/components/cookie/CookieConsentBanner";
+import CookiePreferencesModal from "@/frontend/components/cookie/CookiePreferencesModal";
+import ConsentScripts from "@/frontend/components/cookie/ConsentScripts";
+import { parseConsentCookie, CONSENT_COOKIE_NAME } from "@/shared/lib/cookieConsent";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -83,11 +87,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const consentCookie = cookieStore.get(CONSENT_COOKIE_NAME)?.value;
+  const initialConsent = parseConsentCookie(consentCookie);
+
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
   const orgJsonLd = {
@@ -215,26 +223,19 @@ export default function RootLayout({
             }
           `}
         </Script>
-        {/* Google Analytics - Deferred lazyOnload for fast FCP/LCP */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-X0J8L9TSGR" strategy="lazyOnload" />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-X0J8L9TSGR');
-          `}
-        </Script>
       </head>
       <body className="flex flex-col font-sans bg-background text-foreground min-h-screen">
-        <AuthProvider>
-          <DiamondCursor />
-          <SmoothScroll>
-            {children}
-          </SmoothScroll>
-        </AuthProvider>
-        <Analytics />
-        <SpeedInsights />
+        <CookieConsentProvider initialConsent={initialConsent}>
+          <AuthProvider>
+            <DiamondCursor />
+            <SmoothScroll>
+              {children}
+            </SmoothScroll>
+          </AuthProvider>
+          <ConsentScripts />
+          <CookieConsentBanner />
+          <CookiePreferencesModal />
+        </CookieConsentProvider>
       </body>
     </html>
   );

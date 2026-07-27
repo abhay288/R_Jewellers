@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import AdminLoading from "./admin/loading";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { 
@@ -175,9 +176,10 @@ export default function AdminLayout({
                             (item.name === "Orders" && hasUnreadOrders);
 
             return (
-              <a
+              <Link
                 key={item.name}
                 href={item.href}
+                prefetch={true}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
                   "group relative flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer",
@@ -200,7 +202,7 @@ export default function AdminLayout({
                     isActive ? "bg-amber-500" : "bg-amber-500/80"
                   )} />
                 )}
-              </a>
+              </Link>
             );
           })}
         </nav>
@@ -354,7 +356,9 @@ export default function AdminLayout({
 
         {/* Page Content */}
         <div className="flex-1 min-h-0 p-6 lg:p-8 overflow-y-auto custom-scrollbar">
-          {children}
+          <Suspense fallback={<AdminLoading />}>
+            {children}
+          </Suspense>
         </div>
 
       </main>

@@ -14,7 +14,7 @@ export default async function AdminOrderDetailsPage({
   const session = await auth();
   
   if (!session?.user) {
-    redirect('/admin/login');
+    redirect('/login?callbackUrl=/admin/orders');
   }
 
   await dbConnect();

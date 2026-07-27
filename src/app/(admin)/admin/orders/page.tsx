@@ -15,7 +15,7 @@ export default async function AdminOrdersPage({
   
   // Basic admin check (Assuming session.user.role exists, or hardcoded for now)
   if (!session?.user) {
-    redirect('/admin/login');
+    redirect('/login?callbackUrl=/admin/orders');
   }
 
   await dbConnect();

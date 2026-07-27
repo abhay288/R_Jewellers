@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { FaFacebook, FaInstagram, FaYoutube, FaPinterest } from "react-icons/fa";
+import CookiePreferencesLink from "@/frontend/components/cookie/CookiePreferencesLink";
 
 const footerLinks = {
   collections: [
@@ -297,7 +298,7 @@ export default function Footer() {
             Crafted with ♦ in India
           </p>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-6">
             {footerLinks.legal.map(({ label, href }) => (
               <Link
                 key={label}
@@ -308,6 +309,7 @@ export default function Footer() {
                 {label}
               </Link>
             ))}
+            <CookiePreferencesLink />
           </div>
         </div>
 
