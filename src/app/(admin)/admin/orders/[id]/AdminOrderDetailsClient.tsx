@@ -3,10 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, MapPin, Package, Download, Save, CreditCard, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Package, Download, Save, CreditCard, CheckCircle2, Loader2, Sparkles, RefreshCw, Truck, Printer, HelpCircle } from 'lucide-react';
 import { generateInvoicePDF } from '@/frontend/lib/InvoiceGenerator';
-
-import { Truck, Printer, HelpCircle } from 'lucide-react';
 
 export default function AdminOrderDetailsClient({ initialOrder }: { initialOrder: any }) {
   const router = useRouter();
@@ -495,58 +493,71 @@ export default function AdminOrderDetailsClient({ initialOrder }: { initialOrder
             </h2>
 
             {isShiprocketLoading && (
-              <div className="text-sm text-gray-500 animate-pulse py-2 text-center">Processing with Shiprocket API...</div>
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-600 dark:text-amber-400 flex items-center justify-center space-x-2 my-2 animate-pulse">
+                <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                <span className="font-bold tracking-wide">Processing with Shiprocket API...</span>
+              </div>
             )}
 
             {/* Step 1: Create Shipment */}
             {!order.shipmentId && (
               <div className="space-y-4">
-                <p className="text-xs text-gray-500">Enter package metrics to register this order with Shiprocket.</p>
+                <p className="text-xs text-muted-foreground">Enter package metrics to register this order with Shiprocket.</p>
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <label className="block text-gray-600 mb-1">Weight (kg)</label>
+                    <label className="block text-muted-foreground font-semibold mb-1">Weight (kg)</label>
                     <input 
                       type="number" 
                       step="0.01" 
                       value={weight} 
                       onChange={(e) => setWeight(Number(e.target.value))}
-                      className="w-full p-2 border border-gray-300 rounded-lg outline-none"
+                      className="w-full p-2.5 bg-secondary/30 border border-border/60 rounded-xl text-foreground font-medium outline-none focus:border-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-600 mb-1">Length (cm)</label>
+                    <label className="block text-muted-foreground font-semibold mb-1">Length (cm)</label>
                     <input 
                       type="number" 
                       value={length} 
                       onChange={(e) => setLength(Number(e.target.value))}
-                      className="w-full p-2 border border-gray-300 rounded-lg outline-none"
+                      className="w-full p-2.5 bg-secondary/30 border border-border/60 rounded-xl text-foreground font-medium outline-none focus:border-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-600 mb-1">Width (cm)</label>
+                    <label className="block text-muted-foreground font-semibold mb-1">Width (cm)</label>
                     <input 
                       type="number" 
                       value={width} 
                       onChange={(e) => setWidth(Number(e.target.value))}
-                      className="w-full p-2 border border-gray-300 rounded-lg outline-none"
+                      className="w-full p-2.5 bg-secondary/30 border border-border/60 rounded-xl text-foreground font-medium outline-none focus:border-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-600 mb-1">Height (cm)</label>
+                    <label className="block text-muted-foreground font-semibold mb-1">Height (cm)</label>
                     <input 
                       type="number" 
                       value={height} 
                       onChange={(e) => setHeight(Number(e.target.value))}
-                      className="w-full p-2 border border-gray-300 rounded-lg outline-none"
+                      className="w-full p-2.5 bg-secondary/30 border border-border/60 rounded-xl text-foreground font-medium outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
                 <button
                   onClick={handleCreateShipment}
                   disabled={isShiprocketLoading}
-                  className="w-full bg-black text-white py-2 rounded-lg text-sm font-semibold hover:bg-black/80 transition-colors disabled:opacity-50"
+                  className="w-full bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 py-3 rounded-xl text-xs font-black uppercase tracking-wider hover:brightness-110 transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer border border-amber-300/50"
                 >
-                  Generate Shipment
+                  {isShiprocketLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-neutral-950" />
+                      <span>Generating Shipment...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Truck className="w-4 h-4" />
+                      <span>Generate Shipment</span>
+                    </>
+                  )}
                 </button>
               </div>
             )}
@@ -554,18 +565,28 @@ export default function AdminOrderDetailsClient({ initialOrder }: { initialOrder
             {/* Step 2: Courier Selection */}
             {order.shipmentId && !order.awbNumber && (
               <div className="space-y-4">
-                <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-xs">
-                  <p className="font-semibold text-gray-700">Shipment Created</p>
-                  <p className="text-gray-500 mt-1">ID: {order.shipmentId}</p>
+                <div className="bg-secondary/40 border border-border/60 rounded-xl p-3 text-xs">
+                  <p className="font-bold text-foreground">Shipment Registered</p>
+                  <p className="text-muted-foreground mt-1">ID: <span className="font-mono text-amber-500">{order.shipmentId}</span></p>
                 </div>
 
                 {couriers.length === 0 ? (
                   <button
                     onClick={handleFetchCouriers}
                     disabled={isLoadingCouriers}
-                    className="w-full border border-black hover:bg-gray-50 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                    className="w-full border border-amber-500/50 hover:bg-amber-500/10 text-foreground py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
                   >
-                    {isLoadingCouriers ? 'Checking Serviceability...' : 'Fetch Available Couriers'}
+                    {isLoadingCouriers ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                        <span>Checking Serviceability...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4 text-amber-500" />
+                        <span>Fetch Available Couriers</span>
+                      </>
+                    )}
                   </button>
                 ) : (
                   <div className="space-y-3">
