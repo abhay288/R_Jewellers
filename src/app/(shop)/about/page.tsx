@@ -10,9 +10,9 @@ export default function AboutPage() {
     "@context": "https://schema.org",
     "@type": "JewelryStore",
     "name": "Radhika Jewellers",
-    "image": "https://radhikajewellers.com/images/artisan-perfection.png",
-    "@id": "https://radhikajewellers.com/#store",
-    "url": "https://radhikajewellers.com",
+    "image": "https://www.radhikajewellers.store/og-image.jpg",
+    "@id": "https://www.radhikajewellers.store/#store",
+    "url": "https://www.radhikajewellers.store",
     "priceRange": "₹₹₹",
     "address": {
       "@type": "PostalAddress",

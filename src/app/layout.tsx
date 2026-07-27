@@ -32,8 +32,21 @@ export const metadata: Metadata = {
     default: "Radhika Jewellers | Luxury Artificial Jewellery",
     template: "%s | Radhika Jewellers"
   },
-  description: "Discover our premium collection of handcrafted luxury artificial jewellery. Elegance, heritage, and royal designs crafted for your special moments.",
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  description: "Discover Radhika Jewellers' premium collection of handcrafted luxury artificial jewellery, Kundan sets, 22K gold plated necklaces, jhumka earrings, and bridal jewellery online.",
+  keywords: [
+    "Radhika Jewellers",
+    "Radhika Jewellers online",
+    "artificial jewellery",
+    "imitation jewellery online india",
+    "kundan jewellery online",
+    "gold plated artificial jewellery",
+    "bridal artificial jewellery set",
+    "jhumka earrings online",
+    "radhika jewellers howrah",
+    "luxury artificial jewellery",
+    "temple jewellery online"
+  ].join(", "),
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://www.radhikajewellers.store'),
   manifest: '/manifest.json',
   alternates: {
     canonical: '/',
@@ -81,16 +94,44 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
+        "@type": "JewelryStore",
         "@id": `${baseUrl}/#organization`,
         "name": "Radhika Jewellers",
+        "alternateName": ["Radhika Jewellers Online", "Radhika Artificial Jewellery"],
         "url": baseUrl,
         "logo": `${baseUrl}/icon.png`,
+        "image": `${baseUrl}/og-image.jpg`,
+        "description": "Premium handcrafted artificial & imitation jewellery store. Specialising in Kundan sets, 22K gold-plated necklaces, bridal jewellery, jhumkas, and bangles.",
+        "telephone": "+91-62896-79496",
+        "email": "support@radhikajewellers.store",
+        "priceRange": "₹₹",
+        "currenciesAccepted": "INR",
+        "paymentAccepted": "Cash, Credit Card, Debit Card, UPI, Net Banking",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "51 Khagendra Nath Ganguly Lane, 4th Floor, Flat No. 402, Nandi Bagan",
+          "addressLocality": "Howrah",
+          "addressRegion": "West Bengal",
+          "postalCode": "711106",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 22.5958,
+          "longitude": 88.2636
+        },
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "10:00",
+          "closes": "19:00"
+        },
         "contactPoint": {
           "@type": "ContactPoint",
-          "telephone": "+91-9876543210",
+          "telephone": "+91-62896-79496",
           "contactType": "customer service",
-          "availableLanguage": ["English", "Hindi"]
+          "email": "support@radhikajewellers.store",
+          "availableLanguage": ["English", "Hindi", "Bengali"]
         },
         "sameAs": [
           "https://www.facebook.com/radhikajewellers",
@@ -111,6 +152,36 @@ export default function RootLayout({
           "target": `${baseUrl}/shop?search={search_term_string}`,
           "query-input": "required name=search_term_string"
         }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${baseUrl}/#faq`,
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Where to buy high quality artificial jewellery online in India?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Radhika Jewellers (www.radhikajewellers.store) offers high quality handcrafted artificial jewellery online in India, featuring 22K gold-plated Kundan sets, bridal jewellery, jhumkas, and bangles with free pan-India shipping."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Radhika Jewellers artificial jewellery skin safe?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, all artificial jewellery from Radhika Jewellers is 100% skin safe, non-allergic, and free from lead, nickel, and cadmium."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What type of artificial jewellery is available at Radhika Jewellers?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Radhika Jewellers offers Kundan necklace sets, CZ diamond simulated jewellery, bridal wedding sets, temple jewellery, festival chokers, jhumka earrings, bangles, anklets, and mangalsutras."
+            }
+          }
+        ]
       }
     ]
   };
