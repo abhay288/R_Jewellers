@@ -41,12 +41,10 @@ export class OrderService {
    * Calculate totals (re-validated on server)
    */
   async calculateTotals(userId: string, couponCode?: string, clientItems?: Array<{ id: string; quantity: number }>, session?: mongoose.ClientSession) {
-    let cartQuery = Cart.findOne({ user: userId }).populate('items.product');
-    if (session) cartQuery = cartQuery.session(session);
-    let cart = await cartQuery;
+    let cart: any = null;
 
-    // If DB cart is empty or missing, but client provided items, sync client items into DB Cart
-    if ((!cart || !cart.items || cart.items.length === 0) && clientItems && clientItems.length > 0) {
+    // If client provided items, ALWAYS sync client items into DB Cart so server totals match active client cart state
+    if (clientItems && Array.isArray(clientItems) && clientItems.length > 0) {
       const formattedItems = clientItems.map(item => ({
         product: item.id,
         quantity: item.quantity
@@ -56,6 +54,10 @@ export class OrderService {
         { $set: { items: formattedItems } },
         { upsert: true, new: true, session }
       ).populate('items.product');
+    } else {
+      let cartQuery = Cart.findOne({ user: userId }).populate('items.product');
+      if (session) cartQuery = cartQuery.session(session);
+      cart = await cartQuery;
     }
 
     if (!cart || !cart.items || cart.items.length === 0) {
