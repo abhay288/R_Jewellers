@@ -4,6 +4,8 @@ import dbConnect from '@/shared/lib/mongodb';
 import { SettingService } from '@/backend/services/SettingService';
 import { OrderService } from '@/backend/services/OrderService';
 
+import { getRazorpayWebhookSecret } from '@/shared/lib/razorpayConfig';
+
 export async function POST(req: Request) {
   try {
     const bodyText = await req.text();
@@ -16,16 +18,7 @@ export async function POST(req: Request) {
     await dbConnect();
 
     // 1. Resolve Razorpay Webhook Secret or Key Secret
-    const settingService = new SettingService();
-    const dbWebhookSecret = await settingService.getSettingByKey('razorpayWebhookSecret', '');
-    const dbKeySecret = await settingService.getSettingByKey('razorpayKeySecret', '');
-
-    const sanitizeKey = (val: any) => {
-      if (!val) return '';
-      return String(val).trim().replace(/^["']|["']$/g, '').trim();
-    };
-
-    const webhookSecret = sanitizeKey(dbWebhookSecret) || sanitizeKey(process.env.RAZORPAY_WEBHOOK_SECRET) || sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
+    const webhookSecret = await getRazorpayWebhookSecret();
     if (!webhookSecret) {
       console.error('[Razorpay Webhook] No webhook/key secret configured. Rejecting request.');
       return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 400 });

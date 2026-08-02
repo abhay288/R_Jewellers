@@ -323,7 +323,12 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
           return;
         }
 
-        const activeKey = rpData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TEEygPJ4TOEaHW';
+        const activeKey = rpData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+        if (!activeKey) {
+          alert('Payment gateway key is not configured. Please contact support or try another payment method.');
+          setLoading(false);
+          return;
+        }
 
         console.log(`[Frontend Checkout] Opening Razorpay Modal for Gateway Order ${rpData.razorpayOrderId}:`);
         console.log(`  - Amount sent to Razorpay SDK (paise): ${rpData.amount} (${rpData.amount / 100} INR)`);

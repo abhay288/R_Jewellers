@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import Razorpay from 'razorpay';
 
+import { sanitizeKey } from '@/shared/lib/razorpayConfig';
+
 export async function POST(req: Request) {
   try {
     const session = await auth();
@@ -10,14 +12,6 @@ export async function POST(req: Request) {
     }
 
     const { keyId: rawKeyId, keySecret: rawKeySecret } = await req.json();
-
-    const sanitizeKey = (val: any) => {
-      if (!val) return '';
-      return String(val)
-        .trim()
-        .replace(/^["']|["']$/g, '')
-        .trim();
-    };
 
     const keyId = sanitizeKey(rawKeyId);
     const keySecret = sanitizeKey(rawKeySecret);

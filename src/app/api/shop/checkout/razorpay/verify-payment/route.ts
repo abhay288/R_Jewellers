@@ -5,6 +5,8 @@ import crypto from 'crypto';
 import { SettingService } from '@/backend/services/SettingService';
 import { OrderService } from '@/backend/services/OrderService';
 
+import { getRazorpayCredentials } from '@/shared/lib/razorpayConfig';
+
 export async function POST(req: Request) {
   try {
     const session = await auth();
@@ -27,16 +29,10 @@ export async function POST(req: Request) {
 
     await dbConnect();
 
-    // 1. Resolve Razorpay API key secret
-    const settingService = new SettingService();
-    const dbKeySecret = await settingService.getSettingByKey('razorpayKeySecret', '');
-    const sanitizeKey = (val: any) => {
-      if (!val) return '';
-      return String(val).trim().replace(/^["']|["']$/g, '').trim();
-    };
-    const keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
+    // 1. Resolve Razorpay API key secret via matched pair resolution
+    const { keySecret } = await getRazorpayCredentials();
     if (!keySecret) {
-      return NextResponse.json({ error: 'Razorpay Key Secret not configured. Please update it in Admin Settings.' }, { status: 400 });
+      return NextResponse.json({ error: 'Razorpay Key Secret not configured. Please set it in Vercel Environment Variables or Admin Settings.' }, { status: 400 });
     }
 
     // 2. Verify Razorpay Payment Signature

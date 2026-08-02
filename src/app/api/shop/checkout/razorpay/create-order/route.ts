@@ -6,6 +6,8 @@ import { OrderService } from '@/backend/services/OrderService';
 import Address from '@/backend/models/Address';
 import Razorpay from 'razorpay';
 
+import { getRazorpayCredentials } from '@/shared/lib/razorpayConfig';
+
 export async function POST(req: Request) {
   try {
     const session = await auth();
@@ -40,25 +42,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Minimum payment amount required is ₹1' }, { status: 400 });
     }
 
-    // 4. Resolve Razorpay API keys (from Admin Settings DB or Environment)
-    const settingService = new SettingService();
-    const dbKeyId = await settingService.getSettingByKey('razorpayKeyId', '');
-    const dbKeySecret = await settingService.getSettingByKey('razorpayKeySecret', '');
-
-    const sanitizeKey = (val: any) => {
-      if (!val) return '';
-      return String(val)
-        .trim()
-        .replace(/^["']|["']$/g, '')
-        .trim();
-    };
-
-    const keyId = sanitizeKey(dbKeyId) || sanitizeKey(process.env.RAZORPAY_KEY_ID) || sanitizeKey(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
-    const keySecret = sanitizeKey(dbKeySecret) || sanitizeKey(process.env.RAZORPAY_KEY_SECRET);
+    // 4. Resolve Razorpay API keys as a matched pair (Environment or Admin Settings DB)
+    const { keyId, keySecret, source, mode } = await getRazorpayCredentials();
 
     if (!keyId || !keySecret) {
       return NextResponse.json({
-        error: `Razorpay API Key ${!keyId ? 'ID' : 'Secret'} is missing. Please update both Key ID and Key Secret in Admin Settings.`
+        error: `Razorpay API Key ${!keyId ? 'ID' : 'Secret'} is missing. Please set both in Vercel Environment Variables or Admin Settings.`
       }, { status: 400 });
     }
 
