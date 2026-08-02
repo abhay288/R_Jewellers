@@ -162,6 +162,12 @@ ProductSchema.index({ isNewArrival: 1 });
 ProductSchema.index({ brand: 1 });
 ProductSchema.index({ collectionName: 1 });
 
+// High performance compound indexes for catalog and category filtering
+ProductSchema.index({ isActive: 1, isDeleted: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, isFeatured: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, price: 1 });
+
 // Text search index
 ProductSchema.index({ 
   name: 'text', 
