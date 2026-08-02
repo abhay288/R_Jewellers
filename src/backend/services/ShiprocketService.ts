@@ -12,16 +12,21 @@ export interface CourierServiceabilityResponse {
   cod: number;
 }
 
+function sanitizeKey(val: any): string {
+  if (!val) return '';
+  return String(val).trim().replace(/^["']|["']$/g, '').trim();
+}
+
 export class ShiprocketService {
   private email: string;
-  private password;
+  private password: string;
   private baseUrl: string;
   private timeoutMs = 12000;
 
   constructor() {
-    this.email = process.env.SHIPROCKET_EMAIL || '';
-    this.password = process.env.SHIPROCKET_PASSWORD || '';
-    this.baseUrl = process.env.SHIPROCKET_BASE_URL || 'https://apiv2.shiprocket.in/v1/external';
+    this.email = sanitizeKey(process.env.SHIPROCKET_EMAIL);
+    this.password = sanitizeKey(process.env.SHIPROCKET_PASSWORD);
+    this.baseUrl = sanitizeKey(process.env.SHIPROCKET_BASE_URL) || 'https://apiv2.shiprocket.in/v1/external';
   }
 
   /**
@@ -230,7 +235,7 @@ export class ShiprocketService {
     const payload = {
       order_id: shiprocketOrderId,
       order_date: orderDate,
-      pickup_location: process.env.SHIPROCKET_PICKUP_LOCATION_NAME || 'Primary',
+      pickup_location: sanitizeKey(process.env.SHIPROCKET_PICKUP_LOCATION_NAME) || 'Home',
       channel_id: '',
       comment: 'Premium Luxury Jewelry',
       billing_customer_name: first,
@@ -267,13 +272,8 @@ export class ShiprocketService {
       }
       throw new Error(`Invalid response from Shiprocket: ${JSON.stringify(res)}`);
     } catch (err: any) {
-      logger.warn(`Shiprocket API shipment creation failed: ${err.message}. Using fallback local shipment token.`);
-      // If Shiprocket credentials are unconfigured or live API fails, generate local shipment token for admin continuity
-      const fallbackShipmentId = `RJ-SHIP-${Date.now()}`;
-      return {
-        shipment_id: fallbackShipmentId,
-        order_id: String(order.orderId),
-      };
+      logger.error(`Shiprocket API shipment creation failed: ${err.message}`);
+      throw new Error(`Shiprocket Order Creation Error: ${err.message}`);
     }
   }
 
