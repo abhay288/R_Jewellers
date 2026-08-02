@@ -19,7 +19,7 @@ interface CheckoutClientProps {
 
 export default function CheckoutClient({ session }: CheckoutClientProps) {
   const router = useRouter();
-  const { items, removeItem, updateQuantity, clearCart } = useCartStore();
+  const { items, removeItem, updateQuantity, clearCart, setItems } = useCartStore();
   const { step, setStep, selectedAddressId, setSelectedAddressId, couponCode, setCouponCode, resetCheckout } = useCheckoutStore();
 
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -213,6 +213,22 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
         const data = await res.json();
         setTotals(data);
         setCouponError("");
+
+        // Auto-sync client cart prices if DB finalPrice differs
+        if (data.products && Array.isArray(data.products)) {
+          let updated = false;
+          const syncedItems = items.map(item => {
+            const matched = data.products.find((p: any) => String(p.product) === String(item.id));
+            if (matched && matched.finalPrice && matched.finalPrice !== item.price) {
+              updated = true;
+              return { ...item, price: matched.finalPrice };
+            }
+            return item;
+          });
+          if (updated) {
+            setItems(syncedItems);
+          }
+        }
       } else {
         const err = await res.json();
         setCouponError(err.error || "Invalid coupon code.");
@@ -1033,24 +1049,38 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
 
               {/* Items Miniature Preview */}
               <div className="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-                {items.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center space-x-2.5 truncate max-w-50">
-                      <div className="w-8 h-10 relative rounded bg-secondary overflow-hidden shrink-0">
-                        {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
+                {items.map((item) => {
+                  const matchedProd = totals?.products?.find((p: any) => String(p.product) === String(item.id));
+                  const displayPrice = matchedProd ? (matchedProd.finalPrice || matchedProd.price) : item.price;
+                  const mrpPrice = matchedProd ? matchedProd.price : null;
+                  const hasDiscount = mrpPrice && mrpPrice > displayPrice;
+
+                  return (
+                    <div key={item.id} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center space-x-2.5 truncate max-w-50">
+                        <div className="w-8 h-10 relative rounded bg-secondary overflow-hidden shrink-0">
+                          {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
+                        </div>
+                        <span className="truncate text-foreground font-medium">{item.name} <strong className="text-muted-foreground">x{item.quantity}</strong></span>
                       </div>
-                      <span className="truncate text-foreground font-medium">{item.name} <strong className="text-muted-foreground">x{item.quantity}</strong></span>
+                      <div className="text-right">
+                        <span className="font-semibold text-foreground">₹{(displayPrice * item.quantity).toLocaleString('en-IN')}</span>
+                        {hasDiscount && (
+                          <span className="text-[10px] text-muted-foreground line-through block font-normal">
+                            ₹{(mrpPrice * item.quantity).toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <span className="font-semibold text-foreground">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Calculation Rows */}
               <div className="space-y-3 text-xs pt-4 border-t border-border/40">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Items Subtotal</span>
-                  <span className="font-semibold text-foreground">₹{calculatedSubtotal.toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-foreground">₹{(totals ? totals.subtotal : calculatedSubtotal).toLocaleString('en-IN')}</span>
                 </div>
 
                 {totals?.discount > 0 && (
