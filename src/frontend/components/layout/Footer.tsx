@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
-import { FaFacebook, FaInstagram, FaYoutube, FaPinterest } from "react-icons/fa";
+import { FaInstagram } from "react-icons/fa";
 import CookiePreferencesLink from "@/frontend/components/cookie/CookiePreferencesLink";
 
 const footerLinks = {
@@ -85,9 +85,6 @@ export default function Footer() {
             <div className="flex items-center gap-3 pt-1">
               {[
                 { href: "https://www.instagram.com/radhika_jeweller15", icon: FaInstagram, label: "Instagram" },
-                { href: "#", icon: FaFacebook, label: "Facebook" },
-                { href: "#", icon: FaPinterest, label: "Pinterest" },
-                { href: "#", icon: FaYoutube, label: "YouTube" },
               ].map(({ href, icon: Icon, label }) => (
                 <a
                   key={label}
@@ -295,7 +292,7 @@ export default function Footer() {
             className="text-[11px] font-light tracking-wider"
             style={{ color: "rgba(201,162,39,0.35)" }}
           >
-            Crafted with ♦ in India
+            Curated with ♦ in India
           </p>
 
           <div className="flex flex-wrap items-center gap-6">
