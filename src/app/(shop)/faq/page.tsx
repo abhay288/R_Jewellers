@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     question: "Can I customize a piece of jewellery?",
-    answer: "Our collections are thoughtfully curated and offered as ready-to-wear designs as displayed in our catalogue. We do not manufacture custom bespoke items, but we regularly introduce fresh collections matching the latest bridal and festive trends."
+    answer: "Our collections are thoughtfully curated and offered as ready-to-wear designs as displayed in our catalogue. We do not manufacture custom bespoke items, but we regularly introduce fresh collections matching the latest festive and party wear trends."
   },
   {
     question: "What is your return policy?",

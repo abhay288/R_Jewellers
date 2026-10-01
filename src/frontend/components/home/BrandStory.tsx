@@ -62,7 +62,7 @@ export default function BrandStory() {
                   Every piece in our catalogue is handpicked for its superior finish, skin-safe hypoallergenic brass alloys, and sparkling simulated stones that catch the light from every angle.
                 </p>
                 <p>
-                  We bring you ready-to-wear regal charm—giving you effortless opulence for weddings, festive gatherings, and special occasions.
+                  We bring you ready-to-wear regal charm—giving you effortless opulence for festive celebrations, gala parties, and special occasions.
                 </p>
               </div>
 

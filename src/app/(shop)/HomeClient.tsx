@@ -83,10 +83,10 @@ const lookbookLooks = {
     image: "https://images.unsplash.com/photo-1600862754152-80a263dd564f?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     jewellery: ["Sparkling CZ Solitaire Choker", "Tear-drop Earrings", "Elegance Diamond Kada"]
   },
-  wedding: {
-    title: "The Grand Celebration",
+  festive: {
+    title: "The Festive Splendour",
     subtitle: "Heavy Kundan and Polki heritage masterpieces.",
-    desc: "For the grand moment. Multi-layer heritage Kundan necklaces paired with matching temple jewellery, creating an unforgettable queenly stance.",
+    desc: "For grand celebratory moments. Multi-layer heritage Kundan necklaces paired with matching festive jewellery, creating an unforgettable queenly stance.",
     image: "https://images.unsplash.com/photo-1721807644561-9efcabee5c42?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     jewellery: ["Grand Royal Choker", "Long Multi-layer Kundan Haar", "Bespoke Royal Jhumkas", "Polki Kada Set"]
   },
@@ -103,7 +103,7 @@ const lookbookLooks = {
 const giftResults = [
   { name: "Royal Solitaire Ring", price: 1499, budget: "₹999–₹1999", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1615197419962-90f21da0956d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   { name: "Kundan Droplet Earrings", price: 899, budget: "₹499–₹999", occasion: "Festival", image: "https://images.unsplash.com/photo-1512163143273-bde0e3cc7407?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-  { name: "Grand Royal Choker", price: 3499, budget: "₹2999–₹4999", occasion: "Wedding Guest", image: "https://images.unsplash.com/photo-1758995115785-d13726ac93f0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { name: "Grand Royal Choker", price: 3499, budget: "₹2999–₹4999", occasion: "Party & Festive", image: "https://images.unsplash.com/photo-1758995115785-d13726ac93f0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   { name: "CZ Tear-drop Earrings", price: 1299, budget: "₹999–₹1999", occasion: "Birthday", image: "https://images.unsplash.com/photo-1617255146685-6184587a8fb4?auto=format&fit=crop&q=80&w=500" },
   { name: "Elegance Diamond Kada", price: 2199, budget: "₹1999–₹2999", occasion: "Engagement", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
   { name: "Bespoke Emerald Set", price: 5499, budget: "₹4999+", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1599643477874-c4a45a3038b3?auto=format&fit=crop&q=80&w=500" },
@@ -277,7 +277,7 @@ export default function HomeClient({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [lookbookTab, setLookbookTab] = useState<keyof typeof lookbookLooks>('wedding');
+  const [lookbookTab, setLookbookTab] = useState<keyof typeof lookbookLooks>('festive');
   const [selectedBudget, setSelectedBudget] = useState('₹999–₹1999');
   const [selectedOccasion, setSelectedOccasion] = useState('Anniversary');
   const [likesState, setLikesState] = useState([142, 89, 215, 173]);
@@ -350,7 +350,7 @@ export default function HomeClient({
       name: "Aishwarya Rai",
       location: "Mumbai, Maharashtra",
       rating: 5,
-      comment: "The design of the Royal Kundan Set is absolutely breath-taking. It looks and feels like royal fine jewellery. I wore it for my wedding reception, and the compliments never stopped.",
+      comment: "The design of the Royal Kundan Set is absolutely breath-taking. It looks and feels like royal fine jewellery. I wore it for my family gala reception, and the compliments never stopped.",
       avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
     },
     {
