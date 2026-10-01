@@ -52,7 +52,9 @@ function LoginForm() {
       setError("Invalid email or password. Please try again.");
       setLoading(false);
     } else {
-      window.location.href = callbackUrl;
+      const isAdminEmail = email.toLowerCase().trim() === "radhikajewellers699@gmail.com";
+      const destination = callbackUrl === "/" && isAdminEmail ? "/admin" : callbackUrl;
+      window.location.href = destination;
     }
   };
 

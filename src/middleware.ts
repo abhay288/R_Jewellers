@@ -108,7 +108,7 @@ export default auth(async function middleware(request) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, request.url));
     }
     const user = session?.user as any;
     if (!user || user.role !== 'admin') {

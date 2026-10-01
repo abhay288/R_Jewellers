@@ -1,5 +1,10 @@
 import type { NextAuthConfig } from "next-auth";
 
+if (!process.env.AUTH_TRUST_HOST) {
+  process.env.AUTH_TRUST_HOST = "true";
+}
+
+const DEFAULT_AUTH_SECRET = "radhika-jewellers-production-jwt-auth-token-salt-2026";
 const ADMIN_EMAIL = "radhikajewellers699@gmail.com";
 
 export const authConfig = {
@@ -81,6 +86,6 @@ export const authConfig = {
     },
   },
   session: { strategy: "jwt" },
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || DEFAULT_AUTH_SECRET,
   trustHost: true,
 } satisfies NextAuthConfig;

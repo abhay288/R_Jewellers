@@ -181,9 +181,6 @@ export const {
             (user as any).role = isAdmin ? "admin" : "user";
           }
 
-          if (isAdmin) {
-            return "/admin";
-          }
         } catch (error: any) {
           console.error("[Auth.js Google OAuth Sync Error]:", error?.message || error);
         }
