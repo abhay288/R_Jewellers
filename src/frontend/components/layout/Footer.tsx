@@ -75,7 +75,7 @@ export default function Footer() {
             </Link>
 
             <p style={{ color: "rgba(245,237,216,0.5)" }} className="text-[13px] font-light leading-[1.9] max-w-55">
-              Exquisite luxury artificial jewellery crafted to perfection — for every occasion that deserves to be remembered.
+              Exquisite luxury artificial jewellery crafted with precision — for every occasion that deserves to be remembered.
             </p>
 
             {/* Gold rule */}

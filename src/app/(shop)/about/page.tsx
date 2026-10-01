@@ -116,7 +116,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* The Art of Perfection Story Section */}
+      {/* Royal Elegance Redefined Story Section */}
       <div className="container mx-auto px-6 mb-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
@@ -158,7 +158,7 @@ export default function AboutPage() {
               Our Journey & Philosophy
             </span>
             <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              The Art of Perfection
+              Royal Elegance Redefined
             </h2>
 
             <p className="text-muted-foreground leading-relaxed font-light text-sm sm:text-base">
