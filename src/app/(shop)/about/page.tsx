@@ -30,33 +30,6 @@ export default function AboutPage() {
     }
   };
 
-  const craftsmanshipSteps = [
-    {
-      step: "01",
-      title: "Royal Motif Blueprint",
-      description: "Every piece begins with intricate design sketches inspired by authentic Mughal, Rajputana, and South Indian temple jewellery archives."
-    },
-    {
-      step: "02",
-      title: "Hypoallergenic Casting",
-      description: "Precision molding using skin-safe brass alloy strictly compliant with international lead-free, nickel-free, and cadmium-free standards."
-    },
-    {
-      step: "03",
-      title: "Precision Gem Setting",
-      description: "4th-generation Jaipur artisans carefully set every individual Kundan stone, CZ diamond, and semi-precious gem using traditional silver foil backings."
-    },
-    {
-      step: "04",
-      title: "Triple 22K Gold Vacuum Plating",
-      description: "Coated with a multi-layered 22-carat gold micro-finish to deliver brilliant royal luster that resists tarnish, humidity, and daily wear."
-    },
-    {
-      step: "05",
-      title: "Microscopic Quality Audit",
-      description: "100% manual inspection under magnification to guarantee zero loose stones, perfect symmetry, and flawless clasp mechanism durability."
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-background pt-6 md:pt-8 pb-20">
@@ -189,47 +162,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* 5-Stage Craftsmanship Process Section */}
-      <div className="bg-secondary/30 py-24 border-y border-border/40 mb-32">
-        <div className="container mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-[0.25em] text-amber-500 font-playfair block mb-2">
-              Uncompromising Quality
-            </span>
-            <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-foreground">
-              Our 5-Stage Craftsmanship Process
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground font-light mt-3">
-              How we transform raw alloys and gemstones into timeless royal heirlooms.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {craftsmanshipSteps.map((stepItem, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="bg-card border border-border/50 rounded-3xl p-6 relative hover:border-amber-500/50 transition-all shadow-sm flex flex-col justify-between"
-              >
-                <div>
-                  <span className="text-3xl font-playfair font-bold text-amber-500/40 block mb-3">
-                    {stepItem.step}
-                  </span>
-                  <h3 className="font-playfair text-base font-bold text-foreground mb-2">
-                    {stepItem.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground font-light leading-relaxed">
-                    {stepItem.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Quality Standards & Certifications */}
       <div className="container mx-auto px-6 mb-32">
