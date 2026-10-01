@@ -24,7 +24,7 @@ interface SearchModalProps {
 }
 
 const POPULAR_KEYWORDS = [
-  "Bridal Sets",
+  "Festive Sets",
   "Kundan Earrings",
   "Necklace",
   "Gold Bangle",
@@ -324,7 +324,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     <div className="py-12 text-center text-muted-foreground">
                       <ShoppingBag className="w-10 h-10 mx-auto mb-2 opacity-40 text-amber-500" />
                       <p className="text-sm font-semibold text-foreground">No matching jewellery found</p>
-                      <p className="text-xs mt-1">Try searching for &quot;Necklace&quot;, &quot;Earrings&quot;, or &quot;Bridal&quot;</p>
+                      <p className="text-xs mt-1">Try searching for &quot;Necklace&quot;, &quot;Earrings&quot;, or &quot;Kundan&quot;</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -395,7 +395,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         { label: "Necklaces", href: "/shop?category=necklaces" },
                         { label: "Rings", href: "/shop?category=rings" },
                         { label: "Bangles", href: "/shop?category=bracelets" },
-                        { label: "Bridal Sets", href: "/shop?collection=bridal" },
+                        { label: "Festive Sets", href: "/shop?collection=festive" },
                         { label: "New Arrivals", href: "/shop?sort=newest" },
                       ].map((item) => (
                         <Link

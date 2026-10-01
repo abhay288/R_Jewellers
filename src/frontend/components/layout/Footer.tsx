@@ -6,7 +6,7 @@ import CookiePreferencesLink from "@/frontend/components/cookie/CookiePreference
 
 const footerLinks = {
   collections: [
-    { label: "Bridal Collection", href: "/shop?category=bridal-sets" },
+    { label: "Kundan Collection", href: "/shop?category=kundan" },
     { label: "Festival Wear", href: "/shop?category=festival-collection" },
     { label: "Everyday Elegance", href: "/shop" },
     { label: "New Arrivals", href: "/shop" },

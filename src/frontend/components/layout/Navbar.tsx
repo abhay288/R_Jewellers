@@ -142,7 +142,7 @@ export default function Navbar() {
           <div className="container mx-auto px-6 h-full flex items-center justify-center space-x-10 text-[11px] tracking-[0.25em] uppercase font-bold text-foreground/80">
             {[
               { name: "New Arrivals", href: "/shop?sort=newest" },
-              { name: "Bridal", href: "/shop?collection=bridal" },
+              { name: "Kundan Sets", href: "/shop?category=kundan" },
               { name: "Necklaces", href: "/shop?category=necklaces" },
               { name: "Earrings", href: "/shop?category=earrings" },
               { name: "Rings", href: "/shop?category=rings" },

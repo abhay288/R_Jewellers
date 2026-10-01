@@ -603,7 +603,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                 </div>
                 <div className="p-4 bg-secondary/20 rounded-2xl border border-border/40 flex justify-between text-xs">
                   <span className="font-semibold text-muted-foreground">Occasion</span>
-                  <span className="font-bold text-foreground">{product.occasion || "Bridal & Wedding Collection"}</span>
+                  <span className="font-bold text-foreground">{product.occasion || "Party & Festive Collection"}</span>
                 </div>
               </motion.div>
             )}

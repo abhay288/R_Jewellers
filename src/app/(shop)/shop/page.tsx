@@ -17,7 +17,7 @@ export async function generateMetadata({
   const search = typeof resolved.search === 'string' ? resolved.search : undefined;
 
   let title = 'Buy Premium Artificial Jewellery Online | Radhika Jewellers';
-  let description = 'Explore Radhika Jewellers collection of designer artificial jewellery, Kundan sets, 22K gold plated necklaces, jhumka earrings, bangles & bridal sets. Free pan-India shipping.';
+  let description = 'Explore Radhika Jewellers collection of designer artificial jewellery, Kundan sets, 22K gold plated necklaces, jhumka earrings, bangles & festive sets. Free pan-India shipping.';
 
   if (search) {
     title = `Search results for "${search}" | Radhika Jewellers`;
@@ -37,9 +37,9 @@ export async function generateMetadata({
       'Radhika Jewellers',
       'kundan necklace set',
       'gold plated jewellery',
-      'bridal artificial jewellery',
+      'festive artificial jewellery',
       'jhumka earrings online',
-      'wedding jewellery set',
+      'party wear jewellery set',
       category !== 'All' ? category : 'jewellery india'
     ].join(', '),
     alternates: {

@@ -38,7 +38,7 @@ interface ShopClientProps {
 
 const COLLECTIONS = [
   { id: "All", name: "All Collections" },
-  { id: "bridal", name: "Bridal Collection" },
+  { id: "party", name: "Party Wear Collection" },
   { id: "everyday", name: "Everyday Elegance" },
   { id: "festival", name: "Festival Glow" },
   { id: "heritage", name: "Heritage Classics" },

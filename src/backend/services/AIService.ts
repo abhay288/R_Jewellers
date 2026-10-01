@@ -141,9 +141,9 @@ export class AIService {
         Please identify the details of this item. Extract:
         1. "itemType": The type of jewelry (e.g., ring, necklace, earrings, bracelet, pendant, bangle).
         2. "material": Primary metal or materials (e.g., gold, silver, diamond, ruby, emerald, sapphire, pearl).
-        3. "style": Fashion style (e.g., traditional, modern, bridal, minimalist, cocktail).
+        3. "style": Fashion style (e.g., traditional, modern, festive, minimalist, cocktail).
         4. "color": Dominant visual colors (e.g., gold, silver, rose gold, red, blue, green).
-        5. "searchQuery": A concise, descriptive search string (e.g., "gold bridal necklace with rubies") that we can use to query our product database.
+        5. "searchQuery": A concise, descriptive search string (e.g., "gold festive necklace with rubies") that we can use to query our product database.
         
         Provide the response in a valid JSON object format matching the keys above. Do not include any markdown wrappers or comments.
       `;

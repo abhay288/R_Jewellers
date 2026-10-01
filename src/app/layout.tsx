@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     default: "Radhika Jewellers | Luxury Artificial Jewellery",
     template: "%s | Radhika Jewellers"
   },
-  description: "Discover Radhika Jewellers' premium collection of luxury artificial jewellery, Kundan sets, 22K gold plated necklaces, jhumka earrings, and bridal jewellery online.",
+  description: "Discover Radhika Jewellers' premium collection of luxury artificial jewellery, Kundan sets, 22K gold plated necklaces, jhumka earrings, and festive jewellery online.",
   keywords: [
     "Radhika Jewellers",
     "Radhika Jewellers online",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     "imitation jewellery online india",
     "kundan jewellery online",
     "gold plated artificial jewellery",
-    "bridal artificial jewellery set",
+    "party artificial jewellery set",
     "jhumka earrings online",
     "radhika jewellers howrah",
     "luxury artificial jewellery",
@@ -109,7 +109,7 @@ export default async function RootLayout({
         "url": baseUrl,
         "logo": `${baseUrl}/icon.png`,
         "image": `${baseUrl}/og-image.jpg`,
-        "description": "Premium designer artificial & imitation jewellery store. Specialising in Kundan sets, 22K gold-plated necklaces, bridal jewellery, jhumkas, and bangles.",
+        "description": "Premium designer artificial & imitation jewellery store. Specialising in Kundan sets, 22K gold-plated necklaces, festive jewellery, jhumkas, and bangles.",
         "telephone": "+91-62896-79496",
         "email": "support@radhikajewellers.store",
         "priceRange": "₹₹",
@@ -170,7 +170,7 @@ export default async function RootLayout({
             "name": "Where to buy high quality artificial jewellery online in India?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Radhika Jewellers (www.radhikajewellers.store) offers high quality designer artificial jewellery online in India, featuring 22K gold-plated Kundan sets, bridal jewellery, jhumkas, and bangles with free pan-India shipping."
+              "text": "Radhika Jewellers (www.radhikajewellers.store) offers high quality designer artificial jewellery online in India, featuring 22K gold-plated Kundan sets, festive jewellery, jhumkas, and bangles with free pan-India shipping."
             }
           },
           {
@@ -186,7 +186,7 @@ export default async function RootLayout({
             "name": "What type of artificial jewellery is available at Radhika Jewellers?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Radhika Jewellers offers Kundan necklace sets, CZ diamond simulated jewellery, bridal wedding sets, temple jewellery, festival chokers, jhumka earrings, bangles, anklets, and mangalsutras."
+              "text": "Radhika Jewellers offers Kundan necklace sets, CZ diamond simulated jewellery, party wear sets, temple jewellery, festival chokers, jhumka earrings, bangles, anklets, and mangalsutras."
             }
           }
         ]

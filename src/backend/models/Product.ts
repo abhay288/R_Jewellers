@@ -101,7 +101,7 @@ const ProductSchema: Schema<IProduct> = new Schema(
     finish: { type: String, trim: true },
     size: { type: String, trim: true },
     gender: { type: String, enum: ['Women', 'Men', 'Unisex'], default: 'Women' },
-    occasion: { type: String, trim: true, default: 'Bridal & Festive' },
+    occasion: { type: String, trim: true, default: 'Party & Festive' },
     style: { type: String, trim: true, default: 'Traditional Royal' },
     images: [{ type: String }],
     image360: { type: String },

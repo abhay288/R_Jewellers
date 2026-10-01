@@ -8,11 +8,11 @@ import { useRef } from "react";
 
 const editorialCampaigns = [
   {
-    title: "Bridal Elegance",
-    slug: "bridal-sets",
+    title: "Royal Kundan Elegance",
+    slug: "kundan",
     tagline: "HERITAGE LEGACY",
     number: "01",
-    desc: "Exquisite heavy Kundan and Polki designs crafted for your once-in-a-lifetime moments. Each piece is a story told in gold.",
+    desc: "Exquisite Kundan and Polki designs crafted for your grand celebratory moments. Each piece is a story told in gold.",
     image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=1200"
   },
   {
@@ -40,11 +40,11 @@ const editorialCampaigns = [
     image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=1200"
   },
   {
-    title: "Wedding Collection",
+    title: "Occasion Collection",
     slug: "necklaces",
     tagline: "ROYAL MAHARANIS",
     number: "05",
-    desc: "Ornate masterpieces that embody royal heritage, designed for the modern bride seeking timeless grandeur.",
+    desc: "Ornate masterpieces that embody royal heritage, designed for festive celebrations seeking timeless grandeur.",
     image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?q=80&w=1200"
   },
   {

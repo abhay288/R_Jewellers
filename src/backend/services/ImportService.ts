@@ -312,7 +312,7 @@ export class ImportService {
         const finish = (row['Finish'] || row['finish'] || '').toString().trim();
         const weight = (row['Weight'] || row['weight'] || '').toString().trim();
         const dimensions = (row['Dimensions'] || row['dimensions'] || '').toString().trim();
-        const occasion = (row['Occasion'] || row['occasion'] || 'Bridal & Festive').toString().trim();
+        const occasion = (row['Occasion'] || row['occasion'] || 'Party & Festive').toString().trim();
         const gender = (row['Gender'] || row['gender'] || 'Women').toString().trim() as any;
         const style = (row['Style'] || row['style'] || 'Traditional Royal').toString().trim();
         const shortDesc = (row['Short Description'] || row['shortDescription'] || row['Description'] || row['description'] || '').toString().trim();

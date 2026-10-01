@@ -45,7 +45,7 @@ export default function AdminSettingsPage() {
   const [seo, setSeo] = useState({
     googleAnalyticsId: '',
     metaTitle: 'Radhika Jewellers - Premium Luxury Jewellery',
-    metaDescription: 'Discover elegant designer bridal, festival, and everyday artificial jewellery.',
+    metaDescription: 'Discover elegant designer party, festival, and everyday artificial jewellery.',
   });
 
   const [aiSettings, setAiSettings] = useState({

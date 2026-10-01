@@ -49,7 +49,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
       dimensions: "",
       color: "Gold",
       gender: "Women",
-      occasion: "Bridal & Festive",
+      occasion: "Party & Festive",
       style: "Traditional Royal",
       images: [],
       image360: "",
@@ -221,7 +221,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
             <input 
               {...form.register("collectionName")} 
               className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              placeholder="e.g. Bridal Heritage, Royal Solitaire"
+              placeholder="e.g. Royal Heritage, Festive Solitaire"
             />
           </div>
 
@@ -352,7 +352,7 @@ export function ProductForm({ initialData, categories }: ProductFormProps) {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Occasion</label>
-            <input {...form.register("occasion")} className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" placeholder="e.g. Bridal, Festive, Wedding" />
+            <input {...form.register("occasion")} className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" placeholder="e.g. Party, Festive, Celebration" />
           </div>
 
           <div className="space-y-2">

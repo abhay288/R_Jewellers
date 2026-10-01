@@ -162,7 +162,7 @@ export default function AboutPage() {
             </h2>
 
             <p className="text-muted-foreground leading-relaxed font-light text-sm sm:text-base">
-              Founded on the unyielding principles of purity, precision, and intricate artistry, Radhika Jewellers began as a humble artisan guild in Rajasthan. Our vision was clear: to democratize royal Indian luxury, allowing women across the world to wear magnificent bridal and festive jewellery without exorbitant gold bullion costs.
+              Founded on the unyielding principles of purity, precision, and intricate artistry, Radhika Jewellers began as a humble artisan guild in Rajasthan. Our vision was clear: to democratize royal Indian luxury, allowing women across the world to wear magnificent party and festive jewellery without exorbitant gold bullion costs.
             </p>
 
             <p className="text-muted-foreground leading-relaxed font-light text-sm sm:text-base">
@@ -290,7 +290,7 @@ export default function AboutPage() {
         <div className="bg-secondary/40 border border-border/50 rounded-3xl p-12 max-w-3xl mx-auto space-y-6">
           <h2 className="font-playfair text-3xl font-bold text-foreground">Explore Our Royal Catalogue</h2>
           <p className="text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto">
-            Discover exquisite Kundan necklaces, bridal sets, drop earrings, and royal bangles crafted for your memorable moments.
+            Discover exquisite Kundan necklaces, festive sets, drop earrings, and royal bangles crafted for your memorable moments.
           </p>
           <div>
             <Link

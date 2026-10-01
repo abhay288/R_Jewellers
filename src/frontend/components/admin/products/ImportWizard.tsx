@@ -47,8 +47,8 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
 
     const sampleRow1 = [
       'RJ-KUN-101', 
-      'Royal Kundan Bridal Choker Set with Earrings', 
-      'Bridal Sets', 
+      'Royal Kundan Festive Choker Set with Earrings', 
+      'Festive Sets', 
       '2499', 
       '4999', 
       '50', 

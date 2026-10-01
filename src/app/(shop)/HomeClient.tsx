@@ -45,7 +45,7 @@ const circularCategories = [
   { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=800" },
   { name: "Earrings", slug: "earrings", subtitle: "Face Framing", image: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=800" },
   { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1651395835317-d2868e8ebcac?q=80&w=800" },
-  { name: "Bridal Sets", slug: "bridal-sets", subtitle: "Royal Occasions", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=800" },
+  { name: "Kundan Sets", slug: "kundan", subtitle: "Royal Occasions", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=800" },
   { name: "Festival", slug: "festival-collection", subtitle: "Celebration", image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?q=80&w=800" },
   { name: "Gifts", slug: "gift-collection", subtitle: "Curated Giving", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=800" },
   { name: "Mangalsutras", slug: "necklaces", subtitle: "Sacred Bonds", image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?q=80&w=800" },
@@ -54,13 +54,13 @@ const circularCategories = [
 // Motion Videos
 const motionJewellery = [
   { title: "Diamond Collection", category: "High Jewellery", desc: "Brilliance captured in every facet — our finest CZ diamond pieces.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448320/Diamond_kv5xpu.mp4", fallback: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600" },
-  { title: "Bridal Collection", category: "Heritage Gold", desc: "Every piece tells the story of an extraordinary day.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448318/Bridal_bv9vi2.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
+  { title: "Celebration Collection", category: "Heritage Gold", desc: "Every piece tells the story of an extraordinary day.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448318/Bridal_bv9vi2.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
   { title: "Festival Wear", category: "Contemporary Designs", desc: "Vivid, celebratory jewellery made for the grandest occasions.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448304/festive_ifmamp.mp4", fallback: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=600" },
   { title: "Necklace Showcase", category: "Choker Series", desc: "Statement collars crafted for the modern woman.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448322/necklace_g6euru.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
   { title: "Royal Rings", category: "Classic Solitaires", desc: "Timeless solitaires that define quiet luxury.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448335/ring_ix8wel.mp4", fallback: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=600" }
 ];
 
-// Bridal Lookbook
+// Celebration Lookbook
 const lookbookLooks = {
   haldi: {
     title: "The Haldi Splendor",
@@ -84,11 +84,11 @@ const lookbookLooks = {
     jewellery: ["Sparkling CZ Solitaire Choker", "Tear-drop Earrings", "Elegance Diamond Kada"]
   },
   wedding: {
-    title: "The Royal Wedding",
+    title: "The Grand Celebration",
     subtitle: "Heavy Kundan and Polki heritage masterpieces.",
-    desc: "For the grand moment. Multi-layer heritage Kundan necklaces paired with matching temple jewellery and bridal crowns, creating an unforgettable queenly stance.",
+    desc: "For the grand moment. Multi-layer heritage Kundan necklaces paired with matching temple jewellery, creating an unforgettable queenly stance.",
     image: "https://images.unsplash.com/photo-1721807644561-9efcabee5c42?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    jewellery: ["Grand Royal Choker", "Long Multi-layer Kundan Haar", "Bespoke Bridal Jhumkas", "Polki Kada Set"]
+    jewellery: ["Grand Royal Choker", "Long Multi-layer Kundan Haar", "Bespoke Royal Jhumkas", "Polki Kada Set"]
   },
   reception: {
     title: "The Reception Gala",
@@ -103,7 +103,7 @@ const lookbookLooks = {
 const giftResults = [
   { name: "Royal Solitaire Ring", price: 1499, budget: "₹999–₹1999", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1615197419962-90f21da0956d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   { name: "Kundan Droplet Earrings", price: 899, budget: "₹499–₹999", occasion: "Festival", image: "https://images.unsplash.com/photo-1512163143273-bde0e3cc7407?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-  { name: "Grand Bridal Choker", price: 3499, budget: "₹2999–₹4999", occasion: "Wedding", image: "https://images.unsplash.com/photo-1758995115785-d13726ac93f0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { name: "Grand Royal Choker", price: 3499, budget: "₹2999–₹4999", occasion: "Wedding Guest", image: "https://images.unsplash.com/photo-1758995115785-d13726ac93f0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   { name: "CZ Tear-drop Earrings", price: 1299, budget: "₹999–₹1999", occasion: "Birthday", image: "https://images.unsplash.com/photo-1617255146685-6184587a8fb4?auto=format&fit=crop&q=80&w=500" },
   { name: "Elegance Diamond Kada", price: 2199, budget: "₹1999–₹2999", occasion: "Engagement", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
   { name: "Bespoke Emerald Set", price: 5499, budget: "₹4999+", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1599643477874-c4a45a3038b3?auto=format&fit=crop&q=80&w=500" },
@@ -549,7 +549,7 @@ export default function HomeClient({
                   href="#lookbook"
                   className="text-[9px] uppercase tracking-[0.4em] font-bold text-white/70 hover:text-[#C9A227] transition-colors duration-300 border-b border-white/20 hover:border-[#C9A227] pb-0.5"
                 >
-                  Bridal Lookbook
+                  Celebration Lookbook
                 </Link>
               </motion.div>
             </div>
@@ -635,7 +635,7 @@ export default function HomeClient({
         <FeaturedCollections collections={categories} />
 
         {/* ══════════════════════════════════════════════
-            BRIDAL LOOKBOOK
+            CELEBRATION LOOKBOOK
         ══════════════════════════════════════════════ */}
         <section id="lookbook" className="py-32 section-linen relative overflow-hidden">
           <div className="container mx-auto px-6">
@@ -646,9 +646,9 @@ export default function HomeClient({
               transition={{ duration: 0.9 }}
               className="max-w-2xl mx-auto text-center mb-16"
             >
-              <span className="label-luxury text-primary block mb-5">Bridal Lookbook</span>
+              <span className="label-luxury text-primary block mb-5">Celebration Lookbook</span>
               <h2 className="font-playfair font-bold text-foreground mb-5" style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)", lineHeight: 1.05 }}>
-                Royal Wedding Styling
+                Royal Celebration Styling
               </h2>
               <div className="w-12 h-px bg-[#C9A227] mx-auto" />
             </motion.div>
@@ -745,11 +745,11 @@ export default function HomeClient({
                     </div>
 
                     <Link
-                      href="/shop?category=bridal-sets"
+                      href="/shop?collection=festive"
                       className="group/btn inline-flex items-center gap-3"
                     >
                       <span className="label-luxury text-foreground group-hover/btn:text-primary transition-colors duration-300">
-                        Explore Bridal Looks
+                        Explore Celebration Looks
                       </span>
                       <span className="w-8 h-px bg-foreground group-hover/btn:w-16 group-hover/btn:bg-primary transition-all duration-500" />
                       <ArrowRight className="w-3.5 h-3.5 text-foreground group-hover/btn:text-primary group-hover/btn:translate-x-1 transition-all duration-300" />

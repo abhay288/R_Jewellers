@@ -136,7 +136,7 @@ export default function AddProductModal({ isOpen, onClose, categories, onSuccess
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Royal Kundan Bridal Necklace Set"
+                placeholder="e.g. Royal Kundan Festive Necklace Set"
                 className="w-full p-3 bg-card border border-border rounded-xl text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
               />
             </div>

@@ -438,7 +438,7 @@ export default function CheckoutClient({ session }: CheckoutClientProps) {
           <ShoppingBag className="w-10 h-10" />
         </div>
         <h2 className="text-3xl font-playfair font-bold text-foreground mb-3">Your Shopping Bag is Empty</h2>
-        <p className="text-muted-foreground max-w-md mb-8">Discover our exquisite Kundan, Gold-plated, and Bridal artificial jewellery collection.</p>
+        <p className="text-muted-foreground max-w-md mb-8">Discover our exquisite Kundan, Gold-plated, and Festive artificial jewellery collection.</p>
         <button 
           onClick={() => router.push('/shop')} 
           className="bg-linear-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 px-8 py-3.5 rounded-full font-black text-xs uppercase tracking-widest hover:brightness-110 shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
