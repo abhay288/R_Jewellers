@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Radhika Jewellers | Luxury Artificial Jewellery",
-    description: "Premium designer luxury artificial jewellery. Elegance crafted for you.",
+    description: "Premium designer luxury artificial jewellery. Curated elegance for you.",
     url: '/',
     siteName: 'Radhika Jewellers',
     images: [
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "Radhika Jewellers | Luxury Artificial Jewellery",
-    description: "Premium designer luxury artificial jewellery. Elegance crafted for you.",
+    description: "Premium designer luxury artificial jewellery. Curated elegance for you.",
     images: ['/og-image.jpg'],
   },
   appleWebApp: {

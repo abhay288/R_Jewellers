@@ -148,7 +148,7 @@ export default function ShopClient({
             Our <span className="text-gradient-gold italic font-normal">Collection</span>
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-            Explore our meticulously crafted artificial jewellery pieces, designed to elevate your everyday elegance and make your special moments unforgettable.
+            Explore our meticulously curated artificial jewellery pieces, designed to elevate your everyday elegance and make your special moments unforgettable.
           </p>
         </div>
 

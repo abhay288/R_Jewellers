@@ -8,7 +8,7 @@ import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSp
 import { 
   ArrowRight, Star, ShieldCheck, Award, Heart, HelpCircle, 
   ChevronLeft, ChevronRight, Sparkles, Navigation, 
-  Truck, Hammer, CheckCircle, Package, ChevronDown,
+  Truck, CheckCircle, Package, ChevronDown,
   MapPin
 } from "lucide-react";
 
@@ -42,7 +42,7 @@ const circularCategories = [
   { name: "Necklaces", slug: "necklaces", subtitle: "Statement Pieces", image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=800" },
   { name: "Rings", slug: "rings", subtitle: "Eternal Symbols", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800" },
   { name: "Bracelets", slug: "bracelets", subtitle: "Wrist Elegance", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800" },
-  { name: "Bangles", slug: "bangles", subtitle: "Heritage Craft", image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=800" },
+  { name: "Bangles", slug: "bangles", subtitle: "Royal Collection", image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=800" },
   { name: "Earrings", slug: "earrings", subtitle: "Face Framing", image: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=800" },
   { name: "Anklets", slug: "anklets", subtitle: "Subtle Grace", image: "https://images.unsplash.com/photo-1651395835317-d2868e8ebcac?q=80&w=800" },
   { name: "Kundan Sets", slug: "kundan", subtitle: "Royal Occasions", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=800" },
@@ -56,7 +56,7 @@ const motionJewellery = [
   { title: "Diamond Collection", category: "High Jewellery", desc: "Brilliance captured in every facet — our finest CZ diamond pieces.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448320/Diamond_kv5xpu.mp4", fallback: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600" },
   { title: "Celebration Collection", category: "Heritage Gold", desc: "Every piece tells the story of an extraordinary day.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448318/Bridal_bv9vi2.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
   { title: "Festival Wear", category: "Contemporary Designs", desc: "Vivid, celebratory jewellery made for the grandest occasions.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448304/festive_ifmamp.mp4", fallback: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=600" },
-  { title: "Necklace Showcase", category: "Choker Series", desc: "Statement collars crafted for the modern woman.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448322/necklace_g6euru.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
+  { title: "Necklace Showcase", category: "Choker Series", desc: "Statement collars curated for the modern woman.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448322/necklace_g6euru.mp4", fallback: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600" },
   { title: "Royal Rings", category: "Classic Solitaires", desc: "Timeless solitaires that define quiet luxury.", video: "https://res.cloudinary.com/didisxfr/video/upload/v1784448335/ring_ix8wel.mp4", fallback: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=600" }
 ];
 
@@ -79,7 +79,7 @@ const lookbookLooks = {
   engagement: {
     title: "The Engagement Radiance",
     subtitle: "Contemporary diamond lustre and minimalist bands.",
-    desc: "Crafted to celebrate new chapters. High-polish CZ diamonds styled to catch every flash of light, offering a sophisticated, modern statement for the evening.",
+    desc: "Curated to celebrate new chapters. High-polish CZ diamonds styled to catch every flash of light, offering a sophisticated, modern statement for the evening.",
     image: "https://images.unsplash.com/photo-1600862754152-80a263dd564f?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     jewellery: ["Sparkling CZ Solitaire Choker", "Tear-drop Earrings", "Elegance Diamond Kada"]
   },
@@ -114,7 +114,7 @@ const giftResults = [
 
 // Customer Gallery
 const customerGems = [
-  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The craftsmanship feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600" },
+  { username: "@kavya.shah", location: "Ahmedabad", rating: 5, product: "Kundan Collar Set", review: "Absolutely breathtaking. The premium finish feels like fine jewellery worth ten times the price.", likes: 142, image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600" },
   { username: "Aishwarya Rai", location: "Mumbai", rating: 5, product: "Royal Drop Earrings", review: "Wearing these to my sister's reception — everyone asked where they're from. So proud.", likes: 89, image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=600" },
   { username: "@priyanka.k", location: "Mumbai", rating: 5, product: "Solitaire Kada", review: "Skin-safe and absolutely gorgeous. No tarnish after three months of daily wear.", likes: 215, image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=600" },
   { username: "@shruti.j", location: "Delhi", rating: 5, product: "Diamond Choker", review: "The packaging alone made me emotional. Premium velvet box, certificate, the whole experience.", likes: 173, image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" }
@@ -123,9 +123,9 @@ const customerGems = [
 // Why Choose Radhika
 const whyChooseReasons = [
   { title: "Certified Jewellery", desc: "Every design backed by our validation certificates.", icon: ShieldCheck },
-  { title: "Premium Quality", desc: "Crafted using hypoallergenic, skin-safe materials.", icon: Star },
-  { title: "Bespoke Packaging", desc: "Velvet-lined legacy cases for timeless gifting.", icon: Package },
-  { title: "Designer Finish", desc: "Finely detailed by experienced imitation jewellery makers.", icon: Hammer },
+  { title: "Premium Quality", desc: "Curated using hypoallergenic, skin-safe materials.", icon: Star },
+  { title: "Bespoke Packaging", desc: "Velvet-lined signature cases for timeless gifting.", icon: Package },
+  { title: "Royal Curation", desc: "Finely selected palace-inspired imitation jewellery.", icon: Award },
 ];
 
 // Motion Video Card
@@ -350,7 +350,7 @@ export default function HomeClient({
       name: "Aishwarya Rai",
       location: "Mumbai, Maharashtra",
       rating: 5,
-      comment: "The craftsmanship of the Royal Kundan Set is absolutely breath-taking. It looks and feels like heritage fine jewellery. I wore it for my wedding reception, and the compliments never stopped.",
+      comment: "The design of the Royal Kundan Set is absolutely breath-taking. It looks and feels like royal fine jewellery. I wore it for my wedding reception, and the compliments never stopped.",
       avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
     },
     {
@@ -762,7 +762,7 @@ export default function HomeClient({
         </section>
 
         {/* ══════════════════════════════════════════════
-            CRAFTING JOURNEY
+            OUR QUALITY & CURATION PROMISE
         ══════════════════════════════════════════════ */}
         <section className="py-32 section-pearl relative overflow-hidden border-y border-[rgba(201,162,39,0.1)]">
           <div className="container mx-auto px-6">
@@ -773,9 +773,9 @@ export default function HomeClient({
               transition={{ duration: 0.9 }}
               className="max-w-2xl mx-auto text-center mb-24"
             >
-              <span className="label-luxury text-primary block mb-5">Our Process</span>
+              <span className="label-luxury text-primary block mb-5">Our Standards</span>
               <h2 className="font-playfair font-bold text-foreground mb-5" style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)", lineHeight: 1.05 }}>
-                The Crafting Journey
+                The Quality Journey
               </h2>
               <div className="w-12 h-px bg-[#C9A227] mx-auto" />
             </motion.div>
@@ -783,10 +783,10 @@ export default function HomeClient({
             {/* Premium 4-Step Animated Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 max-w-6xl mx-auto">
               {[
-                { title: "Inspiration & Design", desc: "From aesthetic sketches to digital micrometric CAD models, each piece begins with absolute precision.", step: "01", icon: Sparkles },
-                { title: "Expert Moulding & Finish", desc: "Specialist craftsmen cast, mold, and polish premium alloys into breathtaking ornamental forms.", step: "02", icon: Hammer },
-                { title: "Precision Setting", desc: "Every diamond and gemstone is microscopically placed into secure, durable settings for maximum light return.", step: "03", icon: Star },
-                { title: "Quality & Delivery", desc: "After strict assessments, the jewellery is placed in velvet-lined signature cases and securely delivered.", step: "04", icon: Package }
+                { title: "Curated Royal Motifs", desc: "We handpick regal Indian palace designs, Kundan chokers, and trending festive styles.", step: "01", icon: Sparkles },
+                { title: "Skin-Safe Metallurgy", desc: "All pieces are vetted for hypoallergenic, lead-free brass alloys with 22K micro-gold polish.", step: "02", icon: ShieldCheck },
+                { title: "Rigorous Quality Audit", desc: "Every stone, clasp, and luster finish is carefully inspected to ensure flawless perfection.", step: "03", icon: Star },
+                { title: "Luxury Signature Delivery", desc: "Safely packaged in velvet-lined signature jewellery cases and delivered to your doorstep.", step: "04", icon: Package }
               ].map((item, index) => (
                 <motion.div
                   key={item.title}

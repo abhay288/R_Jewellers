@@ -8,7 +8,7 @@ import { cn } from "@/shared/lib/utils";
 const faqs = [
   {
     question: "Are your diamonds real?",
-    answer: "We use the highest grade of simulated diamonds and cubic zirconia, crafted to mimic the exact brilliance and clarity of real diamonds. Our pieces offer the luxurious look of fine jewellery without the exorbitant price tag."
+    answer: "We use the highest grade of simulated diamonds and cubic zirconia, precision-cut to replicate the exact brilliance and fire of real diamonds. Our pieces offer the regal look of luxury jewellery at an accessible price."
   },
   {
     question: "Do you offer international shipping?",
@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     question: "Can I customize a piece of jewellery?",
-    answer: "We offer limited customization services for select collections. Please reach out to our design team through the Contact Us page with your request, and we will do our best to accommodate it."
+    answer: "Our collections are thoughtfully curated and offered as ready-to-wear designs as displayed in our catalogue. We do not manufacture custom bespoke items, but we regularly introduce fresh collections matching the latest bridal and festive trends."
   },
   {
     question: "What is your return policy?",

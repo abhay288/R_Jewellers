@@ -12,7 +12,7 @@ const editorialCampaigns = [
     slug: "kundan",
     tagline: "HERITAGE LEGACY",
     number: "01",
-    desc: "Exquisite Kundan and Polki designs crafted for your grand celebratory moments. Each piece is a story told in gold.",
+    desc: "Exquisite Kundan and Polki designs curated for your grand celebratory moments. Each piece is a story told in gold.",
     image: "https://images.unsplash.com/photo-1629224316810-9d8805b95e76?q=80&w=1200"
   },
   {
@@ -20,7 +20,7 @@ const editorialCampaigns = [
     slug: "rings",
     tagline: "MODERN ESSENTIALS",
     number: "02",
-    desc: "Sleek and skin-safe premium everyday wear that brings subtle sparkle to any look. Crafted for the woman who demands excellence.",
+    desc: "Sleek and skin-safe premium everyday wear that brings subtle sparkle to any look. Designed for the woman who demands excellence.",
     image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=1200"
   },
   {
@@ -28,7 +28,7 @@ const editorialCampaigns = [
     slug: "festival-collection",
     tagline: "CELEBRATION GOLD",
     number: "03",
-    desc: "Vibrant traditional craftsmanship styled for major festival ensembles and events. Born from centuries of artisan wisdom.",
+    desc: "Vibrant traditional designs styled for major festival ensembles and events. Inspired by timeless Indian palace aesthetics.",
     image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=1200"
   },
   {
@@ -44,7 +44,7 @@ const editorialCampaigns = [
     slug: "necklaces",
     tagline: "ROYAL MAHARANIS",
     number: "05",
-    desc: "Ornate masterpieces that embody royal heritage, designed for festive celebrations seeking timeless grandeur.",
+    desc: "Ornate masterpieces that embody royal heritage, curated for festive celebrations seeking timeless grandeur.",
     image: "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?q=80&w=1200"
   },
   {
@@ -52,7 +52,7 @@ const editorialCampaigns = [
     slug: "gift-collection",
     tagline: "EXCLUSIVE DESIGNS",
     number: "06",
-    desc: "Highly exclusive designer pieces made in low batches for the discerning collector who values true rarity.",
+    desc: "Highly exclusive designer pieces curated in limited releases for discerning jewellery connoisseurs.",
     image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1200"
   }
 ];

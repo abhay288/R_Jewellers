@@ -45,7 +45,7 @@ export default function AboutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-xs font-bold uppercase tracking-[0.3em] text-amber-500 font-playfair block mb-3"
         >
-          Heritage • Elegance • Authenticity
+          Luxury • Elegance • Modern Royalty
         </motion.span>
 
         <motion.h1 
@@ -54,7 +54,7 @@ export default function AboutPage() {
           transition={{ duration: 0.8 }}
           className="font-playfair text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6 max-w-4xl mx-auto leading-tight"
         >
-          Crafting Royal Heritage for Generations
+          Royal Indian Elegance, Redefined
         </motion.h1>
 
         <motion.p 
@@ -63,7 +63,7 @@ export default function AboutPage() {
           transition={{ duration: 0.8, delay: 0.1 }}
           className="text-base sm:text-lg text-muted-foreground font-light leading-relaxed max-w-3xl mx-auto"
         >
-          For over three decades, Radhika Jewellers has redefined luxury artificial jewellery. We blend ancient royal Indian craftsmanship with modern skin-safe metallurgy to deliver timeless elegance for every special occasion.
+          At Radhika Jewellers, we bring you meticulously curated luxury artificial jewellery. Inspired by timeless Indian royalty and engineered with modern skin-safe metallurgy, our collections deliver regal glamour for every festive celebration and special occasion.
         </motion.p>
       </div>
 
@@ -71,25 +71,25 @@ export default function AboutPage() {
       <div className="container mx-auto px-6 mb-24">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-secondary/40 border border-border/50 rounded-3xl p-8 text-center shadow-lg">
           <div>
-            <p className="font-playfair text-3xl md:text-4xl font-bold text-amber-500 mb-1">30+</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Years of Legacy</p>
-          </div>
-          <div>
-            <p className="font-playfair text-3xl md:text-4xl font-bold text-amber-500 mb-1">50,000+</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Happy Customers</p>
-          </div>
-          <div>
-            <p className="font-playfair text-3xl md:text-4xl font-bold text-amber-500 mb-1">120+</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Master Artisans</p>
+            <p className="font-playfair text-3xl md:text-4xl font-bold text-amber-500 mb-1">5,000+</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Curated Designs</p>
           </div>
           <div>
             <p className="font-playfair text-3xl md:text-4xl font-bold text-amber-500 mb-1">100%</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Certified Quality</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Skin-Safe Alloys</p>
+          </div>
+          <div>
+            <p className="font-playfair text-3xl md:text-4xl font-bold text-amber-500 mb-1">22K</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Micro-Gold Polish</p>
+          </div>
+          <div>
+            <p className="font-playfair text-3xl md:text-4xl font-bold text-amber-500 mb-1">Pan-India</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Express Delivery</p>
           </div>
         </div>
       </div>
 
-      {/* Royal Elegance Redefined Story Section */}
+      {/* Royal Elegance Story Section */}
       <div className="container mx-auto px-6 mb-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
@@ -102,8 +102,8 @@ export default function AboutPage() {
             className="lg:col-span-6 relative aspect-4/5 rounded-3xl overflow-hidden shadow-2xl border border-amber-500/30 group"
           >
             <Image
-              src="/images/artisan-perfection.png"
-              alt="Master artisan crafting luxury Kundan jewellery at Radhika Jewellers"
+              src="/images/royal-curation.jpg"
+              alt="Curated luxury Kundan choker necklace and artificial jewellery collection at Radhika Jewellers"
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -112,9 +112,9 @@ export default function AboutPage() {
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent flex items-end p-8">
               <div className="text-white">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block mb-1">
-                  Master Craftsmanship
+                  Curated Elegance
                 </span>
-                <p className="font-playfair text-xl font-bold">Finely Crafted by Master Artisans in Rajasthan & Bengal</p>
+                <p className="font-playfair text-xl font-bold">Exquisite Royal Kundan, Polki & CZ Collections</p>
               </div>
             </div>
           </motion.div>
@@ -128,18 +128,18 @@ export default function AboutPage() {
             className="lg:col-span-6 space-y-6"
           >
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-amber-500 font-playfair">
-              Our Journey & Philosophy
+              Our Vision & Standards
             </span>
             <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-              Royal Elegance Redefined
+              Luxury Artificial Jewellery for Modern Royalty
             </h2>
 
             <p className="text-muted-foreground leading-relaxed font-light text-sm sm:text-base">
-              Founded on the unyielding principles of purity, precision, and intricate artistry, Radhika Jewellers began as a humble artisan guild in Rajasthan. Our vision was clear: to democratize royal Indian luxury, allowing women across the world to wear magnificent party and festive jewellery without exorbitant gold bullion costs.
+              Radhika Jewellers was founded with a singular mission: to bring the grandeur and majestic beauty of royal Indian jewellery to modern women without the prohibitive cost of gold bullion. We believe true elegance should be accessible, empowering, and effortless.
             </p>
 
             <p className="text-muted-foreground leading-relaxed font-light text-sm sm:text-base">
-              Every creation is designed with care. We employ traditional <strong className="text-foreground font-semibold">Jaipuri Kundan setting</strong>, detailed <strong className="text-foreground font-semibold">Meenakari enameling</strong>, and multi-layered 22-carat gold vacuum plating. By fusing time-tested heritage aesthetics with modern skin-safe metallurgy, our pieces retain their radiant golden luster for years.
+              We carefully select and curate the finest ready-to-wear artificial jewellery—from regal Jaipuri Kundan and uncut Polki to sparkling American Diamond (CZ) and festive temple sets. Every piece is vetted for brilliant stone luster, durable settings, and multi-layered 22-carat gold micro-polish that retains its radiant glow.
             </p>
 
             <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -167,25 +167,25 @@ export default function AboutPage() {
       <div className="container mx-auto px-6 mb-32">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-foreground">
-            Certified Quality Standards
+            Our Quality Promise
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground font-light mt-2">
-            Built on integrity, certified materials, and ethical fair-trade artisan support.
+            Built on uncompromising quality, skin-safe materials, and honest curation.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           <div className="p-8 rounded-3xl bg-secondary/30 border border-border/50 space-y-4 hover:border-amber-500/40 transition-all shadow-sm">
             <Award className="w-8 h-8 text-amber-500" />
-            <h3 className="font-playfair text-xl font-bold text-foreground">100% Certified Materials</h3>
+            <h3 className="font-playfair text-xl font-bold text-foreground">Premium 22K Micro-Gold Finish</h3>
             <p className="text-muted-foreground text-xs font-light leading-relaxed">
-              Our 22K gold-plated layers, sterling silver coatings, and semi-precious gemstones undergo rigorous thickness and quality validation testing to ensure lifetime durability.
+              Our 22K gold-plated micro-finish and high-grade simulated gemstones undergo rigorous surface testing to ensure long-lasting luster and tarnish resistance.
             </p>
           </div>
 
           <div className="p-8 rounded-3xl bg-secondary/30 border border-border/50 space-y-4 hover:border-amber-500/40 transition-all shadow-sm">
             <ShieldCheck className="w-8 h-8 text-amber-500" />
-            <h3 className="font-playfair text-xl font-bold text-foreground">Hypoallergenic & Eco-Friendly</h3>
+            <h3 className="font-playfair text-xl font-bold text-foreground">Hypoallergenic & Skin-Safe</h3>
             <p className="text-muted-foreground text-xs font-light leading-relaxed">
               All metal alloys used at Radhika Jewellers are strictly lead-free, nickel-free, and cadmium-free, ensuring complete safety and comfort even for the most sensitive skin types.
             </p>
@@ -193,9 +193,9 @@ export default function AboutPage() {
 
           <div className="p-8 rounded-3xl bg-secondary/30 border border-border/50 space-y-4 hover:border-amber-500/40 transition-all shadow-sm">
             <Heart className="w-8 h-8 text-amber-500" />
-            <h3 className="font-playfair text-xl font-bold text-foreground">Ethically Sourced & Crafted</h3>
+            <h3 className="font-playfair text-xl font-bold text-foreground">Handpicked Designer Curation</h3>
             <p className="text-muted-foreground text-xs font-light leading-relaxed">
-              We directly support over 120 artisan families across Rajasthan and Bengal, securing fair-trade wages and helping preserve centuries-old Indian jewelry heritage traditions.
+              We inspect each jewellery piece before dispatch to ensure immaculate stone settings, durable clasp mechanisms, and magnificent royal aesthetics.
             </p>
           </div>
         </div>
@@ -208,11 +208,11 @@ export default function AboutPage() {
           <Sparkles className="w-8 h-8 text-amber-500/30 absolute bottom-4 right-4" />
           
           <blockquote className="font-playfair text-lg sm:text-2xl text-foreground font-medium italic leading-relaxed mb-6">
-            &quot;Our mission has always been to make every woman feel like royalty on her special day. We don&apos;t just sell jewellery; we preserve royal heritage and create memories that last forever.&quot;
+            &quot;Our mission is to make every woman feel like royalty at her celebrations. We curate magnificent, skin-friendly artificial jewellery so you can shine with timeless elegance without compromise.&quot;
           </blockquote>
           
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-500">
-            — Founder, Radhika Jewellers
+            — Radhika Jewellers
           </p>
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function AboutPage() {
         <div className="bg-secondary/40 border border-border/50 rounded-3xl p-12 max-w-3xl mx-auto space-y-6">
           <h2 className="font-playfair text-3xl font-bold text-foreground">Explore Our Royal Catalogue</h2>
           <p className="text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto">
-            Discover exquisite Kundan necklaces, festive sets, drop earrings, and royal bangles crafted for your memorable moments.
+            Discover exquisite Kundan necklaces, festive sets, drop earrings, and royal bangles curated for your memorable moments.
           </p>
           <div>
             <Link
