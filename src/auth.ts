@@ -20,11 +20,15 @@ export const {
   ...authConfig,
   adapter: MongoDBAdapter(clientPromise),
   providers: [
-    GoogleProvider({
-      clientId: googleClientId,
-      clientSecret: googleClientSecret,
-      allowDangerousEmailAccountLinking: true,
-    }),
+    (() => {
+      const p = GoogleProvider({
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+        allowDangerousEmailAccountLinking: true,
+      });
+      (p as any).allowDangerousEmailAccountLinking = true;
+      return p;
+    })(),
     CredentialsProvider({
       name: "Credentials",
       credentials: {

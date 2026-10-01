@@ -47,21 +47,25 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // 1. If returning from internal auth callback or login, redirect to homepage
-      if (url.includes("/api/auth/callback") || url.endsWith("/login")) {
-        return baseUrl;
+      // 1. Relative URLs
+      if (url.startsWith("/")) {
+        if (url === "/login" || url.startsWith("/login?") || url.startsWith("/api/auth")) {
+          return `${baseUrl}/`;
+        }
+        return `${baseUrl}${url}`;
       }
 
-      // 2. Allow relative callback URLs (e.g. "/admin", "/checkout", "/account")
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      
-      // 3. Allow same-origin URLs or recognized domain targets
+      // 2. Full URLs
       try {
         const targetUrl = new URL(url);
         const baseUrlObj = new URL(baseUrl);
-        if (targetUrl.pathname.includes("/api/auth/callback") || targetUrl.pathname.endsWith("/login")) {
-          return baseUrl;
+
+        // If redirect target is login page or callback, send to the root of that origin
+        if (targetUrl.pathname === "/login" || targetUrl.pathname.startsWith("/login?") || targetUrl.pathname.includes("/api/auth")) {
+          return `${targetUrl.origin}/`;
         }
+
+        // Allow same-origin or trusted domains
         if (
           targetUrl.origin === baseUrlObj.origin ||
           targetUrl.hostname.endsWith("radhikajewellers.store") ||
@@ -71,9 +75,9 @@ export const authConfig = {
           return url;
         }
       } catch {
-        // Fallback to baseUrl if parsing fails
+        // Fallback to baseUrl
       }
-      return baseUrl;
+      return `${baseUrl}/`;
     },
   },
   session: { strategy: "jwt" },

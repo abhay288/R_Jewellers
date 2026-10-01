@@ -6,15 +6,36 @@ import { Eye, EyeOff } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
+function getOAuthErrorMessage(errorCode: string | null) {
+  if (!errorCode) return "";
+  switch (errorCode) {
+    case "OAuthAccountNotLinked":
+      return "An account with this email already exists using password login. Please sign in with your email and password.";
+    case "OAuthSignin":
+    case "OAuthCallback":
+      return "Unable to complete Google sign-in. Please ensure Google OAuth redirect URIs match this domain or try again.";
+    case "AccessDenied":
+      return "Sign-in was cancelled or access denied by Google.";
+    case "Configuration":
+      return "Authentication server configuration error. Please verify Google credentials in environment variables.";
+    default:
+      return `Authentication failed (${errorCode}). Please try again.`;
+  }
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const rawCallbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl = rawCallbackUrl && !rawCallbackUrl.startsWith("/login") && !rawCallbackUrl.startsWith("/signup") ? rawCallbackUrl : "/";
+  const urlError = searchParams.get("error");
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const displayError = error || getOAuthErrorMessage(urlError);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,9 +67,9 @@ function LoginForm() {
       <h1 className="text-4xl font-playfair font-bold mb-2">Welcome Back</h1>
       <p className="text-muted-foreground mb-8">Sign in to access your wishlist, orders, and exclusive offers.</p>
 
-      {error && (
-        <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100">
-          {error}
+      {displayError && (
+        <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-200 shadow-sm leading-relaxed">
+          {displayError}
         </div>
       )}
 

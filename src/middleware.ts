@@ -98,7 +98,7 @@ export default auth(async function middleware(request) {
     const userRole = (session.user as any)?.role;
     const defaultTarget = userRole === 'admin' ? '/admin' : '/';
     const rawCallbackUrl = request.nextUrl.searchParams.get('callbackUrl');
-    const target = rawCallbackUrl && rawCallbackUrl !== '/' ? rawCallbackUrl : defaultTarget;
+    const target = rawCallbackUrl && rawCallbackUrl !== '/' && !rawCallbackUrl.startsWith('/login') && !rawCallbackUrl.startsWith('/signup') ? rawCallbackUrl : defaultTarget;
     return NextResponse.redirect(new URL(target, request.url));
   }
 
@@ -145,7 +145,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, icon.png (favicons)
+     * - api/auth (NextAuth internal authentication endpoints)
      */
-    '/((?!_next/static|_next/image|favicon.ico|icon.png|.*\\.).*)',
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|icon.png|.*\\.).*)',
   ],
 };
