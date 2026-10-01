@@ -163,7 +163,7 @@ export default function FeaturedCollections({ collections }: { collections?: any
               <em className="text-gradient-gold font-normal not-italic">Collections</em>
             </h2>
             <p className="body-luxury text-muted-foreground">
-              Explore our meticulously handcrafted collections designed to bring out your inner radiance.
+              Explore our meticulously designed collections created to bring out your inner radiance.
             </p>
           </div>
           <Link

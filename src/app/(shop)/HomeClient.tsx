@@ -123,9 +123,9 @@ const customerGems = [
 // Why Choose Radhika
 const whyChooseReasons = [
   { title: "Certified Jewellery", desc: "Every design backed by our validation certificates.", icon: ShieldCheck },
-  { title: "Premium Quality", desc: "Handcrafted using hypoallergenic, skin-safe materials.", icon: Star },
+  { title: "Premium Quality", desc: "Crafted using hypoallergenic, skin-safe materials.", icon: Star },
   { title: "Bespoke Packaging", desc: "Velvet-lined legacy cases for timeless gifting.", icon: Package },
-  { title: "Artisan Craft", desc: "Finely detailed by veteran traditional jewellery makers.", icon: Hammer },
+  { title: "Designer Finish", desc: "Finely detailed by experienced imitation jewellery makers.", icon: Hammer },
 ];
 
 // Motion Video Card
@@ -783,8 +783,8 @@ export default function HomeClient({
             {/* Premium 4-Step Animated Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 max-w-6xl mx-auto">
               {[
-                { title: "Inspiration & Design", desc: "From hand-drawn sketches to digital micrometric CAD models, your piece's journey begins with absolute precision.", step: "01", icon: Sparkles },
-                { title: "Master Handcrafting", desc: "Veteran artisans melt, mold, and hand-finish the finest gold alloys into breathtaking structural forms.", step: "02", icon: Hammer },
+                { title: "Inspiration & Design", desc: "From aesthetic sketches to digital micrometric CAD models, each piece begins with absolute precision.", step: "01", icon: Sparkles },
+                { title: "Expert Moulding & Finish", desc: "Specialist craftsmen cast, mold, and polish premium alloys into breathtaking ornamental forms.", step: "02", icon: Hammer },
                 { title: "Precision Setting", desc: "Every diamond and gemstone is microscopically placed into secure, durable settings for maximum light return.", step: "03", icon: Star },
                 { title: "Quality & Delivery", desc: "After strict assessments, the jewellery is placed in velvet-lined signature cases and securely delivered.", step: "04", icon: Package }
               ].map((item, index) => (

@@ -54,9 +54,9 @@ export default function ImportWizard({ onComplete }: ImportWizardProps) {
       '50', 
       '20', 
       '22K Gold Plated Alloy', 
-      'Handcrafted Kundan & Pearl', 
+      'Designer Kundan & Pearl', 
       'Wedding & Festive', 
-      'Exquisite 22K Gold Plated Kundan Choker set featuring handcrafted Kundan stones with pearls. Comes with matching jhumkas. Anti-tarnish and skin-safe.', 
+      'Exquisite 22K Gold Plated Kundan Choker set featuring premium Kundan stones with pearls. Comes with matching jhumkas. Anti-tarnish and skin-safe.', 
       'Avoid contact with water and perfume. Clean with soft cloth and store in velvet box.'
     ];
 

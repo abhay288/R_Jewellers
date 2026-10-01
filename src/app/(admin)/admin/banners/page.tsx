@@ -354,7 +354,7 @@ export default function BannerManagementPage() {
                 <label className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Subtitle / Tagline</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Handcrafted artificial jewellery with 24K gold finish"
+                  placeholder="e.g. Designer artificial jewellery with 24K gold finish"
                   value={formData.subtitle}
                   onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                   className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500"

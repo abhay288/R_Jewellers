@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     default: "Radhika Jewellers | Luxury Artificial Jewellery",
     template: "%s | Radhika Jewellers"
   },
-  description: "Discover Radhika Jewellers' premium collection of handcrafted luxury artificial jewellery, Kundan sets, 22K gold plated necklaces, jhumka earrings, and bridal jewellery online.",
+  description: "Discover Radhika Jewellers' premium collection of luxury artificial jewellery, Kundan sets, 22K gold plated necklaces, jhumka earrings, and bridal jewellery online.",
   keywords: [
     "Radhika Jewellers",
     "Radhika Jewellers online",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Radhika Jewellers | Luxury Artificial Jewellery",
-    description: "Premium handcrafted luxury artificial jewellery. Elegance crafted for you.",
+    description: "Premium designer luxury artificial jewellery. Elegance crafted for you.",
     url: '/',
     siteName: 'Radhika Jewellers',
     images: [
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "Radhika Jewellers | Luxury Artificial Jewellery",
-    description: "Premium handcrafted luxury artificial jewellery. Elegance crafted for you.",
+    description: "Premium designer luxury artificial jewellery. Elegance crafted for you.",
     images: ['/og-image.jpg'],
   },
   appleWebApp: {
@@ -109,7 +109,7 @@ export default async function RootLayout({
         "url": baseUrl,
         "logo": `${baseUrl}/icon.png`,
         "image": `${baseUrl}/og-image.jpg`,
-        "description": "Premium handcrafted artificial & imitation jewellery store. Specialising in Kundan sets, 22K gold-plated necklaces, bridal jewellery, jhumkas, and bangles.",
+        "description": "Premium designer artificial & imitation jewellery store. Specialising in Kundan sets, 22K gold-plated necklaces, bridal jewellery, jhumkas, and bangles.",
         "telephone": "+91-62896-79496",
         "email": "support@radhikajewellers.store",
         "priceRange": "₹₹",
@@ -170,7 +170,7 @@ export default async function RootLayout({
             "name": "Where to buy high quality artificial jewellery online in India?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Radhika Jewellers (www.radhikajewellers.store) offers high quality handcrafted artificial jewellery online in India, featuring 22K gold-plated Kundan sets, bridal jewellery, jhumkas, and bangles with free pan-India shipping."
+              "text": "Radhika Jewellers (www.radhikajewellers.store) offers high quality designer artificial jewellery online in India, featuring 22K gold-plated Kundan sets, bridal jewellery, jhumkas, and bangles with free pan-India shipping."
             }
           },
           {

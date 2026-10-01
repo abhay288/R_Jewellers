@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       parentCategory: parentObjId || undefined,
       level,
       seoTitle: seoTitle || `${name} Collection | Radhika Jewellers`,
-      seoDescription: seoDescription || `Explore handcrafted ${name} at Radhika Jewellers. Best prices, authentic hallmark quality.`,
+      seoDescription: seoDescription || `Explore exclusive ${name} at Radhika Jewellers. Best prices, premium gold finish.`,
       seoKeywords: Array.isArray(seoKeywords) ? seoKeywords : (seoKeywords || '').split(',').map((k: string) => k.trim()).filter(Boolean),
     });
 

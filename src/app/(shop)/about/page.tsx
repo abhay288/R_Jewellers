@@ -34,7 +34,7 @@ export default function AboutPage() {
     {
       step: "01",
       title: "Royal Motif Blueprint",
-      description: "Every piece begins with intricate hand-drawn sketches inspired by authentic Mughal, Rajputana, and South Indian temple jewellery archives."
+      description: "Every piece begins with intricate design sketches inspired by authentic Mughal, Rajputana, and South Indian temple jewellery archives."
     },
     {
       step: "02",
@@ -43,7 +43,7 @@ export default function AboutPage() {
     },
     {
       step: "03",
-      title: "Hand-Cut Gem Setting",
+      title: "Precision Gem Setting",
       description: "4th-generation Jaipur artisans carefully set every individual Kundan stone, CZ diamond, and semi-precious gem using traditional silver foil backings."
     },
     {
@@ -141,7 +141,7 @@ export default function AboutPage() {
                 <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block mb-1">
                   Master Craftsmanship
                 </span>
-                <p className="font-playfair text-xl font-bold">Handcrafted by Master Artisans in Rajasthan & Bengal</p>
+                <p className="font-playfair text-xl font-bold">Finely Crafted by Master Artisans in Rajasthan & Bengal</p>
               </div>
             </div>
           </motion.div>
@@ -166,7 +166,7 @@ export default function AboutPage() {
             </p>
 
             <p className="text-muted-foreground leading-relaxed font-light text-sm sm:text-base">
-              Every creation is a labor of love. We employ traditional <strong className="text-foreground font-semibold">Jaipuri Kundan setting</strong>, hand-painted <strong className="text-foreground font-semibold">Meenakari enameling</strong>, and multi-layered 22-carat gold vacuum plating. By fusing time-tested heritage techniques with modern skin-safe metallurgy, our pieces retain their radiant golden luster for years.
+              Every creation is designed with care. We employ traditional <strong className="text-foreground font-semibold">Jaipuri Kundan setting</strong>, detailed <strong className="text-foreground font-semibold">Meenakari enameling</strong>, and multi-layered 22-carat gold vacuum plating. By fusing time-tested heritage aesthetics with modern skin-safe metallurgy, our pieces retain their radiant golden luster for years.
             </p>
 
             <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -261,7 +261,7 @@ export default function AboutPage() {
 
           <div className="p-8 rounded-3xl bg-secondary/30 border border-border/50 space-y-4 hover:border-amber-500/40 transition-all shadow-sm">
             <Heart className="w-8 h-8 text-amber-500" />
-            <h3 className="font-playfair text-xl font-bold text-foreground">Ethically Handcrafted</h3>
+            <h3 className="font-playfair text-xl font-bold text-foreground">Ethically Sourced & Crafted</h3>
             <p className="text-muted-foreground text-xs font-light leading-relaxed">
               We directly support over 120 artisan families across Rajasthan and Bengal, securing fair-trade wages and helping preserve centuries-old Indian jewelry heritage traditions.
             </p>
@@ -290,7 +290,7 @@ export default function AboutPage() {
         <div className="bg-secondary/40 border border-border/50 rounded-3xl p-12 max-w-3xl mx-auto space-y-6">
           <h2 className="font-playfair text-3xl font-bold text-foreground">Explore Our Royal Catalogue</h2>
           <p className="text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto">
-            Discover handcrafted Kundan necklaces, bridal sets, drop earrings, and royal bangles crafted for your memorable moments.
+            Discover exquisite Kundan necklaces, bridal sets, drop earrings, and royal bangles crafted for your memorable moments.
           </p>
           <div>
             <Link

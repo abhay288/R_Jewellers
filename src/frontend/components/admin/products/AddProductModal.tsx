@@ -78,7 +78,7 @@ export default function AddProductModal({ isOpen, onClose, categories, onSuccess
         brand: brand.trim() || 'Radhika Jewellers',
         collectionName: collectionName.trim() || undefined,
         shortDescription: shortDescription.trim() || undefined,
-        description: description.trim() || `<p>${name} handcrafted by ${brand}.</p>`,
+        description: description.trim() || `<p>${name} designed by ${brand}.</p>`,
         images: images.length > 0 ? images : ["https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=800"],
         isActive,
         isFeatured,
@@ -243,7 +243,7 @@ export default function AddProductModal({ isOpen, onClose, categories, onSuccess
                 type="text"
                 value={shortDescription}
                 onChange={(e) => setShortDescription(e.target.value)}
-                placeholder="Handcrafted Kundan choker set featuring multi-layer gold polish."
+                placeholder="Designer Kundan choker set featuring multi-layer gold polish."
                 className="w-full p-3 bg-card border border-border rounded-xl text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
               />
             </div>

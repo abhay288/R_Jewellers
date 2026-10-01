@@ -583,7 +583,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
           <div className="py-8">
             {activeTab === "description" && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prose prose-invert max-w-none text-muted-foreground leading-relaxed text-sm">
-                <div dangerouslySetInnerHTML={{ __html: product.description || `<p>${product.name} handcrafted with premium gold plating finish and Kundan setting.</p>` }} />
+                <div dangerouslySetInnerHTML={{ __html: product.description || `<p>${product.name} designed with premium gold plating finish and Kundan setting.</p>` }} />
               </motion.div>
             )}
 
@@ -730,7 +730,7 @@ export default function ProductClient({ product, relatedProducts }: ProductClien
                     <MessageSquare className="w-10 h-10 text-amber-500 mx-auto opacity-80" />
                     <h4 className="text-base font-playfair font-bold text-foreground">No Customer Reviews Yet</h4>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                      Be the first to share your honest review & experience with this handcrafted piece!
+                      Be the first to share your honest review & experience with this exquisite jewellery piece!
                     </p>
                     <button
                       onClick={() => setIsReviewModalOpen(true)}

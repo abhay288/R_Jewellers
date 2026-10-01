@@ -359,7 +359,7 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
                   rows={2}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Handcrafted Kundan necklaces designed for royal brides..."
+                  placeholder="Designer Kundan necklaces styled for royal brides..."
                   className="w-full p-3 bg-card border border-border rounded-xl text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Radhika Jewellers',
     short_name: 'Radhika',
-    description: 'Premium handcrafted luxury artificial jewellery.',
+    description: 'Premium designer luxury artificial jewellery.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

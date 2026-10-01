@@ -470,7 +470,7 @@ export class ImportService {
           occasion,
           gender: ['Women', 'Men', 'Unisex'].includes(gender) ? gender : 'Women',
           style,
-          shortDescription: shortDesc || `${name} handcrafted with finest ${material} and ${stoneType}.`,
+          shortDescription: shortDesc || `${name} designed with finest ${material} and ${stoneType}.`,
           description: longDesc || `<p>${name} by ${brand}. Elegant design crafted for ${occasion}.</p>`,
           features: features.length > 0 ? features : [`Authentic ${material}`, `${stoneType} Setting`, `Perfect for ${occasion}`],
           careInstructions: careInstructions || 'Keep away from direct moisture, perfumes, and hairsprays. Store in velvet pouch.',

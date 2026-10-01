@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description =
     product.seoDescription ||
     product.shortDescription ||
-    `Buy ${product.name} at Radhika Jewellers. Authentic handcrafted luxury artificial jewellery with gold plating & Kundan settings.`;
+    `Buy ${product.name} at Radhika Jewellers. Authentic designer luxury artificial jewellery with gold plating & Kundan settings.`;
   const images = product.images && product.images.length > 0 ? [product.images[0]] : ['/og-image.jpg'];
 
   return {

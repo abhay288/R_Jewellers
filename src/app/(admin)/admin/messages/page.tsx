@@ -438,7 +438,7 @@ export default function AdminMessagesPage() {
                 <textarea
                   required
                   rows={3}
-                  placeholder="e.g. Enjoy up to 30% OFF on handcrafted bridal sets & bangles for a limited time!"
+                  placeholder="e.g. Enjoy up to 30% OFF on designer bridal sets & bangles for a limited time!"
                   value={broadcastForm.message}
                   onChange={(e) => setBroadcastForm({ ...broadcastForm, message: e.target.value })}
                   className="w-full bg-background border border-border/50 rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-amber-500 resize-none"
