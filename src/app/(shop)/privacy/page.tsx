@@ -94,8 +94,7 @@ export default function PrivacyPage() {
               If you have any questions or concerns regarding this Privacy Policy, please contact us:
             </p>
             <ul className="list-none space-y-2 text-sm">
-              <li>📧 Email: **support@radhikajewellers.com**</li>
-              <li>📞 Phone: **+91 98765 43210**</li>
+              <li>📧 Email: <a href="mailto:radhikajewellers699@gmail.com" className="font-semibold text-primary hover:underline">radhikajewellers699@gmail.com</a></li>
             </ul>
           </section>
         </motion.div>

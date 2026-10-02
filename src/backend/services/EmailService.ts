@@ -492,7 +492,7 @@ export class EmailService {
     } catch (err) {
       console.error('Failed to fetch admin emails from DB:', err);
     }
-    const fallbackEmail = await this.settingService.getSettingByKey('supportEmail', 'support@radhikajewellers.com');
+    const fallbackEmail = await this.settingService.getSettingByKey('supportEmail', 'radhikajewellers699@gmail.com');
     return [fallbackEmail];
   }
 

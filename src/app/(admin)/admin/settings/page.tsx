@@ -13,7 +13,7 @@ export default function AdminSettingsPage() {
   // Group settings by their functional category
   const [general, setGeneral] = useState({
     storeName: 'Radhika Jewellers',
-    supportEmail: 'support@radhikajewellers.com',
+    supportEmail: 'radhikajewellers699@gmail.com',
     storeDescription: 'Premium artificial jewellery for every occasion.',
   });
 

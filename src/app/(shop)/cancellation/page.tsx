@@ -46,7 +46,7 @@ export default function CancellationPage() {
             <p>
               Alternatively, you can contact our support team immediately with your order ID at:
               <br />
-              📧 Email: **support@radhikajewellers.com**
+              📧 Email: <a href="mailto:radhikajewellers699@gmail.com" className="font-semibold text-primary hover:underline">radhikajewellers699@gmail.com</a>
             </p>
           </section>
 
@@ -63,8 +63,7 @@ export default function CancellationPage() {
               If you have any questions or require assistance with cancelling an order, please reach out to us:
             </p>
             <ul className="list-none space-y-2 text-sm">
-              <li>📧 Email: **support@radhikajewellers.com**</li>
-              <li>📞 Phone: **+91 98765 43210**</li>
+              <li>📧 Email: <a href="mailto:radhikajewellers699@gmail.com" className="font-semibold text-primary hover:underline">radhikajewellers699@gmail.com</a></li>
             </ul>
           </section>
         </motion.div>

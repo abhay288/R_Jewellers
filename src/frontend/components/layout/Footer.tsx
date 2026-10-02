@@ -10,7 +10,6 @@ const footerLinks = {
     { label: "Festival Wear", href: "/shop?category=festival-collection" },
     { label: "Everyday Elegance", href: "/shop" },
     { label: "New Arrivals", href: "/shop" },
-    { label: "Gift Finder", href: "/shop?category=gift-collection" },
     { label: "Limited Edition", href: "/shop?category=gift-collection" },
   ],
   care: [

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, animate } from "framer-motion";
 import { 
-  ArrowRight, Star, ShieldCheck, Award, Heart, HelpCircle, 
+  ArrowRight, Star, ShieldCheck, Award, 
   ChevronLeft, ChevronRight, Sparkles, Navigation, 
   Truck, CheckCircle, Package, ChevronDown,
   MapPin
@@ -98,19 +98,6 @@ const lookbookLooks = {
     jewellery: ["Modern Collar Necklace", "Crystalline Statement Earrings", "Shining Platinum Bangle"]
   }
 };
-
-// Gift Finder
-const giftResults = [
-  { name: "Royal Solitaire Ring", price: 1499, budget: "₹999–₹1999", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1615197419962-90f21da0956d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-  { name: "Kundan Droplet Earrings", price: 899, budget: "₹499–₹999", occasion: "Festival", image: "https://images.unsplash.com/photo-1512163143273-bde0e3cc7407?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-  { name: "Grand Royal Choker", price: 3499, budget: "₹2999–₹4999", occasion: "Party & Festive", image: "https://images.unsplash.com/photo-1758995115785-d13726ac93f0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-  { name: "CZ Tear-drop Earrings", price: 1299, budget: "₹999–₹1999", occasion: "Birthday", image: "https://images.unsplash.com/photo-1617255146685-6184587a8fb4?auto=format&fit=crop&q=80&w=500" },
-  { name: "Elegance Diamond Kada", price: 2199, budget: "₹1999–₹2999", occasion: "Engagement", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
-  { name: "Bespoke Emerald Set", price: 5499, budget: "₹4999+", occasion: "Anniversary", image: "https://images.unsplash.com/photo-1599643477874-c4a45a3038b3?auto=format&fit=crop&q=80&w=500" },
-  { name: "Pearl Drop Earrings", price: 799, budget: "₹499–₹999", occasion: "Mother's Day", image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=500" },
-  { name: "Classic Bangle Set", price: 1899, budget: "₹999–₹1999", occasion: "Festival", image: "https://images.unsplash.com/photo-1602752250014-41d3c0512803?auto=format&fit=crop&q=80&w=500" },
-  { name: "Love Heart Ring", price: 1099, budget: "₹999–₹1999", occasion: "Valentine", image: "https://images.unsplash.com/photo-1610996472620-e2d93e155bc9?auto=format&fit=crop&q=80&w=500" }
-];
 
 // Customer Gallery
 const customerGems = [
@@ -369,7 +356,6 @@ export default function HomeClient({
     }
   ];
 
-  const filteredGifts = giftResults.slice(0, 3);
 
   const changeTestimonial = (dir: number) => {
     setTestimonialDir(dir);
@@ -827,78 +813,6 @@ export default function HomeClient({
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════════
-            GIFT FINDER
-        ══════════════════════════════════════════════ */}
-        <section className="py-32 section-ivory relative">
-          <div className="container mx-auto px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9 }}
-              className="max-w-2xl mx-auto text-center mb-16"
-            >
-              <span className="label-luxury text-primary block mb-5">Curated Gifting</span>
-              <h2 className="font-playfair font-bold text-foreground mb-5" style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)", lineHeight: 1.05 }}>
-                The Gift Finder
-              </h2>
-              <div className="w-12 h-px bg-[#C9A227] mx-auto mb-6" />
-              <p className="body-luxury text-muted-foreground mx-auto">
-                Find the perfect jewellery for every moment and every budget.
-              </p>
-            </motion.div>
-
-            {/* Results */}
-            <div className="max-w-4xl mx-auto">
-              {filteredGifts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <AnimatePresence mode="popLayout">
-                    {filteredGifts.map((gift) => (
-                      <motion.div
-                        key={gift.name}
-                        layout
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                        className="bg-white border border-border/25 overflow-hidden group luxury-card shadow-sm hover:shadow-2xl hover:shadow-[#C9A227]/15 transition-all duration-500 rounded-sm"
-                      >
-                        <div className="relative h-72 w-full overflow-hidden">
-                          <Image
-                            src={gift.image}
-                            alt={gift.name}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="object-cover transition-all duration-700 group-hover:scale-[1.12] group-hover:-rotate-1"
-                          />
-                          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                          <div className="absolute top-4 left-4 z-10 overflow-hidden">
-                            <span className="block text-[8px] uppercase tracking-widest font-bold bg-[#1C1C1A] text-[#C9A227] px-3.5 py-1.5 border border-[#C9A227]/30 shadow-md">
-                              {gift.occasion}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="p-6 relative bg-white group-hover:bg-neutral-50/50 transition-colors duration-500">
-                          <div className="absolute top-0 left-6 right-6 h-px bg-linear-to-r from-transparent via-[#C9A227]/40 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700" />
-                          <h4 className="font-playfair text-lg font-bold text-foreground mb-1 truncate group-hover:text-primary transition-colors duration-300">
-                            {gift.name}
-                          </h4>
-                          <p className="text-sm font-semibold text-[#C9A227] tracking-widest uppercase">₹ xxx.xx</p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <div className="h-56 flex flex-col items-center justify-center border border-dashed border-border/40 text-center p-8">
-                  <HelpCircle className="w-8 h-8 text-muted-foreground/40 mb-3" />
-                  <p className="text-sm font-light text-muted-foreground">No matches found. Try another combination.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
 
 
 
