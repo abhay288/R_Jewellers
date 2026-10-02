@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { DataTable } from "@/frontend/components/ui/data-table";
 import { columns, ProductColumn } from "./columns";
 import {
@@ -37,6 +37,19 @@ export default function ProductsClient({ products, categories }: ProductsClientP
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleRowSelectionChange = useCallback((rows: ProductColumn[]) => {
+    setSelectedProductIds((prev) => {
+      const nextIds = rows.map((r) => r.id);
+      if (
+        prev.length === nextIds.length &&
+        prev.every((id, idx) => id === nextIds[idx])
+      ) {
+        return prev;
+      }
+      return nextIds;
+    });
+  }, []);
 
   // Sync Prices state
   const [syncingPrices, setSyncingPrices] = useState(false);
@@ -237,9 +250,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
         searchKey="name"
         searchPlaceholder="Search products by Name, SKU, ID..."
         selectedRowIds={selectedProductIds}
-        onRowSelectionChange={(rows) => {
-          setSelectedProductIds(rows.map((r) => r.id));
-        }}
+        onRowSelectionChange={handleRowSelectionChange}
       />
 
       {/* IMPORT WIZARD MODAL */}

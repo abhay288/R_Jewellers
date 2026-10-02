@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -53,18 +53,31 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const onRowSelectionChangeRef = useRef(onRowSelectionChange);
   useEffect(() => {
-    if (selectedRowIds !== undefined && selectedRowIds.length === 0 && Object.keys(rowSelection).length > 0) {
-      setRowSelection({});
-    }
-  }, [selectedRowIds, rowSelection]);
+    onRowSelectionChangeRef.current = onRowSelectionChange;
+  }, [onRowSelectionChange]);
 
+  const isInitialMount = useRef(true);
+
+  // Reset rowSelection when selectedRowIds is cleared from outside
   useEffect(() => {
-    if (onRowSelectionChange) {
-      const selected = table.getSelectedRowModel().rows.map(row => row.original);
-      onRowSelectionChange(selected);
+    if (selectedRowIds !== undefined && selectedRowIds.length === 0) {
+      setRowSelection((prev) => (Object.keys(prev).length > 0 ? {} : prev));
     }
-  }, [rowSelection, table, onRowSelectionChange]);
+  }, [selectedRowIds]);
+
+  // Only notify parent when rowSelection actually changes (skip initial mount)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (onRowSelectionChangeRef.current) {
+      const selected = table.getSelectedRowModel().rows.map(row => row.original);
+      onRowSelectionChangeRef.current(selected);
+    }
+  }, [rowSelection]);
 
   return (
     <div className="space-y-4">
